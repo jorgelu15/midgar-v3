@@ -1,4 +1,4 @@
-import {   useState } from "react";
+import { useState } from "react";
 import style from "./table.module.css";
 import add_pemissions from "../../assets/add_permission.svg";
 import borrar from "../../assets/borrar.svg";
@@ -10,7 +10,7 @@ interface TableProps {
   row_items?: string[][];
   rowsPerPageOptions?: number[];
   defaultRowsPerPage?: number;
-  actions?: (userId: string) => void; // Function to handle actions like adding permissions
+  actions?: (userId: string) => void;
 }
 
 const Table = ({
@@ -58,14 +58,17 @@ const Table = ({
             <tr key={rowIndex}>
               {row.map((cell, cellIndex) => (
                 <td key={cellIndex}>
-                  {cell !== "Acciones" ? (
+                  {cellIndex !== row.length - 1 ? (
                     cell
                   ) : (
-                    <>
-                      <img src={add_pemissions} onClick={() => actions(row[0])} />
-                      <img src={borrar} />
-                    </>
+                    actions && (
+                      <>
+                        <img src={add_pemissions} onClick={() => actions(row[0])} />
+                        <img src={borrar} />
+                      </>
+                    )
                   )}
+
                 </td>
               ))}
             </tr>
