@@ -48,7 +48,7 @@ const Container = () => {
   const [productosFactura, setProductosFactura] = useState<any>([]);
   const [ultimoProducto, setUltimoProducto] = useState<any>(null);
   const [clienteSeleccionado, setClienteSeleccionado] = useState<any>(null);
-  const [modoBusqueda, setModoBusqueda] = useState<any>("producto");
+  const [modoBusqueda, setModoBusqueda] = useState<"cliente" | "producto">("cliente");
 
   const inputRef = useRef(null);
 
@@ -60,15 +60,15 @@ const Container = () => {
           navigate(routes.vender);
           break;
         case "F1":
-          e.preventDefault(); // 👈 Previene ayuda del navegador
-          setModoBusqueda("producto");
+          e.preventDefault();
+          if (clienteSeleccionado) setModoBusqueda("producto");
           break;
         case "F2":
           e.preventDefault();
           setModoBusqueda("cliente");
           break;
         case "F12":
-          e.preventDefault(); // 👈 Previene herramientas dev
+          e.preventDefault();
           handleTotalizar();
           break;
       }
@@ -78,14 +78,22 @@ const Container = () => {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [productosFactura, clienteSeleccionado]);
 
-
   const handleEnter = (e: any) => {
     if (e.key !== "Enter") return;
     e.preventDefault();
     const input = form.codigo.trim();
     if (!input) return;
 
-    if (modoBusqueda === "producto") {
+    if (modoBusqueda === "cliente") {
+      const cliente = mockClientes.find(c => c.cedula === input);
+      if (!cliente) {
+        alert("Cliente no encontrado");
+      } else {
+        setClienteSeleccionado(cliente);
+        setModoBusqueda("producto");
+      }
+      resetForm();
+    } else if (modoBusqueda === "producto") {
       const match = input.match(/^([0-9]+)(\*(-?[0-9.]+))?$/);
       if (!match) {
         alert("Formato inválido. Usa: codigo o codigo*cantidad");
@@ -115,14 +123,6 @@ const Container = () => {
       });
       setUltimoProducto({ ...producto, cantidad });
       resetForm();
-    } else if (modoBusqueda === "cliente") {
-      const cliente = mockClientes.find(c => c.cedula === input);
-      if (!cliente) {
-        alert("Cliente no encontrado");
-      } else {
-        setClienteSeleccionado(cliente);
-      }
-      resetForm();
     }
   };
 
@@ -142,10 +142,13 @@ const Container = () => {
     setProductosFactura([]);
     setUltimoProducto(null);
     setClienteSeleccionado(null);
+    setModoBusqueda("cliente");
   };
 
   const handleTotalizar = () => {
     if (productosFactura.length === 0) return alert("No hay productos");
+    if (!clienteSeleccionado) return alert("Debe seleccionar un cliente");
+
     const venta = {
       productos: productosFactura,
       cliente: clienteSeleccionado,
@@ -154,7 +157,7 @@ const Container = () => {
     };
     console.log("Venta totalizada:", venta);
     handleVaciarFactura();
-    alert("Venta registrada con " + (clienteSeleccionado?.nombre || "Cliente anónimo"));
+    alert("Venta registrada con " + clienteSeleccionado.nombre);
   };
 
   return (
