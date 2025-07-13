@@ -1,0 +1,45 @@
+
+.card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    flex: 1 1 calc(33.333% - 20px);
+    max-width: 170px;
+    background-color: var(--background);
+    border-radius: 8px;
+    border: 1px solid var(--secondary);
+    padding: 20px;
+    box-shadow: var(--box-shadow);
+    color: var(--text-muted);
+    cursor: pointer;
+}
+
+.card:hover {
+    background-color: var(--secondary);
+    transition: background-color 0.2s ease-in-out;
+}
+
+.atajo {
+    display: flex;
+    align-items: end;
+    font-size: 18px;
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+.cards .card .card__content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+ .card img {
+    width: 30px;
+    height: 30px;
+    margin-bottom: 10px;
+    filter: invert(var(--invert));
+}

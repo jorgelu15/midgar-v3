@@ -1,0 +1,139 @@
+.container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 100%;
+    height: 100vh;
+}
+
+.container .account {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 400px;
+}
+
+.container .account .logo {
+    display: flex;
+    max-width: 100px;
+    width: 100%;
+    margin-bottom: 30px;
+    align-self: center;
+}
+
+.container .account .logo img {
+    width: 100%;
+}
+
+.container .account h1 {
+    color: black;
+    font-weight: 300;
+    text-align: left;
+    margin-bottom: 25px;
+}
+
+.container .account .box_account {
+    display: flex;
+    flex-direction: column;
+
+    border-radius: 10px;
+    color: white;
+    max-width: 400px;
+    width: 100%;
+}
+
+.form_control {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 400px;
+}
+
+.form_control label {
+    font-size: 16px;
+    font-weight: 500;
+    margin-bottom: 5px;
+    color: black;
+}
+
+.form_control input {
+    background-color: white;
+    border: 1px solid #CBD5E1;
+    padding: 15px;
+    border-radius: 10px;
+    outline: none;
+    margin-bottom: 10px;
+}
+
+.box_account .accept_term {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+}
+
+.box_account .accept_term span {
+    font-size: 10px;
+}
+
+.account p {
+    color: white;
+    text-align: center;
+    margin: 20px 0;
+    font-size: 14px;
+}
+
+.link {
+    color: #FE0629;
+    font-weight: 500;
+    text-transform: uppercase;
+    cursor: pointer;
+}
+
+.password_container {
+    position: relative;
+    width: 100%;
+}
+
+.password_container .password_input {
+    width: 100%;
+    padding-right: 40px;
+    /* Espacio para el ícono del ojo */
+}
+
+.eye_icon {
+    position: absolute;
+    right: 10px;
+    top: 25%;
+    cursor: pointer;
+}
+
+.divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: 10px 0;
+}
+
+.divider::before,
+.divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: #ccc;
+}
+
+.divider:not(:empty)::before {
+    margin-right: 10px;
+}
+
+.divider:not(:empty)::after {
+    margin-left: 10px;
+}
+
+.register {
+    color: #909090 !important;
+    text-align: center;
+    font-size: 14px;
+    margin: 0 !important;
+}

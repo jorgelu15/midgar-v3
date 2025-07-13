@@ -1,0 +1,103 @@
+* {
+     font-family: "Saira", sans-serif;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+:root {
+  --primary: #2d93ed;
+  --primary-light: #0a6fd0;
+
+  --secondary: #eff3f4;
+  --background: #ffffff;
+  --card: #1c1c1c;
+
+  --text: #000;
+  --text-muted: #000;
+
+  --danger: #ff4f4f;
+  --success: #32c24d;
+  --warning: #ffc107;
+  --info: #66d9ef;
+
+  --invert: 1;
+}
+
+
+[data-theme="dark"] {
+  --background: #101a20;
+  --secondary: #ffffff17;
+  --text-muted: #ffffff;
+  --invert: 0;
+}
+
+/* Aplica a todo el scroll del sitio */
+::-webkit-scrollbar {
+  width: 8px; /* ancho del scroll vertical */
+  height: 8px; /* alto del scroll horizontal */
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background); /* color del fondo del scroll */
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--secondary); /* color del "dedo" del scroll */
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--secondary); /* color cuando el mouse pasa por encima */
+}
+
+
+a {
+    text-decoration: none;
+    color: var(--text-muted);
+}
+
+button {
+    cursor: pointer;
+    border: none;
+    outline: none;
+}
+
+input {
+    background-color: var(--secondary);
+    color: var(--text-muted);
+}
+
+body {
+    background-color: var(--background);
+    color: var(--text-muted);
+    font-size: 16px;
+    transition: .2s all;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    max-width: 1280px;
+    margin: 0 auto;
+    margin-top: 40px;
+}
+
+.btn {
+    padding: 10px 20px;
+    border-radius: 10px;
+    color: #fff;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    text-align: center !important;
+    justify-content: center;
+}
+
+.btn_primary {
+    background-color: var(--primary);
+    border: 1px solid var(--primary-light);
+}

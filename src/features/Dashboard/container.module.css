@@ -1,0 +1,28 @@
+
+
+
+
+.msg__welcome {
+    display: flex;
+    flex-direction: column;
+}   
+
+.msg__welcome h1 {
+    font-size: 42px;
+    font-weight: 400;
+    color: var(--text-primary);
+    margin-bottom: 10px;
+}
+
+.msg__welcome p {
+    font-size: 24px;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+}
+
+.cards {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 20px;
+}
