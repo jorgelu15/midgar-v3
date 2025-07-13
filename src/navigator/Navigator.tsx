@@ -15,6 +15,7 @@ import Caja from "../pages/Caja/Caja";
 import Apertura from "../pages/Apertura/Apertura";
 import Recogida from "../pages/Recogida/Recogida";
 import Cierre from "../pages/Cierre/Cierre";
+import Tienda from "../pages/Tienda/Tienda";
 
 
 
@@ -74,6 +75,10 @@ const router = createBrowserRouter([
     {
         path: routes.cierre,
         element: <Suspense fallback={<p>Loading...</p>}><Cierre /></Suspense>
+    },
+    {
+        path: routes.tienda,
+        element: <Suspense fallback={<p>Loading...</p>}><Tienda /></Suspense>
     }
 ]);
 const Navigator = () => {

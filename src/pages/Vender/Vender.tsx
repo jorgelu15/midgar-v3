@@ -1,9 +1,12 @@
+import Container from "../../features/Vender/Container";
+import Header from "../../layout/Menus/Header";
+
 const Vender = () => {
     return (
-        <div>
-            <h1>Vender</h1>
-            <p>Aquí se realizarán las transacciones de venta.</p>
-        </div>
+        <>
+            <Header />
+            <Container />
+        </>
     );
 }
 

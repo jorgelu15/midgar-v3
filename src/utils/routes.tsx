@@ -2,7 +2,12 @@ export const routes = {
     signin: "/",
     signup: "/signup",
     dashboard: "/dashboard",
+
+    //POS
     vender: "/vender",
+
+    tienda: "/vender/tienda",
+    factura_manual: "/factura_manual",
 
     // Rutas de la caja
     caja: "/caja",

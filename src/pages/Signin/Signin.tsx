@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Bounce, toast, ToastContainer } from "react-toastify";
 import logo from '../../assets/Logodark.png';
 import style from './signin.module.css';
@@ -8,6 +8,7 @@ import { routes } from '../../utils/routes';
 import { useForm } from '../../hooks/useForm';
 import { useState } from 'react';
 const Signin = () => {
+    const navigate = useNavigate();
     const { form, onChangeGeneral } = useForm({
         email: "",
         password: "",
@@ -22,6 +23,8 @@ const Signin = () => {
             toast.error("Todos los campos son obligatorios");
             return;
         }
+
+        navigate(routes.dashboard)
 
         // signIn(form.email, form.password).then((data: any) => {
         //     if (data.status === 200) {
