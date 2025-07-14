@@ -292,7 +292,7 @@ const Container = () => {
                       <p>{ultimoProducto.codigo} - {ultimoProducto.nombre}</p>
                       <div className={style.info__producto__cantidad}>
                         <p>{ultimoProducto.cantidad} UND x {currencyFormat.format(ultimoProducto.precio)}</p>
-                        <p>{currencyFormat.format(ultimoProducto.precio * ultimoProducto.cantidad)}</p>
+                        <p>{currencyFormat.format(ultimoProducto.precio * (ultimoProducto.cantidad ?? 1)) }</p>
                       </div>
                     </div>
                   )}
