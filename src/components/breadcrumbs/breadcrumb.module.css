@@ -14,6 +14,10 @@
     transition: color 0.2s;
 }
 
+.breadcrumb a:hover {
+    color: var(--info);
+}
+
 
 .breadcrumb .current {
     font-weight: 600;

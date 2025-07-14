@@ -1,6 +1,6 @@
 import { useState } from "react";
 import style from "./table.module.css";
-import add_pemissions from "../../assets/add_permission.svg";
+import status from "../../assets/status.svg";
 import borrar from "../../assets/borrar.svg";
 import prev from "../../assets/left.png";
 import next from "../../assets/right.png";
@@ -63,7 +63,7 @@ const Table = ({
                   ) : (
                     actions && (
                       <>
-                        <img src={add_pemissions} onClick={() => actions(row[0])} />
+                        <img src={status} onClick={() => actions(row[0])} />
                         <img src={borrar} />
                       </>
                     )
@@ -75,7 +75,7 @@ const Table = ({
           ))}
         </tbody>
       </table>
-
+      
       <div className={style.pagination_controls}>
         <div>
           Mostrar:&nbsp;

@@ -47,7 +47,7 @@ const menuItems = [
 const mockProductos: Producto[] = [
   { codigo: "123", nombre: "Coca-Cola 400ml", precio: 3500 },
   { codigo: "456", nombre: "Galletas Festival", precio: 2500 },
-  { codigo: "789", nombre: "Chocoramo", precio: 3000 },
+  { codigo: "789", nombre: "Yuca", precio: 3000 },
 ];
 
 const mockClientes: Cliente[] = [

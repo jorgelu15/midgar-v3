@@ -12,7 +12,7 @@ import volver from "../../assets/volver.svg";
 import ventas from "../../assets/ventas.svg";
 import clientes_credits from "../../assets/clientes_credits.svg";
 import reports from "../../assets/stats_mode.svg";
-import settings_screen from "../../assets/settings_screen.svg";
+import palette from "../../assets/palette.svg";
 
 const items = [
     { label: "Dashboard", href: routes.dashboard },
@@ -28,7 +28,7 @@ const menuItems = [
     { shortcode: "5", image: ventas, title: "Ventas", destiny: routes.ventasConfig },
     { shortcode: "6", image: clientes_credits, title: "Clientes y créditos", destiny: routes.ajustes },
     { shortcode: "7", image: reports, title: "Reportes y estadísticas", destiny: routes.configuracionReportes },
-    { shortcode: "8", image: settings_screen, title: "Estilo e interfaz", destiny: routes.estiloInterfaz },
+    { shortcode: "8", image: palette, title: "Estilo e interfaz", destiny: routes.estiloInterfaz },
 ];
 
 

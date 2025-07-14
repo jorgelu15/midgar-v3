@@ -1,0 +1,53 @@
+.container {
+  display: flex;
+  gap: 10px;
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid var(--secondary);
+  padding: 10px 15px;
+  border-radius: 6px;
+  background-color: #1e1e1e;
+  cursor: pointer;
+  font-weight: bold;
+  transition: all 0.2s ease;
+}
+
+.option:nth-child(1) {
+  background-color: #fff;
+  color: #000 !important;
+}
+
+.option:nth-child(2) {
+  background-color: #101a20;
+  color: #fff !important;
+}
+
+
+.selected {
+  border: 1px solid #1da1f2;
+}
+
+.radio {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid #6e767d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.innerCheck {
+  width: 10px;
+  height: 10px;
+  background-color: #1da1f2;
+  border-radius: 50%;
+}
+
+.label {
+  font-size: 15px;
+}

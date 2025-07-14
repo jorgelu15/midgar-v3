@@ -1,7 +1,7 @@
-import Container from "../../features/Clientes/Container";
+import Container from "../../features/EstiloInterfaz/Container";
 import Header from "../../layout/Menus/Header";
 
-const Clientes = () => {
+const EstiloInterfaz = () => {
     return ( 
         <>
             <Header />
@@ -10,4 +10,4 @@ const Clientes = () => {
      );
 }
  
-export default Clientes;
+export default EstiloInterfaz;

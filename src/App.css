@@ -1,8 +1,8 @@
 * {
-     font-family: "Saira", sans-serif;
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
+  font-family: "Saira", sans-serif;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 :root {
@@ -22,6 +22,7 @@
   --info: #66d9ef;
 
   --invert: 1;
+  --font-scale: 1;
 }
 
 
@@ -34,70 +35,98 @@
 
 /* Aplica a todo el scroll del sitio */
 ::-webkit-scrollbar {
-  width: 8px; /* ancho del scroll vertical */
-  height: 8px; /* alto del scroll horizontal */
+  width: 8px;
+  /* ancho del scroll vertical */
+  height: 8px;
+  /* alto del scroll horizontal */
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--background); /* color del fondo del scroll */
+  background: var(--background);
+  /* color del fondo del scroll */
   border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--secondary); /* color del "dedo" del scroll */
+  background: var(--secondary);
+  /* color del "dedo" del scroll */
   border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--secondary); /* color cuando el mouse pasa por encima */
+  background: var(--secondary);
+  /* color cuando el mouse pasa por encima */
 }
 
+h1 {
+  font-size: calc(26px * var(--font-scale, 1));
+}
+
+h2 {
+  font-size: calc(24px * var(--font-scale, 1));
+}
+
+h3 {
+  font-size: calc(20px * var(--font-scale, 1));
+}
+
+h4 {
+  font-size: calc(16px * var(--font-scale, 1));
+}
+
+h5,
+h6,
+p,
+span,
+a {
+  font-size: calc(12px * var(--font-scale, 1));
+}
 
 a {
-    text-decoration: none;
-    color: var(--text-muted);
+  text-decoration: none;
+  color: var(--text-muted);
 }
 
 button {
-    cursor: pointer;
-    border: none;
-    outline: none;
+  cursor: pointer;
+  border: none;
+  outline: none;
 }
 
 input {
-    background-color: var(--secondary);
-    color: var(--text-muted);
+  background-color: var(--secondary);
+  color: var(--text-muted);
 }
 
 body {
-    background-color: var(--background);
-    color: var(--text-muted);
-    font-size: 16px;
-    transition: .2s all;
+  background-color: var(--background);
+  color: var(--text-muted);
+  font-size: 16px;
+  transition: .2s all;
 }
 
 .container {
-    display: flex;
-    flex-direction: column;
-    max-width: 1280px;
-    margin: 0 auto;
-    margin-top: 40px;
+  display: flex;
+  flex-direction: column;
+  max-width: 1280px;
+  margin: 0 auto;
+  margin-top: 40px;
 }
 
 .btn {
-    padding: 10px 20px;
-    border-radius: 10px;
-    color: #fff;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    text-align: center !important;
-    justify-content: center;
+  padding: 10px 20px;
+  border-radius: 10px;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  text-align: center !important;
+  justify-content: center;
 }
 
 .btn_primary {
-    background-color: var(--primary);
-    border: 1px solid var(--primary-light);
+  background-color: var(--primary);
+  border: 1px solid var(--primary-light);
 }
