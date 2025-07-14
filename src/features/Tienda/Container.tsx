@@ -12,7 +12,8 @@ import clients from "../../assets/clientes.png";
 import CardMenu from "../../components/cards/CardMenu";
 
 import { useForm } from "../../hooks/useForm";
-import { useRef, useState, useEffect, KeyboardEvent } from "react";
+import { useRef, useState, useEffect } from "react";
+import type { KeyboardEvent } from "react";
 
 interface Producto {
   codigo: string;
@@ -292,7 +293,7 @@ const Container = () => {
                       <p>{ultimoProducto.codigo} - {ultimoProducto.nombre}</p>
                       <div className={style.info__producto__cantidad}>
                         <p>{ultimoProducto.cantidad} UND x {currencyFormat.format(ultimoProducto.precio)}</p>
-                        <p>{currencyFormat.format(ultimoProducto.precio * (ultimoProducto.cantidad ?? 1)) }</p>
+                        <p>{currencyFormat.format(ultimoProducto.precio * (ultimoProducto.cantidad ?? 1))}</p>
                       </div>
                     </div>
                   )}
