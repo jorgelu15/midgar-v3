@@ -383,7 +383,7 @@ const Container = () => {
           </div>
 
           <div className={style.facture__content}>
-            {productosFactura.map((p, i) => (
+            {productosFactura.map((p: any, i: any) => (
               <div key={i} className={style.facture__content__item}>
                 <p className={style.title__item}>{p.nombre}</p>
                 <div className={style.facture__content__item__info}>
