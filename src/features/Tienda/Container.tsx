@@ -363,6 +363,8 @@ const Container = () => {
                   Vuelto: {currencyFormat.format(-faltante)}
                 </p>
               )}
+
+              <CardMenu title="Vender" shortcode="F9" to="" redirect={() => { }} />
             </div>
           )}
         </div>
