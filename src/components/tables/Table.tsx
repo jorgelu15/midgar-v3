@@ -1,29 +1,27 @@
 import { useState } from "react";
 import style from "./table.module.css";
-import status from "../../assets/status.svg";
-import borrar from "../../assets/borrar.svg";
-import prev from "../../assets/left.png";
-import next from "../../assets/right.png";
+import prev from "../../assets/left.png"
+import next from "../../assets/right.png"
 
-interface TableProps {
-  header_items?: string[];
-  row_items?: string[][];
+interface TableProps<T> {
+  headers: string[];
+  data: T[];
+  renderRow: (row: T) => React.ReactNode;
   rowsPerPageOptions?: number[];
   defaultRowsPerPage?: number;
-  actions?: (userId: string) => void;
 }
 
-const Table = ({
-  header_items = [],
-  row_items = [],
+function Table<T>({
+  headers,
+  data,
+  renderRow,
   rowsPerPageOptions = [5, 10, 15],
   defaultRowsPerPage = 10,
-  actions
-}: TableProps) => {
+}: TableProps<T>) {
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(defaultRowsPerPage);
 
-  const totalPages = Math.ceil(row_items.length / rowsPerPage);
+  const totalPages = Math.ceil(data.length / rowsPerPage);
 
   const handleRowsPerPageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setRowsPerPage(parseInt(e.target.value));
@@ -38,52 +36,32 @@ const Table = ({
     if (currentPage < totalPages) setCurrentPage(currentPage + 1);
   };
 
-  const paginatedRows = row_items.slice(
+  const paginatedRows = data.slice(
     (currentPage - 1) * rowsPerPage,
     currentPage * rowsPerPage
   );
 
   return (
     <>
-      <table>
+      <table className={style.table}>
         <thead>
           <tr>
-            {header_items.map((item, index) => (
-              <th key={index}>{item}</th>
+            {headers.map((header, i) => (
+              <th key={i}>{header}</th>
             ))}
           </tr>
         </thead>
         <tbody>
-          {paginatedRows.map((row, rowIndex) => (
-            <tr key={rowIndex}>
-              {row.map((cell, cellIndex) => (
-                <td key={cellIndex}>
-                  {cellIndex !== row.length - 1 ? (
-                    cell
-                  ) : (
-                    actions && (
-                      <>
-                        <img src={status} onClick={() => actions(row[0])} />
-                        <img src={borrar} />
-                      </>
-                    )
-                  )}
-
-                </td>
-              ))}
-            </tr>
+          {paginatedRows.map((row, i) => (
+            <tr key={i}>{renderRow(row)}</tr>
           ))}
         </tbody>
       </table>
-      
+
       <div className={style.pagination_controls}>
         <div>
           Mostrar:&nbsp;
-          <select
-            value={rowsPerPage}
-            onChange={handleRowsPerPageChange}
-            id={style.rowsPerPage}
-          >
+          <select value={rowsPerPage} onChange={handleRowsPerPageChange}>
             {rowsPerPageOptions.map((option) => (
               <option key={option} value={option}>
                 {option} filas
@@ -92,27 +70,13 @@ const Table = ({
           </select>
         </div>
         <div className={style.pagination_buttons}>
-          <button
-            id={style.prevBtn}
-            onClick={handlePrev}
-            disabled={currentPage === 1}
-          >
-            <img src={prev} />
-          </button>
-          <span id="pageInfo">
-            Página {currentPage} de {totalPages || 1}
-          </span>
-          <button
-            id={style.nextBtn}
-            onClick={handleNext}
-            disabled={currentPage === totalPages || totalPages === 0}
-          >
-            <img src={next} />
-          </button>
+          <button id={style.prevBtn} onClick={handlePrev} disabled={currentPage === 1}><img src={prev} /></button>
+          <span>Página {currentPage} de {totalPages || 1}</span>
+          <button id={style.nextBtn} onClick={handleNext} disabled={currentPage === totalPages || totalPages === 0}><img src={next} /></button>
         </div>
       </div>
     </>
   );
-};
+}
 
 export default Table;

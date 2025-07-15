@@ -116,7 +116,9 @@ body {
 .btn {
   padding: 10px 20px;
   border-radius: 10px;
-  color: #fff;
+  color: var(--text-muted);
+  background-color: var(--background);
+  border: 1px solid var(--secondary);
   cursor: pointer;
   transition: all 0.3s ease;
   font-weight: 700;
@@ -124,6 +126,10 @@ body {
   align-items: center;
   text-align: center !important;
   justify-content: center;
+}
+
+.btn:hover {
+  background-color: var(--secondary);
 }
 
 .btn_primary {

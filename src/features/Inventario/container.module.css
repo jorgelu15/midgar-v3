@@ -1,0 +1,113 @@
+.msg__welcome {
+    display: flex;
+    flex-direction: column;
+}   
+
+.msg__welcome h1 {
+    font-size: 42px;
+    font-weight: 400;
+    color: var(--text-primary);
+    margin-bottom: 10px;
+}
+
+.msg__welcome p {
+    font-size: 24px;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+}
+
+.cards {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.container__badget {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 20px;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.badget {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--secondary);
+  background: var(--background);
+  padding: 20px;
+  border-radius: 10px;
+  
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+}
+
+.header__container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.form_control {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 600px;
+  margin-bottom: 20px;
+}
+
+.form_control label {
+  font-size: 16px;
+  font-weight: 500;
+  margin-bottom: 5px;
+  color: var(--text-muted);
+}
+
+.form_control input {
+  background-color: var(--background);
+  border: 1px solid var(--secondary);
+  padding: 15px;
+  border-radius: 10px;
+  outline: none;
+  margin-bottom: 10px;
+  max-width: 600px;
+}
+
+.table_container {
+  overflow-x: auto;
+}
+
+.kardex__sumary {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+  width: 100%;
+}
+
+.control__kardex {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin: 10px 0;
+}
+
+.control__kardex span {
+  margin-right: 10px;
+}
+
+select {
+  background-color: var(--background);
+  color: var(--text-muted);
+}
+
+.modal_footer_actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+

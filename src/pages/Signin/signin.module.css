@@ -24,10 +24,11 @@
 
 .container .account .logo img {
     width: 100%;
+    filter: invert(var(--invert));
 }
 
 .container .account h1 {
-    color: black;
+    color: var(--text-muted);
     font-weight: 300;
     text-align: left;
     margin-bottom: 25px;
@@ -54,12 +55,12 @@
     font-size: 16px;
     font-weight: 500;
     margin-bottom: 5px;
-    color: black;
+    color: var(--text-muted);
 }
 
 .form_control input {
-    background-color: white;
-    border: 1px solid #CBD5E1;
+    background-color: var(--background);
+    border: 1px solid var(--secondary);
     padding: 15px;
     border-radius: 10px;
     outline: none;

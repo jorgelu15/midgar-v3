@@ -1,8 +1,12 @@
+import Container from "../../features/Inventario/Container";
+import Header from "../../layout/Menus/Header";
+
 const Inventario = () => {
     return ( 
-        <div>
-            <h1>Inventario</h1>
-        </div>
+        <>
+            <Header />
+            <Container />
+        </>
      );
 }
  

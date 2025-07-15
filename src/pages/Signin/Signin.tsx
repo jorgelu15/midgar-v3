@@ -1,9 +1,9 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { Bounce, toast, ToastContainer } from "react-toastify";
-import logo from '../../assets/Logodark.png';
+import logo from '../../assets/logo.svg';
 import style from './signin.module.css';
-import eye from "../../assets/eye.png";
-import noEye from "../../assets/noeye.png";
+import eye from "../../assets/eye.svg";
+import noEye from "../../assets/noeye.svg";
 import { routes } from '../../utils/routes';
 import { useForm } from '../../hooks/useForm';
 import { useState } from 'react';

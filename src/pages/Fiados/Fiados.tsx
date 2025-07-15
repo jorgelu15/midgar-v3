@@ -1,8 +1,12 @@
+import Container from "../../features/Fiados/Container";
+import Header from "../../layout/Menus/Header";
+
 const Fiados = () => {
     return ( 
-        <div>
-            <h1>Fiados</h1>
-        </div>
+        <>
+            <Header />
+            <Container />
+        </>
      );
 }
  
