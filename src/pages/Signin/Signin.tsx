@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Bounce, toast, ToastContainer } from "react-toastify";
 import logo from '../../assets/logo.svg';
 import style from './signin.module.css';
@@ -6,15 +6,27 @@ import eye from "../../assets/eye.svg";
 import noEye from "../../assets/noeye.svg";
 import { routes } from '../../utils/routes';
 import { useForm } from '../../hooks/useForm';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useAuth } from '../../hooks/useAuth';
 const Signin = () => {
-    const navigate = useNavigate();
+    const { isAuthenticated, signIn } = useAuth();
+
     const { form, onChangeGeneral } = useForm({
         email: "",
         password: "",
     });
 
     const [showPassword, setShowPassword] = useState<boolean>(false);
+
+    let location = useLocation();
+    let navigate = useNavigate();
+
+
+    let from = location.state?.from?.pathname || routes.signin;
+
+    useEffect(() => {
+        if (isAuthenticated) navigate(from, { replace: true });
+    }, [isAuthenticated, navigate, from]);
 
     const onAuthenticate = (e: any) => {
         e.preventDefault();
@@ -24,15 +36,15 @@ const Signin = () => {
             return;
         }
 
-        navigate(routes.dashboard)
 
-        // signIn(form.email, form.password).then((data: any) => {
-        //     if (data.status === 200) {
-        //         navigate(rutas.verifyMFA+`?userId=${data.data.token.userId}`);
-        //     }
-        // }).catch((error: any) => {
-        //     toast.error(error.response?.data?.error);
-        // });
+        signIn(form.email, form.password).then((data: any) => {
+            if (data.status === 200) {
+                navigate(routes.dashboard);
+            }
+        }).catch((error: any) => {
+            console.log(error);
+            toast.error(error.response?.data?.error);
+        });
     };
     return (
         <div className={style.container}>

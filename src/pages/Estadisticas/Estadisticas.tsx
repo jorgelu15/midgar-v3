@@ -1,9 +1,12 @@
+import Container from "../../features/Estadisticas/Container";
+import Header from "../../layout/Menus/Header";
+
 const Estadisticas = () => {
     return ( 
-        <div>
-            <h1>Estadísticas</h1>
-            <p>Aquí se mostrarán las estadísticas de ventas, clientes y productos.</p>
-        </div>
+        <>
+            <Header />
+            <Container />
+        </>
      );
 }
  

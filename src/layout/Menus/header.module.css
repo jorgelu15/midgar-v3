@@ -33,21 +33,25 @@
 }
 
 .header .nav__header ul li a img {
+    display: flex;
     color: var(--text-muted);
     filter: invert(var(--invert));
 }
 
 .header .nav__header .nav__dropdown {
     position: relative;
-    padding: 8px 16px;
+    padding: 8px;
     display: flex;
-    align-items: center;
     background-color: var(--background);
     border-radius: 8px;
     border: none;
     outline: none;
     color: var(--text-muted);;
     cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    filter: invert(var(--invert));
+   
 }
 
 .header .nav__header .nav__dropdown:hover {
@@ -56,5 +60,5 @@
 }
 
 .nav__dropdown__icon {
-    filter: invert(var(--invert));
+    
 }

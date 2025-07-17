@@ -1,0 +1,56 @@
+.cardStat {
+  background: var(--background);
+  border-radius: 12px;
+  padding: 1.2rem;
+  border: 1px solid var(--secondary);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  transition: box-shadow 0.2s ease;
+  box-sizing: border-box;
+}
+
+/* Tamaños dinámicos */
+.size_1_4 {
+  width: 24%;
+}
+
+.size_1_3 {
+  width: 32.5%;
+}
+
+.size_1_2 {
+  width: 49.5%;
+}
+
+.size_1 {
+  width: 100%;
+}
+
+/* Responsive fallback: 100% en móviles */
+@media (max-width: 768px) {
+  .size_1_4,
+  .size_1_3,
+  .size_1_2,
+  .size_1 {
+    width: 100% !important;
+  }
+}
+
+.header {
+  margin-bottom: 1rem;
+}
+
+.title {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.chartContent {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

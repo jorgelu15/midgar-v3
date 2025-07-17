@@ -1,9 +1,11 @@
 import style from './header.module.css';
 import logo from "../../assets/logo.svg";
-import dropdown_arrow from "../../assets/dropdown_arrow.png";
+import turnoff from "../../assets/turnoff.svg";
 import { routes } from '../../utils/routes';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../../hooks/useAuth';
 const Header = () => {
+    const { logOut } = useAuth();
     return (
         <header className={style.header}>
             <nav className={style.nav__header}>
@@ -15,8 +17,8 @@ const Header = () => {
                     </li>
                     <li><Link to={routes.dashboard}>Tienda La Milanesa</Link></li>
                 </ul>
-                <button className={style.nav__dropdown}>
-                    Jorge Guardo<span className={style.nav__dropdown__icon}><img src={dropdown_arrow} alt="dropdown arrow" /></span>
+                <button className={style.nav__dropdown} onClick={() => logOut() }>
+                    <img src={turnoff} alt="dropdown arrow" />
                 </button>
             </nav>
         </header>
