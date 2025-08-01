@@ -14,8 +14,13 @@ import CardMenu from "../../components/cards/CardMenu";
 import { useForm } from "../../hooks/useForm";
 import { useRef, useState, useEffect } from "react";
 import type { KeyboardEvent } from "react";
-import CardProductotienda from "../../components/cards/CardProductoTiendas";
-import type { ProductoRepository } from "../../models/Producto.repository";
+
+interface Producto {
+  codigo: string;
+  nombre: string;
+  precio: number;
+  cantidad?: number;
+}
 
 interface Cliente {
   cedula: string;
@@ -39,24 +44,10 @@ const menuItems = [
   { shortcode: "F12", image: confirm__wallet, title: "Totalizar", destiny: "" },
 ];
 
-const mockProductos: ProductoRepository[] = [
-  {
-    id_producto: "1",
-    codigo: "123",
-    nombre: "Coca-Cola 400ml",
-    precio_venta: 3500,
-    cantidad: 0,
-    cantidad_minima: 0,
-    categoria_id: 1,
-    costo: 2500,
-    estado: true,
-    foto_url: "https://licoresmedellin.com/cdn/shop/files/GASEOSA_COCA_COLA_ORIGINAL_MEDIANA_1_5L.jpg",
-    id_inst: 1,
-    impuesto_id: 1,
-    marca_id: 1,
-    proveedor_id: 1,
-    unidad_medida_id: 1
-  }
+const mockProductos: Producto[] = [
+  { codigo: "123", nombre: "Coca-Cola 400ml", precio: 3500 },
+  { codigo: "456", nombre: "Galletas Festival", precio: 2500 },
+  { codigo: "789", nombre: "Yuca", precio: 3000 },
 ];
 
 const mockClientes: Cliente[] = [
@@ -81,8 +72,8 @@ const Container = () => {
   const navigate = useNavigate();
   const { form, onChangeGeneral, resetForm } = useForm({ codigo: "", valor: "" });
 
-  const [productosFactura, setProductosFactura] = useState<ProductoRepository[]>([]);
-  const [ultimoProducto, setUltimoProducto] = useState<ProductoRepository | null>(null);
+  const [productosFactura, setProductosFactura] = useState<Producto[]>([]);
+  const [ultimoProducto, setUltimoProducto] = useState<Producto | null>(null);
   const [clienteSeleccionado, setClienteSeleccionado] = useState<Cliente | null>(null);
   const [modoBusqueda, setModoBusqueda] = useState<"cliente" | "producto">("cliente");
   const [modoTotalizar, setModoTotalizar] = useState(false);
@@ -93,7 +84,7 @@ const Container = () => {
 
   const inputRef = useRef<HTMLInputElement | null>(null);
 
-  const total = productosFactura.reduce((sum, p) => sum + (p.precio_venta * (p.cantidad || 1)), 0);
+  const total = productosFactura.reduce((sum, p) => sum + (p.precio * (p.cantidad || 1)), 0);
   const totalPagado = pagos.reduce((sum, p) => sum + p.monto, 0);
   const faltante = total - totalPagado;
 
@@ -195,7 +186,7 @@ const Container = () => {
           if (updated[index].cantidad! <= 0) updated.splice(index, 1);
         } else {
           if (cantidad <= 0) return prev;
-          updated.push({ ...producto, cantidad: Number(cantidad) ?? 0 });
+          updated.push({ ...producto, cantidad });
         }
         return updated;
       });
@@ -251,21 +242,6 @@ const Container = () => {
     setFiltroMedio("");
   };
 
-  const handleAgregarProducto = (producto: ProductoRepository) => {
-    setProductosFactura((prev) => {
-      const updated = [...prev];
-      const index = updated.findIndex((p) => p.codigo === producto.codigo);
-      if (index !== -1) {
-        updated[index].cantidad = (updated[index].cantidad || 0) + 1;
-      } else {
-        updated.push({ ...producto, cantidad: 1 });
-      }
-      return updated;
-    });
-    setUltimoProducto({ ...producto, cantidad: 1 });
-  };
-
-
   return (
     <div className="container" style={{ marginTop: 0 }}>
       <div className={style.container__compact}>
@@ -295,7 +271,7 @@ const Container = () => {
                 ))}
               </div>
 
-              <div className={style.cards}>
+              <div className={style.main__content}>
                 <div className={style.form_control}>
                   <label>{modoBusqueda === "producto" ? "Código de barras" : "Cédula del cliente"}</label>
                   <input
@@ -311,27 +287,13 @@ const Container = () => {
                   />
                 </div>
 
-                <div className={style.main__content}>
-                  {
-                    clienteSeleccionado &&
-                    mockProductos?.map((producto: ProductoRepository) => {
-                      return (
-                        <CardProductotienda
-                          {...producto}
-                          onClick={() => handleAgregarProducto(producto)}
-                        />
-                      )
-                    })
-                  }
-                </div>
-
                 <div className={style.info__cliente}>
                   {ultimoProducto && (
                     <div className={style.info__producto}>
                       <p>{ultimoProducto.codigo} - {ultimoProducto.nombre}</p>
                       <div className={style.info__producto__cantidad}>
-                        <p>{ultimoProducto.cantidad} UND x {currencyFormat.format(ultimoProducto.precio_venta)}</p>
-                        <p>{currencyFormat.format(ultimoProducto.precio_venta * (ultimoProducto.cantidad ?? 1))}</p>
+                        <p>{ultimoProducto.cantidad} UND x {currencyFormat.format(ultimoProducto.precio)}</p>
+                        <p>{currencyFormat.format(ultimoProducto.precio * (ultimoProducto.cantidad ?? 1))}</p>
                       </div>
                     </div>
                   )}

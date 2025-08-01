@@ -89,7 +89,6 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             const res = await api.get('/authenticate', {
                 withCredentials: true
             });
-            console.log(res.data);
 
 
             dispatch({

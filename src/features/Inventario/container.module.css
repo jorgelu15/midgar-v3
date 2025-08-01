@@ -68,7 +68,7 @@
   color: var(--text-muted);
 }
 
-.form_control input {
+.form_control input, .form_control textarea {
   background-color: var(--background);
   border: 1px solid var(--secondary);
   padding: 15px;
@@ -76,6 +76,7 @@
   outline: none;
   margin-bottom: 10px;
   max-width: 600px;
+  resize: none;
 }
 
 .table_container {
@@ -111,3 +112,10 @@ select {
   gap: 10px;
 }
 
+.checkbox_group {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 80px;
+}

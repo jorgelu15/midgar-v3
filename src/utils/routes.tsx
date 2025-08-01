@@ -17,9 +17,16 @@ export const routes = {
     recogida: "/caja/recogida",
 
     clientes: "/clientes",
-    inventario: "/inventario",
+    InventarioFisico: "/inventario-fisico",
     fiados: "/fiados",
     estadisticas: "/estadisticas",
+
+    //rutas de contabilidad
+    contabilidad: "/contabilidad",
+
+    catalogo: "/contabilidad/catalogo-cuentas",
+
+
 
     // Ajustes
     ajustes: "/ajustes",
@@ -27,7 +34,7 @@ export const routes = {
     usuariosPermisos: "/ajustes/usuarios-y-permisos",
     cuentaAcceso: "/ajustes/cuenta-y-acceso",
     negocio: "/ajustes/negocio",
-    inventarios: "/ajustes/inventarios",
+    InventarioFisicos: "/ajustes/InventarioFisicos",
     ventasConfig: "/ajustes/ventas",
     clientesCreditos: "/ajustes/clientes-y-creditos",
     configuracionReportes: "/ajustes/reportes-y-estadisticas",

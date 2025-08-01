@@ -21,7 +21,7 @@ const menuItems = [
     { shortcode: "Escape", title: "Volver", destiny: routes.ajustes },
     { shortcode: "V", title: "Vender", destiny: routes.vender },
     { shortcode: "C", title: "Clientes", destiny: routes.clientes },
-    { shortcode: "I", title: "Inventario", destiny: routes.inventario },
+    { shortcode: "I", title: "InventarioFisico", destiny: routes.InventarioFisico },
     { shortcode: "F", title: "Fiados", destiny: routes.fiados },
     { shortcode: "E", title: "Estadísticas", destiny: routes.estadisticas },
     { shortcode: "A", title: "Ajustes", destiny: routes.ajustes },
@@ -140,7 +140,7 @@ const Container = () => {
                         <ul>
                             <li><strong>V:</strong> Ir a la sección de Vender</li>
                             <li><strong>C:</strong> Ir a la sección de Clientes</li>
-                            <li><strong>I:</strong> Ir a Inventario</li>
+                            <li><strong>I:</strong> Ir a InventarioFisico</li>
                             <li><strong>F:</strong> Ir a Fiados</li>
                             <li><strong>E:</strong> Ir a Estadísticas</li>
                             <li><strong>A:</strong> Ir a Ajustes</li>

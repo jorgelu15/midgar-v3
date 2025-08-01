@@ -1,0 +1,70 @@
+.select_container {
+  position: relative;
+  width: 100%;
+  font-family: "Segoe UI", sans-serif;
+}
+
+.select_input {
+  background-color: var(--background);
+  border: 1px solid var(--secondary);
+  padding: 13.5px;
+  border-radius: 10px;
+  color:var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.select_input:hover {
+  border-color: var(--secondary);
+}
+
+.select_input .arrow {
+  margin-left: 8px;
+  font-size: 0.9rem;
+}
+
+.select_dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  background-color: var(--background);
+  border: 1px solid var(--secondary);
+  border-radius: 6px;
+  margin-top: 4px;
+  z-index: 100;
+  overflow: hidden;
+}
+
+.select_search {
+  width: 100%;
+  padding: 8px 10px;
+  border: none;
+  outline: none;
+  background-color: var(--background);
+  color: white;
+  border-bottom: 1px solid var(--secondary);
+}
+
+.select_options {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.select_option {
+  padding: 10px 12px;
+  cursor: pointer;
+  color: var(--text-muted);
+}
+
+.select_option:hover {
+  background-color: var(--background);
+}
+
+.select_no_option {
+  padding: 10px 12px;
+  color: var(--warning);
+  font-style: italic;
+}

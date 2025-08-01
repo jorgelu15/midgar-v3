@@ -6,7 +6,7 @@ import next from "../../assets/right.png"
 interface TableProps<T> {
   headers: string[];
   data: T[];
-  renderRow: (row: T) => React.ReactNode;
+  renderRow: (row: T, index: any) => React.ReactNode;
   rowsPerPageOptions?: number[];
   defaultRowsPerPage?: number;
 }
@@ -21,7 +21,7 @@ function Table<T>({
   const [currentPage, setCurrentPage] = useState(1);
   const [rowsPerPage, setRowsPerPage] = useState(defaultRowsPerPage);
 
-  const totalPages = Math.ceil(data.length / rowsPerPage);
+  const totalPages = Math.ceil(data?.length / rowsPerPage);
 
   const handleRowsPerPageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setRowsPerPage(parseInt(e.target.value));
@@ -36,7 +36,7 @@ function Table<T>({
     if (currentPage < totalPages) setCurrentPage(currentPage + 1);
   };
 
-  const paginatedRows = data.slice(
+  const paginatedRows = data?.slice(
     (currentPage - 1) * rowsPerPage,
     currentPage * rowsPerPage
   );
@@ -52,8 +52,8 @@ function Table<T>({
           </tr>
         </thead>
         <tbody>
-          {paginatedRows.map((row, i) => (
-            <tr key={i}>{renderRow(row)}</tr>
+          {paginatedRows?.map((row, i) => (
+            <tr key={i}>{renderRow(row, i)}</tr>
           ))}
         </tbody>
       </table>

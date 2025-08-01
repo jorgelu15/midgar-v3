@@ -8,7 +8,6 @@ interface Props {
 
 const OffcanvasCliente: React.FC<Props> = ({ onClose, isOpen }) => {
   const [visible, setVisible] = useState(isOpen);
-  console.log(visible)
 
   useEffect(() => {
     if (isOpen) {

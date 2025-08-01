@@ -4,7 +4,8 @@ import style from "./container.module.css";
 import vender from "../../assets/vender.png";
 import caja from "../../assets/caja.svg";
 import clientes from "../../assets/clientes.png";
-import inventario from "../../assets/inventario.png";
+import InventarioFisico from "../../assets/inventario.png";
+import contabilidadIcon from "../../assets/contabilidad.svg";
 import fiados from "../../assets/fiado.png";
 import stats from "../../assets/stats.png";
 import settings from "../../assets/settings.png";
@@ -16,10 +17,11 @@ const menuItems = [
     { shortcode: "1", image: vender, title: "Vender", destiny: routes.vender },
     { shortcode: "2", image: caja, title: "Caja", destiny: routes.caja },
     { shortcode: "3", image: clientes, title: "Clientes", destiny: routes.clientes },
-    { shortcode: "4", image: inventario, title: "Inventario", destiny: routes.inventario },
+    { shortcode: "4", image: InventarioFisico, title: "Inventario Físico", destiny: routes.InventarioFisico },
     { shortcode: "5", image: fiados, title: "Fiados", destiny: routes.fiados },
     { shortcode: "6", image: stats, title: "Estadísticas", destiny: routes.estadisticas },
-    { shortcode: "7", image: settings, title: "Ajustes", destiny: routes.ajustes },
+    { shortcode: "7", image: contabilidadIcon, title: "Contabilidad", destiny: routes.contabilidad },
+    { shortcode: "8", image: settings, title: "Ajustes", destiny: routes.ajustes },
 ];
 
 const items = [

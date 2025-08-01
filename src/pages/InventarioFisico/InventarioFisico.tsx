@@ -1,7 +1,7 @@
 import Container from "../../features/Inventario/Container";
 import Header from "../../layout/Menus/Header";
 
-const Inventario = () => {
+const InventarioFisico = () => {
     return ( 
         <>
             <Header />
@@ -10,4 +10,4 @@ const Inventario = () => {
      );
 }
  
-export default Inventario;
+export default InventarioFisico;

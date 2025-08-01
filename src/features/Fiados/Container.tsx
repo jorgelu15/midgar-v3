@@ -13,7 +13,7 @@ import { useNavigate } from "react-router-dom";
 
 const items = [
     { label: "Dashboard", href: routes.dashboard },
-    { label: "Inventario", href: routes.inventario },
+    { label: "InventarioFisico", href: routes.InventarioFisico },
 ];
 
 const menuItems = [

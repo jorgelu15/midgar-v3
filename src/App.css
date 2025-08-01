@@ -93,7 +93,7 @@ button {
   outline: none;
 }
 
-input {
+input, textarea {
   background-color: var(--secondary);
   color: var(--text-muted);
 }
@@ -135,4 +135,9 @@ body {
 .btn_primary {
   background-color: var(--primary);
   border: 1px solid var(--primary-light);
+}
+
+.btn_secondary {
+  background-color: var(--background);
+  border: 1px solid var(--secondary);
 }

@@ -7,7 +7,7 @@ import { routes } from "../../utils/routes";
 import permisos_usuario from "../../assets/permisos_usuario.svg";
 import access_account from "../../assets/access_account.svg";
 import business from "../../assets/business.svg";
-import inventarios from "../../assets/inventory.svg"
+import InventarioFisicos from "../../assets/inventory.svg"
 import volver from "../../assets/volver.svg";
 import ventas from "../../assets/ventas.svg";
 import clientes_credits from "../../assets/clientes_credits.svg";
@@ -24,7 +24,7 @@ const menuItems = [
     { shortcode: "1", image: permisos_usuario, title: "Usuarios y permisos", destiny: routes.usuariosPermisos },
     { shortcode: "2", image: access_account, title: "Cuenta y acceso", destiny: routes.cuentaAcceso },
     { shortcode: "3", image: business, title: "Negocio", destiny: routes.negocio },
-    { shortcode: "4", image: inventarios, title: "Inventario", destiny: routes.inventario },
+    { shortcode: "4", image: InventarioFisicos, title: "InventarioFisico", destiny: routes.InventarioFisico },
     { shortcode: "5", image: ventas, title: "Ventas", destiny: routes.ventasConfig },
     { shortcode: "6", image: clientes_credits, title: "Clientes y créditos", destiny: routes.ajustes },
     { shortcode: "7", image: reports, title: "Reportes y estadísticas", destiny: routes.configuracionReportes },

@@ -154,7 +154,7 @@ const Container = () => {
           <ul>
             <li><strong>V:</strong> Ir a la sección de Vender</li>
             <li><strong>C:</strong> Ir a la sección de Clientes</li>
-            <li><strong>I:</strong> Ir a Inventario</li>
+            <li><strong>I:</strong> Ir a InventarioFisico</li>
             <li><strong>F:</strong> Ir a Fiados</li>
             <li><strong>E:</strong> Ir a Estadísticas</li>
             <li><strong>A:</strong> Ir a Ajustes</li>

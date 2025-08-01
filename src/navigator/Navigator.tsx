@@ -9,7 +9,7 @@ import Clientes from "../pages/Clientes/Clientes";
 import Fiados from "../pages/Fiados/Fiados";
 import Estadisticas from "../pages/Estadisticas/Estadisticas";
 import Ajustes from "../pages/Ajustes/Ajustes";
-import Inventario from "../pages/Inventario/Inventario";
+import InventarioFisico from "../pages/InventarioFisico/InventarioFisico";
 import Usuariosypermisos from "../pages/Usuarios_y_permisos/Usuariosypermisos";
 import Caja from "../pages/Caja/Caja";
 import Apertura from "../pages/Apertura/Apertura";
@@ -18,6 +18,8 @@ import Cierre from "../pages/Cierre/Cierre";
 import Tienda from "../pages/Tienda/Tienda";
 import EstiloInterfaz from "../pages/EstiloInterfaz/EstiloInterfaz";
 import ProtectedRoute from "../utils/ProtectedRoute";
+import Contabilidad from "../pages/Contabilidad/Contabilidad";
+import CatalogoCuentas from "../pages/CatalogoCuentas/CatalogoCuentas";
 
 
 
@@ -75,8 +77,8 @@ const router = createBrowserRouter([
         element: <ProtectedRoute />,
         children: [
             {
-                path: routes.inventario,
-                element: <Suspense fallback={<p>Loading...</p>}><Inventario /></Suspense>,
+                path: routes.InventarioFisico,
+                element: <Suspense fallback={<p>Loading...</p>}><InventarioFisico /></Suspense>,
             }
         ]
     },
@@ -167,6 +169,26 @@ const router = createBrowserRouter([
             {
                 path: routes.estiloInterfaz,
                 element: <Suspense fallback={<p>Loading...</p>}><EstiloInterfaz /></Suspense>
+            }
+        ]
+    },
+    {
+        path: routes.signin,
+        element: <ProtectedRoute />,
+        children: [
+            {
+                path: routes.contabilidad,
+                element: <Contabilidad />
+            }
+        ]
+    },
+    {
+        path: routes.signin,
+        element: <ProtectedRoute />,
+        children: [
+            {
+                path: routes.catalogo,
+                element: <CatalogoCuentas />
             }
         ]
     }
