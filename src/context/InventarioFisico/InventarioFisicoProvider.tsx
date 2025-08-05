@@ -37,13 +37,14 @@ const ProductoProvider = ({ children }: { children: React.ReactNode }) => {
     }
 
 
-    const createProducto = async (producto: ProductoRepository, id_inst: string, setProgress: any) => {
+    const createProducto = async (formData: FormData, setProgress: any) => {
         try {
-            const res = await api.post(`/inventario-fisico/productos`, {
-                producto: producto,
-                id_inst: id_inst
-            }, {
+            const res = await api.post(`/inventario-fisico/productos`, formData,
+            {
                 withCredentials: true,
+                headers: {
+                "Content-Type": "multipart/form-data",
+            },
                 onUploadProgress: (progressEvent: AxiosProgressEvent) => {
                     const percentage = Math.round((progressEvent.loaded * 100) / (progressEvent?.total ? progressEvent?.total : 0));
                     setProgress(percentage);
