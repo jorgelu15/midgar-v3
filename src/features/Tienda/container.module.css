@@ -14,6 +14,7 @@
   display: flex;
   flex-direction: column;
   width: 100%;
+  margin-bottom: 20px;
 }
 
 .product__cards {
@@ -26,6 +27,7 @@
   border-top: 1px solid var(--secondary);
   justify-content: flex-end;
   padding: 20px;
+  width: 100%;
 }
 
 .info__producto {
@@ -174,7 +176,7 @@
   flex-direction: row;
   flex-wrap: wrap;
   gap: 20px;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 }
 
 /* --------- RESPONSIVE PARA PANTALLAS DE COMPUTADOR --------- */

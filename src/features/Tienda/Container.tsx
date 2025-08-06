@@ -57,6 +57,7 @@ const mockProductos: ProductoRepository[] = [
     proveedor_id: 1,
     unidad_medida_id: 1
   }
+  
 ];
 
 const mockClientes: Cliente[] = [
@@ -295,7 +296,7 @@ const Container = () => {
                 ))}
               </div>
 
-              <div className={style.cards}>
+              <div className={style.cards} style={{ gap: 0 }}>
                 <div className={style.form_control}>
                   <label>{modoBusqueda === "producto" ? "Código de barras" : "Cédula del cliente"}</label>
                   <input
@@ -311,7 +312,7 @@ const Container = () => {
                   />
                 </div>
 
-                <div className={style.main__content}>
+                <div className={style.main__content} style={{ display: "flex", flexDirection: "row", flexWrap: "wrap", gap: 20, maxHeight: 220, overflowY: "auto" }}>
                   {
                     clienteSeleccionado &&
                     mockProductos?.map((producto: ProductoRepository) => {

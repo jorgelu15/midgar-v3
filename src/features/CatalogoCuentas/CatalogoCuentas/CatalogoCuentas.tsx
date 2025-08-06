@@ -47,7 +47,6 @@ const CatalogoCuentas = () => {
   }> = ({ cuenta, nivel = 0, onSelect }) => {
     const tieneHijos = cuenta.hijos && cuenta.hijos.length > 0;
     const isExpanded = expandedNodes.has(cuenta.id);
-
     return (
       <>
         <tr
