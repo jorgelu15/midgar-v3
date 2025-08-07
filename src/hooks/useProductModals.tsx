@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { ProductoRepository } from "../models/Producto.repository";
+import type { CuentaLavado } from "../models/CuentaLavado";
 
 export const useProductModals = () => {
     const [selectedProduct, setSelectedProduct] = useState<ProductoRepository | null>(null);
@@ -7,6 +8,10 @@ export const useProductModals = () => {
     const [isCreateProductModalOpen, setIsCreateProductModalOpen] = useState(false);
     const [isAdjustStockModalOpen, setIsAdjustStockModalOpen] = useState(false);
     const [isAbastecerModalOpen, setIsAbastecerModalOpen] = useState(false);
+    const [abrirCuenta, setAbrirCuenta] = useState(false);
+    const [cuenta, setCuenta] = useState<CuentaLavado | null>(null);
+    const [openModalCuenta, setOpenModalCuenta] = useState(false);
+
 
     return {
         selectedProduct,
@@ -18,6 +23,12 @@ export const useProductModals = () => {
         isAdjustStockModalOpen,
         setIsAdjustStockModalOpen,
         setIsAbastecerModalOpen,
-        isAbastecerModalOpen
+        isAbastecerModalOpen,
+        abrirCuenta,
+        setAbrirCuenta,
+        cuenta,
+        setCuenta,
+        openModalCuenta,
+        setOpenModalCuenta
     };
 };

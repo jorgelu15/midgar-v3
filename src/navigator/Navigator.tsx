@@ -20,6 +20,7 @@ import EstiloInterfaz from "../pages/EstiloInterfaz/EstiloInterfaz";
 import ProtectedRoute from "../utils/ProtectedRoute";
 import Contabilidad from "../pages/Contabilidad/Contabilidad";
 import CatalogoCuentas from "../pages/CatalogoCuentas/CatalogoCuentas";
+import Autolavado from "../pages/Autolavado/Autolavado";
 
 
 
@@ -189,6 +190,16 @@ const router = createBrowserRouter([
             {
                 path: routes.catalogo,
                 element: <CatalogoCuentas />
+            }
+        ]
+    },
+    {
+        path: routes.signin,
+        element: <ProtectedRoute />,
+        children: [
+            {
+                path: routes.autolavado,
+                element: <Autolavado />
             }
         ]
     }

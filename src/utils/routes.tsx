@@ -7,7 +7,8 @@ export const routes = {
     vender: "/vender",
 
     tienda: "/vender/tienda",
-    factura_manual: "/factura_manual",
+    factura_manual: "/vender/factura_manual",
+    autolavado: "/vender/autolavado",
 
     // Rutas de la caja
     caja: "/caja",
