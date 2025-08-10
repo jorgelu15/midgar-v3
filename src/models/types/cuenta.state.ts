@@ -1,0 +1,3 @@
+export const typeState = {
+    INSERTAR_CUENTA_EXITOSO: 'INSERTAR_CUENTA_EXITOSO',
+};

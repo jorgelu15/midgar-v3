@@ -7,6 +7,7 @@ import { ThemeProvider } from './context/ThemeContext/ThemeContext.tsx'
 
 import AuthProvider from './context/Authentication/authProvider.tsx'
 import InventarioFisicoProvider from './context/InventarioFisico/InventarioFisicoProvider.tsx'
+import AutoLavadoProvider from './context/AutoLavado/AutoLavadoProvider.tsx'
 
 const queryClient = new QueryClient()
 
@@ -14,9 +15,11 @@ createRoot(document.getElementById('root')!).render(
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
       <InventarioFisicoProvider>
-        <ThemeProvider>
-          <App />
-        </ThemeProvider>
+        <AutoLavadoProvider>
+          <ThemeProvider>
+            <App />
+          </ThemeProvider>
+        </AutoLavadoProvider>
       </InventarioFisicoProvider>
     </AuthProvider>
     <ReactQueryDevtools />

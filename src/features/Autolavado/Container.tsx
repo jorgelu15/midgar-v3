@@ -6,6 +6,9 @@ import { useProductModals } from "../../hooks/useProductModals";
 import CardCuentaLavado from "../../components/cards/CardCuentaLavado";
 import style from "./container.module.css";
 import CardProductotienda from "../../components/cards/CardProductoTiendas";
+import { useCuenta } from "../../hooks/useCuenta";
+import { useAuth } from "../../hooks/useAuth";
+import { toast } from "react-toastify";
 
 // Interfaces
 interface ProductoRepository {
@@ -31,10 +34,15 @@ const Container = () => {
         setOpenModalCuenta
     } = useProductModals();
 
+    const { usuario } = useAuth();
+    const [progress, setProgress] = useState<number | null>(null);
+
     const [clienteNombre, setClienteNombre] = useState("");
     const [placa, setPlaca] = useState("");
-    const [lavador, setLavador] = useState(null);
-    const [sala, setSala] = useState(null);
+    const [lavador, setLavador] = useState({label: "", value: ""});
+    const [sala, setSala] = useState({label: "", value: ""});
+
+    const { cuentasQuery, createCuenta } = useCuenta();
 
     const [cuentaSeleccionada, setCuentaSeleccionada] = useState<CuentaLavado | null>(null);
     const [productosFactura, setProductosFactura] = useState<ProductoRepository[]>([]);
@@ -50,6 +58,33 @@ const Container = () => {
         const nuevoProducto = { ...producto, cantidad: 1 };
         setProductosFactura([...productosFactura, nuevoProducto]);
         setUltimoProducto(nuevoProducto);
+    };
+
+    const handleAgregarCuenta = (event: React.FormEvent) => {
+        event.preventDefault();
+
+        if (clienteNombre.trim() === "" || placa.trim() === "" || lavador.value === "" || sala.value === "") {
+            toast.error(`Faltan campos obligatorios.`);
+            return;
+        }
+
+        // Crear objeto cuenta
+        const cuenta = {
+            nombre: clienteNombre,
+            placa: placa,
+            lavador: lavador.value,
+            sala: sala.value,
+            productos: productosFactura
+        };
+
+        createCuenta(cuenta, usuario?.id_inst, setProgress).then((response: any) => {
+            toast.success(response.data.message);
+            closeCuentaModal();
+            openCuentaLavadoModal();
+        }).catch((error: any) => {
+            toast.error(error.error);
+            setProgress(null);
+        });
     };
 
     const currencyFormat = new Intl.NumberFormat("es-CO", {
@@ -84,16 +119,23 @@ const Container = () => {
                 </nav>
             </header>
             <div className={style.gridContainer}>
-                {
-                    new Array(5).fill(0).map((_, index) => (
-                        <CardCuentaLavado
-                            nombreCliente="Jorge Guardo"
-                            placa="ABC123"
-                            productos={mockProductos}
-                            onClick={openCuentaLavadoModal}
-                        />
-                    ))
-                }
+                {cuentasQuery.isLoading && <p>Cargando cuentas...</p>}
+                {cuentasQuery.isError && <p>Error al cargar las cuentas</p>}
+                {cuentasQuery.data && cuentasQuery.data.map((cuenta: any) => (
+                    <CardCuentaLavado
+                        key={cuenta.id_cuenta_cliente}
+                        nombreCliente={cuenta.nombre}
+                        placa={cuenta.placa}
+                        lavador={cuenta.lavador}
+                        sala={cuenta.sala}
+                        ingreso={cuenta.ingreso}
+                        productos={cuenta.productos || []}
+                        onClick={() => {
+                            setCuentaSeleccionada(cuenta);
+                            openCuentaLavadoModal();
+                        }}
+                    />
+                ))}
             </div>
             {/* MODAL 1: Abrir cuenta */}
             <Modal
@@ -108,9 +150,8 @@ const Container = () => {
                         </button>
                         <button
                             className="btn btn_primary"
-                            onClick={() => {
-                                closeCuentaModal();
-                                openCuentaLavadoModal();
+                            onClick={(e) => {
+                                handleAgregarCuenta(e);
                             }}
                         >
                             Confirmar cuenta
