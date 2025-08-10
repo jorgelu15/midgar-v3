@@ -6,6 +6,7 @@
     gap: 0.5rem;
     border-radius: 8px;
     margin-bottom: 20px;
+    justify-content: flex-start;
 }
 
 .breadcrumb a {
