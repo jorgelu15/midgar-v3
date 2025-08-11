@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type KeyboardEvent } from "react";
 import Card from "../../components/cards/Card";
 import Modal from "../../components/modales/Modal";
 import SelectSearch from "../../components/selects/SelectSearch";
@@ -8,15 +8,18 @@ import style from "./container.module.css";
 import CardProductotienda from "../../components/cards/CardProductoTiendas";
 import { useCuenta } from "../../hooks/useCuenta";
 import { useAuth } from "../../hooks/useAuth";
-import { toast } from "react-toastify";
+import { Bounce, toast, ToastContainer } from "react-toastify";
+import { useTheme } from "../../context/ThemeContext/ThemeContext";
+import type { ProductoRepository } from "../../models/Producto.repository";
+import { useForm } from "../../hooks/useForm";
 
 // Interfaces
-interface ProductoRepository {
-    codigo: string;
-    nombre: string;
-    precio_venta: number;
-    cantidad?: number;
-}
+// interface ProductoRepository {
+//     codigo: string;
+//     nombre: string;
+//     precio_venta: number;
+//     cantidad?: number;
+// }
 
 interface CuentaLavado {
     nombreCliente: string;
@@ -34,19 +37,23 @@ const Container = () => {
         setOpenModalCuenta
     } = useProductModals();
 
+    const { theme } = useTheme();
+
     const { usuario } = useAuth();
     const [progress, setProgress] = useState<number | null>(null);
 
     const [clienteNombre, setClienteNombre] = useState("");
     const [placa, setPlaca] = useState("");
-    const [lavador, setLavador] = useState({label: "", value: ""});
-    const [sala, setSala] = useState({label: "", value: ""});
+    const [lavador, setLavador] = useState({ label: "", value: "" });
+    const [sala, setSala] = useState({ label: "", value: "" });
 
     const { cuentasQuery, createCuenta } = useCuenta();
 
     const [cuentaSeleccionada, setCuentaSeleccionada] = useState<CuentaLavado | null>(null);
     const [productosFactura, setProductosFactura] = useState<ProductoRepository[]>([]);
     const [ultimoProducto, setUltimoProducto] = useState<ProductoRepository | null>(null);
+    const { form, onChangeGeneral, resetForm } = useForm({ codigo: "" });
+
 
     const openCuentaModal = () => setAbrirCuenta(true);
     const closeCuentaModal = () => setAbrirCuenta(false);
@@ -55,9 +62,17 @@ const Container = () => {
     const closeCuentaLavadoModal = () => setOpenModalCuenta(false);
 
     const handleAgregarProducto = (producto: ProductoRepository) => {
-        const nuevoProducto = { ...producto, cantidad: 1 };
-        setProductosFactura([...productosFactura, nuevoProducto]);
-        setUltimoProducto(nuevoProducto);
+        setProductosFactura((prev) => {
+            const updated = [...prev];
+            const index = updated.findIndex((p) => p.codigo === producto.codigo);
+            if (index !== -1) {
+                updated[index].cantidad = (updated[index].cantidad || 0) + 1;
+            } else {
+                updated.push({ ...producto, cantidad: 1 });
+            }
+            return updated;
+        });
+        setUltimoProducto({ ...producto, cantidad: 1 });
     };
 
     const handleAgregarCuenta = (event: React.FormEvent) => {
@@ -87,6 +102,55 @@ const Container = () => {
         });
     };
 
+    const handleEnter = (e: KeyboardEvent<HTMLInputElement>) => {
+        if (e.key !== "Enter") return;
+        e.preventDefault();
+
+        const input = form.codigo.trim();
+        if (!input) return;
+
+        const match = input.match(/^([0-9]+)(\*(-?[0-9.]+))?$/);
+        if (!match) {
+            alert("Formato inválido. Usa: codigo o codigo*cantidad");
+            return;
+        }
+
+        const codigo = match[1];
+        const cantidad = parseFloat(match[3]) || 1;
+        const producto = mockProductos.find((p) => p.codigo === codigo);
+        if (!producto) {
+            alert("Producto no encontrado");
+            resetForm();
+            return;
+        }
+
+        setProductosFactura((prev) => {
+            const updated = [...prev];
+            const index = updated.findIndex((p) => p.codigo === codigo);
+            if (index !== -1) {
+                updated[index].cantidad = (updated[index].cantidad || 0) + cantidad;
+                if (updated[index].cantidad! <= 0) updated.splice(index, 1);
+            } else {
+                if (cantidad <= 0) return prev;
+                updated.push({ ...producto, cantidad: Number(cantidad) ?? 0 });
+            }
+            return updated;
+        });
+
+        setUltimoProducto({ ...producto, cantidad });
+        resetForm();
+    };
+
+    const handleBackspace = (e: KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === "Backspace" && form.codigo === "") {
+            setProductosFactura((prev) => {
+                const updated = prev.slice(0, -1);
+                setUltimoProducto(updated.length ? updated[updated.length - 1] : null);
+                return updated;
+            });
+        }
+    };
+
     const currencyFormat = new Intl.NumberFormat("es-CO", {
         style: "currency",
         currency: "COP"
@@ -102,10 +166,65 @@ const Container = () => {
     ];
 
     // mock.ts
-    const mockProductos = [
-        { nombre: "Cerveza", precio: 5000, descuento: 0, cantidad: 2 },
-        { nombre: "Gaseosa", precio: 3000, descuento: 0, cantidad: 1 },
-        { nombre: "Snacks", precio: 4000, descuento: 0, cantidad: 3 },
+    // const mockProductos = [
+    //     { nombre: "Cerveza", precio: 5000, descuento: 0, cantidad: 2 },
+    //     { nombre: "Gaseosa", precio: 3000, descuento: 0, cantidad: 1 },
+    //     { nombre: "Snacks", precio: 4000, descuento: 0, cantidad: 3 },
+    // ];
+
+    const mockProductos: ProductoRepository[] = [
+        {
+            id_producto: "1",
+            codigo: "123",
+            nombre: "Coca-Cola 400ml 1",
+            precio_venta: 3500,
+            cantidad: 0,
+            cantidad_minima: 0,
+            categoria_id: 1,
+            costo: 2500,
+            estado: true,
+            foto_url: "https://licoresmedellin.com/cdn/shop/files/GASEOSA_COCA_COLA_ORIGINAL_MEDIANA_1_5L.jpg",
+            id_inst: 1,
+            impuesto_id: 1,
+            marca_id: 1,
+            proveedor_id: 1,
+            unidad_medida_id: 1
+        },
+        {
+            id_producto: "2",
+            codigo: "124",
+            nombre: "Coca-Cola 400ml 2",
+            precio_venta: 3500,
+            cantidad: 0,
+            cantidad_minima: 0,
+            categoria_id: 1,
+            costo: 2500,
+            estado: true,
+            foto_url: "https://licoresmedellin.com/cdn/shop/files/GASEOSA_COCA_COLA_ORIGINAL_MEDIANA_1_5L.jpg",
+            id_inst: 1,
+            impuesto_id: 1,
+            marca_id: 1,
+            proveedor_id: 1,
+            unidad_medida_id: 1
+        },
+        {
+            id_producto: "3",
+            codigo: "125",
+            nombre: "Coca-Cola 400ml 3",
+            precio_venta: 3500,
+            cantidad: 0,
+            cantidad_minima: 0,
+            categoria_id: 1,
+            costo: 2500,
+            estado: true,
+            foto_url: "https://licoresmedellin.com/cdn/shop/files/GASEOSA_COCA_COLA_ORIGINAL_MEDIANA_1_5L.jpg",
+            id_inst: 1,
+            impuesto_id: 1,
+            marca_id: 1,
+            proveedor_id: 1,
+            unidad_medida_id: 1
+        },
+
     ];
 
 
@@ -221,7 +340,12 @@ const Container = () => {
                         <div className={style.cards} style={{ gap: 0 }}>
                             <div className={style.form_control}>
                                 <label>Código de barras</label>
-                                <input type="search" />
+                                <input type="search" onChange={(e) => onChangeGeneral(e, "codigo")}
+                                    onKeyDown={(e) => {
+                                        handleEnter(e);
+                                        handleBackspace(e);
+                                    }}
+                                    value={form.codigo} />
                             </div>
 
                         </div>
@@ -243,12 +367,12 @@ const Container = () => {
                     <div className={style.facture}>
 
                         {
-                            new Array(10).fill(0).map((_, index) => (
-                                <div className={style.facture__content__item}>
-                                    <p className={style.title__item}>Cerveza Club Colombia</p>
+                            productosFactura.map((p: any, i: any) => (
+                                <div key={i} className={style.facture__content__item}>
+                                    <p className={style.title__item}>{p.nombre}</p>
                                     <div className={style.facture__content__item__info}>
-                                        <p>2 UND x $6.000</p>
-                                        <p>$12.000</p>
+                                        <p>{p.cantidad} UND x {p.precio}</p>
+                                        <p>{currencyFormat.format(p.precio * p.cantidad)}</p>
                                     </div>
                                 </div>
                             ))
@@ -256,6 +380,20 @@ const Container = () => {
                     </div>
                 </div>
             </Modal>
+
+            <ToastContainer
+                position="bottom-right"
+                autoClose={5000}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick={false}
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+                theme={theme}
+                transition={Bounce}
+            />
         </div>
     );
 };
