@@ -12,6 +12,8 @@ import { Bounce, toast, ToastContainer } from "react-toastify";
 import { useTheme } from "../../context/ThemeContext/ThemeContext";
 import type { ProductoRepository } from "../../models/Producto.repository";
 import { useForm } from "../../hooks/useForm";
+import { useUserInfo } from "../../hooks/useUserInfo";
+import { useInventario } from "../../hooks/useInventario";
 
 // Interfaces
 // interface ProductoRepository {
@@ -22,6 +24,7 @@ import { useForm } from "../../hooks/useForm";
 // }
 
 interface CuentaLavado {
+    id_cuenta_cliente: string;
     nombreCliente: string;
     placa: string;
     lavador: string;
@@ -39,7 +42,10 @@ const Container = () => {
 
     const { theme } = useTheme();
 
-    const { usuario } = useAuth();
+    // const { usuario } = useAuth();
+    const { usuarioQuery } = useUserInfo();
+    const { productosQuery } = useInventario();
+
     const [progress, setProgress] = useState<number | null>(null);
 
     const [clienteNombre, setClienteNombre] = useState("");
@@ -47,12 +53,12 @@ const Container = () => {
     const [lavador, setLavador] = useState({ label: "", value: "" });
     const [sala, setSala] = useState({ label: "", value: "" });
 
-    const { cuentasQuery, createCuenta } = useCuenta();
-
     const [cuentaSeleccionada, setCuentaSeleccionada] = useState<CuentaLavado | null>(null);
     const [productosFactura, setProductosFactura] = useState<ProductoRepository[]>([]);
     const [ultimoProducto, setUltimoProducto] = useState<ProductoRepository | null>(null);
     const { form, onChangeGeneral, resetForm } = useForm({ codigo: "" });
+
+    const { cuentasQuery, cuentaByIdiDQuery, createCuenta, agregarProductoCuenta } = useCuenta(cuentaSeleccionada?.id_cuenta_cliente);
 
 
     const openCuentaModal = () => setAbrirCuenta(true);
@@ -61,18 +67,34 @@ const Container = () => {
     const openCuentaLavadoModal = () => setOpenModalCuenta(true);
     const closeCuentaLavadoModal = () => setOpenModalCuenta(false);
 
-    const handleAgregarProducto = (producto: ProductoRepository) => {
-        setProductosFactura((prev) => {
-            const updated = [...prev];
-            const index = updated.findIndex((p) => p.codigo === producto.codigo);
-            if (index !== -1) {
-                updated[index].cantidad = (updated[index].cantidad || 0) + 1;
-            } else {
-                updated.push({ ...producto, cantidad: 1 });
-            }
-            return updated;
-        });
-        setUltimoProducto({ ...producto, cantidad: 1 });
+    const handleAgregarProducto = async (producto: ProductoRepository) => {
+        // Copia del estado actual
+        let updated = [...productosFactura];
+        const index = updated.findIndex((p) => p.codigo === producto.codigo);
+        let cantidadFinal = 1;
+
+        if (index !== -1) {
+            updated[index].cantidad = (updated[index].cantidad || 0) + 1;
+            cantidadFinal = updated[index].cantidad;
+        } else {
+            updated.push({ ...producto, cantidad: 1 });
+        }
+
+        // Llamada a la API antes de setear el estado
+        const res = await agregarProductoCuenta(
+            producto.id_producto,
+            cantidadFinal,
+            usuarioQuery?.data.cliente.id_cliente,
+            cuentaSeleccionada?.id_cuenta_cliente,
+            setProgress
+        );
+
+        if (res.status === 200) {
+            setProductosFactura(updated);
+            setUltimoProducto({ ...producto, cantidad: cantidadFinal });
+        } else {
+            console.log("Error al agregar producto");
+        }
     };
 
     const handleAgregarCuenta = (event: React.FormEvent) => {
@@ -92,7 +114,7 @@ const Container = () => {
             productos: productosFactura
         };
 
-        createCuenta(cuenta, usuario?.id_inst, setProgress).then((response: any) => {
+        createCuenta(cuenta, usuarioQuery?.data.cliente.id_cliente, setProgress).then((response: any) => {
             toast.success(response.data.message);
             closeCuentaModal();
             openCuentaLavadoModal();
@@ -102,7 +124,7 @@ const Container = () => {
         });
     };
 
-    const handleEnter = (e: KeyboardEvent<HTMLInputElement>) => {
+    const handleEnter = async (e: KeyboardEvent<HTMLInputElement>) => {
         if (e.key !== "Enter") return;
         e.preventDefault();
 
@@ -116,28 +138,43 @@ const Container = () => {
         }
 
         const codigo = match[1];
-        const cantidad = parseFloat(match[3]) || 1;
-        const producto = mockProductos.find((p) => p.codigo === codigo);
+        const cantidadIngresada = parseFloat(match[3]) || 1;
+        const producto = productosQuery.data?.find((p: any) => p.codigo === codigo);
         if (!producto) {
             alert("Producto no encontrado");
             resetForm();
             return;
         }
 
-        setProductosFactura((prev) => {
-            const updated = [...prev];
-            const index = updated.findIndex((p) => p.codigo === codigo);
-            if (index !== -1) {
-                updated[index].cantidad = (updated[index].cantidad || 0) + cantidad;
-                if (updated[index].cantidad! <= 0) updated.splice(index, 1);
-            } else {
-                if (cantidad <= 0) return prev;
-                updated.push({ ...producto, cantidad: Number(cantidad) ?? 0 });
-            }
-            return updated;
-        });
+        let updated = [...productosFactura];
+        const index = updated.findIndex((p) => p.codigo === codigo);
+        let cantidadFinal = cantidadIngresada;
 
-        setUltimoProducto({ ...producto, cantidad });
+        if (index !== -1) {
+            updated[index].cantidad = (updated[index].cantidad || 0) + cantidadIngresada;
+            cantidadFinal = updated[index].cantidad;
+            if (cantidadFinal <= 0) updated.splice(index, 1);
+        } else {
+            if (cantidadIngresada <= 0) return;
+            updated.push({ ...producto, cantidad: Number(cantidadIngresada) ?? 0 });
+        }
+
+        // Llamada async antes de hacer setState
+        const res = await agregarProductoCuenta(
+            producto.id_producto,
+            cantidadFinal,
+            usuarioQuery?.data.cliente.id_cliente,
+            cuentaSeleccionada?.id_cuenta_cliente,
+            setProgress
+        );
+
+        // Ahora sí, actualizar en función de la respuesta
+        if (res.status === 200) {
+            setProductosFactura(updated);
+        } else {
+            console.log("Error agregando producto");
+        }
+        setUltimoProducto({ ...producto, cantidad: cantidadIngresada });
         resetForm();
     };
 
@@ -172,60 +209,60 @@ const Container = () => {
     //     { nombre: "Snacks", precio: 4000, descuento: 0, cantidad: 3 },
     // ];
 
-    const mockProductos: ProductoRepository[] = [
-        {
-            id_producto: "1",
-            codigo: "123",
-            nombre: "Coca-Cola 400ml 1",
-            precio_venta: 3500,
-            cantidad: 0,
-            cantidad_minima: 0,
-            categoria_id: 1,
-            costo: 2500,
-            estado: true,
-            foto_url: "https://licoresmedellin.com/cdn/shop/files/GASEOSA_COCA_COLA_ORIGINAL_MEDIANA_1_5L.jpg",
-            id_inst: 1,
-            impuesto_id: 1,
-            marca_id: 1,
-            proveedor_id: 1,
-            unidad_medida_id: 1
-        },
-        {
-            id_producto: "2",
-            codigo: "124",
-            nombre: "Coca-Cola 400ml 2",
-            precio_venta: 3500,
-            cantidad: 0,
-            cantidad_minima: 0,
-            categoria_id: 1,
-            costo: 2500,
-            estado: true,
-            foto_url: "https://licoresmedellin.com/cdn/shop/files/GASEOSA_COCA_COLA_ORIGINAL_MEDIANA_1_5L.jpg",
-            id_inst: 1,
-            impuesto_id: 1,
-            marca_id: 1,
-            proveedor_id: 1,
-            unidad_medida_id: 1
-        },
-        {
-            id_producto: "3",
-            codigo: "125",
-            nombre: "Coca-Cola 400ml 3",
-            precio_venta: 3500,
-            cantidad: 0,
-            cantidad_minima: 0,
-            categoria_id: 1,
-            costo: 2500,
-            estado: true,
-            foto_url: "https://licoresmedellin.com/cdn/shop/files/GASEOSA_COCA_COLA_ORIGINAL_MEDIANA_1_5L.jpg",
-            id_inst: 1,
-            impuesto_id: 1,
-            marca_id: 1,
-            proveedor_id: 1,
-            unidad_medida_id: 1
-        },
+    // const mockProductos: ProductoRepository[] = [
+    //     {
+    //         id_producto: "1",
+    //         codigo: "123",
+    //         nombre: "Coca-Cola 400ml 1",
+    //         precio_venta: 3500,
+    //         cantidad: 0,
+    //         cantidad_minima: 0,
+    //         categoria_id: 1,
+    //         costo: 2500,
+    //         estado: true,
+    //         foto_url: "https://licoresmedellin.com/cdn/shop/files/GASEOSA_COCA_COLA_ORIGINAL_MEDIANA_1_5L.jpg",
+    //         id_inst: 1,
+    //         impuesto_id: 1,
+    //         marca_id: 1,
+    //         proveedor_id: 1,
+    //         unidad_medida_id: 1
+    //     },
+    //     {
+    //         id_producto: "2",
+    //         codigo: "124",
+    //         nombre: "Coca-Cola 400ml 2",
+    //         precio_venta: 3500,
+    //         cantidad: 0,
+    //         cantidad_minima: 0,
+    //         categoria_id: 1,
+    //         costo: 2500,
+    //         estado: true,
+    //         foto_url: "https://licoresmedellin.com/cdn/shop/files/GASEOSA_COCA_COLA_ORIGINAL_MEDIANA_1_5L.jpg",
+    //         id_inst: 1,
+    //         impuesto_id: 1,
+    //         marca_id: 1,
+    //         proveedor_id: 1,
+    //         unidad_medida_id: 1
+    //     },
+    //     {
+    //         id_producto: "3",
+    //         codigo: "125",
+    //         nombre: "Coca-Cola 400ml 3",
+    //         precio_venta: 3500,
+    //         cantidad: 0,
+    //         cantidad_minima: 0,
+    //         categoria_id: 1,
+    //         costo: 2500,
+    //         estado: true,
+    //         foto_url: "https://licoresmedellin.com/cdn/shop/files/GASEOSA_COCA_COLA_ORIGINAL_MEDIANA_1_5L.jpg",
+    //         id_inst: 1,
+    //         impuesto_id: 1,
+    //         marca_id: 1,
+    //         proveedor_id: 1,
+    //         unidad_medida_id: 1
+    //     },
 
-    ];
+    // ];
 
 
     return (
@@ -350,7 +387,7 @@ const Container = () => {
 
                         </div>
                         <div className={style.cards} style={{ display: "flex", flexDirection: "row", flexWrap: "wrap", gap: 20, maxHeight: 220, overflowY: "auto" }}>
-                            {mockProductos.map((producto) => (
+                            {productosQuery.data?.map((producto: any) => (
                                 <CardProductotienda
                                     key={producto.codigo}
                                     {...producto}

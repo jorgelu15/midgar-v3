@@ -30,7 +30,6 @@ const CardProductotienda = ({
       style={{ backgroundImage: `url(${foto_url})` }}
     >
       <div className={style.overlay}>
-        <span className={style.atajo}>( {id_producto?.slice(0, 3)} )</span>
         <p>{nombre.charAt(0).toUpperCase() + nombre?.slice(1)}</p>
       </div>
     </div>

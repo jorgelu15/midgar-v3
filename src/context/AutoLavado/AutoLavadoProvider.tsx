@@ -37,6 +37,23 @@ const CuentaProvider = ({ children }: { children: React.ReactNode }) => {
         }
     }
 
+    const agregarProductoCuenta = async (id_producto: number, cantidad: number, id_inst: number, id_cuenta_cliente: number, setProgress: any) => {
+        try {
+            const res = await api.post(`/ventas-y-servicios/cuenta/agregar-producto`, {producto: { id_producto: id_producto, cantidad: cantidad}, id_inst: id_inst, id_cuenta_cliente: id_cuenta_cliente},
+            {
+                withCredentials: true,
+                onUploadProgress: (progressEvent: AxiosProgressEvent) => {
+                    const percentage = Math.round((progressEvent.loaded * 100) / (progressEvent?.total ? progressEvent?.total : 0));
+                    setProgress(percentage);
+                }
+            });
+
+            return res;
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
     return (
         <AutoLavadoContext.Provider
             value={{
@@ -44,6 +61,7 @@ const CuentaProvider = ({ children }: { children: React.ReactNode }) => {
                 msg: state.msg,
                 cargando: state.cargando,
                 createCuenta,
+                agregarProductoCuenta
             }}
         >
             {children}
