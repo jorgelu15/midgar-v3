@@ -8,6 +8,7 @@ import volver from "../../assets/volver.svg";
 import tienda from "../../assets/tienda.svg";
 import factura_manual from "../../assets/factura_manual.svg";
 import wash from "../../assets/wash.svg";
+import { useUserInfo } from "../../hooks/useUserInfo";
 
 const items = [
     { label: "Dashboard", href: routes.dashboard },
@@ -15,13 +16,15 @@ const items = [
 ];
 
 const menuItems = [
-    { shortcode: "Escape", image: volver, title: "Volver", destiny: routes.dashboard },
-    { shortcode: "1", image: tienda, title: "Tienda", destiny: routes.tienda },
-    { shortcode: "2", image: factura_manual, title: "Factura manual", destiny: routes.factura_manual },
-    { shortcode: "3", image: wash, title: "Auto lavado", destiny: routes.autolavado },
+    { shortcode: "Escape", image: volver, title: "Volver", codigo_permiso: "POS_NORMAL", destiny: routes.dashboard },
+    { shortcode: "1", image: tienda, title: "Tienda", codigo_permiso: "POS_NORMAL", destiny: routes.tienda },
+    { shortcode: "2", image: factura_manual, title: "Factura manual", codigo_permiso: "FACTURA_MANUAL", destiny: routes.factura_manual },
+    { shortcode: "3", image: wash, title: "Auto lavado", codigo_permiso: "AUTO_LAVADO", destiny: routes.autolavado },
 
 ];
 const Container = () => {
+    const { usuarioQuery } = useUserInfo();
+        const user = usuarioQuery.data;
     const navigate = useNavigate();
 
     // Construir los atajos a partir de menuItems
@@ -47,6 +50,8 @@ const Container = () => {
                         title={item.title}
                         redirect={() => navigate(item.destiny)}
                         to={item.destiny}
+                        codigo_permiso={item.codigo_permiso}
+                        permisos={user?.permisos}
                     />
                 ))}
             </div>

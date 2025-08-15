@@ -8,6 +8,7 @@ import close_wallet from "../../assets/close_wallet.svg";
 import recogida_money from "../../assets/recogida.svg";
 import { useNavigate } from "react-router-dom";
 import { useShortcuts } from "../../hooks/useShortcodes";
+import { useUserInfo } from "../../hooks/useUserInfo";
 
 const items = [
     { label: "Dashboard", href: routes.dashboard },
@@ -15,12 +16,15 @@ const items = [
 ];
 
 const menuItems = [
-    { shortcode: "Escape", image: volver, title: "Volver", destiny: routes.dashboard },
-    { shortcode: "1", image: open_wallet, title: "Apertura", destiny: routes.apertura },
-    { shortcode: "2", image: close_wallet, title: "Cierre", destiny: routes.cierre },
-    { shortcode: "3", image: recogida_money, title: "Recogida", destiny: routes.recogida },
+    { shortcode: "Escape", image: volver, title: "Volver", codigo_permiso: "APERTURA_CAJA", destiny: routes.dashboard },
+    { shortcode: "1", image: open_wallet, title: "Apertura", codigo_permiso: "APERTURA_CAJA", destiny: routes.apertura },
+    { shortcode: "2", image: close_wallet, title: "Cierre", codigo_permiso: "CIERRE_CAJA", destiny: routes.cierre },
+    { shortcode: "3", image: recogida_money, title: "Recogida", codigo_permiso: "RECOGIDA_CAJA", destiny: routes.recogida },
 ];
 const Container = () => {
+    const { usuarioQuery } = useUserInfo();
+    const user = usuarioQuery.data;
+
     const navigate = useNavigate();
 
     // Construir los atajos a partir de menuItems
@@ -46,6 +50,8 @@ const Container = () => {
                         title={item.title}
                         redirect={() => navigate(item.destiny)}
                         to={item.destiny}
+                        codigo_permiso={item.codigo_permiso}
+                        permisos={user?.permisos}
                     />
                 ))}
             </div>

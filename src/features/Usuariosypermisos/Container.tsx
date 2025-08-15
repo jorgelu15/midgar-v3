@@ -30,6 +30,7 @@ const menuItems = [
 ];
 
 const Container = () => {
+
     const navigate = useNavigate();
     const searchInputRef = useRef<HTMLInputElement>(null);
 

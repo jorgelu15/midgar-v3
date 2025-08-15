@@ -12,6 +12,7 @@
     font-weight: 400;
     color: var(--text-primary);
     margin-bottom: 10px;
+    text-transform: capitalize;
 }
 
 .msg__welcome p {

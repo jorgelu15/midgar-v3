@@ -7,13 +7,26 @@ interface CardMenuProps {
   title: string;
   redirect: (shortcode: string) => void;
   to: string;
+  permisos: Permiso[];
+  codigo_permiso: string
 }
 
-const CardMenu = ({ shortcode, image, title, redirect, to }: CardMenuProps) => {
+interface Permiso {
+  nombre_permiso: string;
+  codigo_permiso: string;
+  descripcion_permiso: string;
+  id_permiso: number;
+}
+
+const CardMenu = ({ shortcode, image, title, redirect, to, permisos, codigo_permiso }: CardMenuProps) => {
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault(); // Previene doble navegación si `redirect` ya hace `navigate`
     redirect(shortcode);
   };
+
+  const tienePermiso = permisos?.some((permiso) => permiso.codigo_permiso === codigo_permiso || codigo_permiso === "");
+  console.log(tienePermiso)
+  if (!tienePermiso) return null
 
   return (
     <Link to={to} className={style.card} onClick={handleClick}>

@@ -12,16 +12,17 @@ import settings from "../../assets/settings.png";
 import CardMenu from "../../components/cards/CardMenu";
 import { routes } from "../../utils/routes";
 import Breadcrumb from "../../components/breadcrumbs/Breadcrumb";
+import { useUserInfo } from "../../hooks/useUserInfo";
 
 const menuItems = [
-    { shortcode: "1", image: vender, title: "Vender", destiny: routes.vender },
-    { shortcode: "2", image: caja, title: "Caja", destiny: routes.caja },
-    { shortcode: "3", image: clientes, title: "Clientes", destiny: routes.clientes },
-    { shortcode: "4", image: InventarioFisico, title: "Inventario Físico", destiny: routes.InventarioFisico },
-    { shortcode: "5", image: fiados, title: "Fiados", destiny: routes.fiados },
-    { shortcode: "6", image: stats, title: "Estadísticas", destiny: routes.estadisticas },
-    { shortcode: "7", image: contabilidadIcon, title: "Contabilidad", destiny: routes.contabilidad },
-    { shortcode: "8", image: settings, title: "Ajustes", destiny: routes.ajustes },
+    { shortcode: "1", image: vender, title: "Vender", codigo_permiso: "VENTAS", destiny: routes.vender },
+    { shortcode: "2", image: caja, title: "Caja", codigo_permiso: "CAJA", destiny: routes.caja },
+    { shortcode: "3", image: clientes, title: "Clientes", codigo_permiso: "CLIENTES", destiny: routes.clientes },
+    { shortcode: "4", image: InventarioFisico, title: "Inventario Físico", codigo_permiso: "GESTION_INVENTARIO", destiny: routes.InventarioFisico },
+    { shortcode: "5", image: fiados, title: "Fiados", codigo_permiso: "GESTION_FIADOS", destiny: routes.fiados },
+    { shortcode: "6", image: stats, title: "Estadísticas", codigo_permiso: "GESTION_ESTADISTICAS", destiny: routes.estadisticas },
+    { shortcode: "7", image: contabilidadIcon, title: "Contabilidad", codigo_permiso: "GESTION_CONTABILIDAD", destiny: routes.contabilidad },
+    { shortcode: "8", image: settings, title: "Ajustes", codigo_permiso: "GESTION_AJUSTES", destiny: routes.ajustes },
 ];
 
 const items = [
@@ -30,6 +31,23 @@ const items = [
 
 const Container = () => {
     const navigate = useNavigate();
+    const { usuarioQuery } = useUserInfo();
+    const user = usuarioQuery.data;
+    function obtenerFechaEstilo(): string {
+        const fecha = new Date();
+
+        const opciones: Intl.DateTimeFormatOptions = {
+            weekday: "long", // <- ahora es literal, no string genérico
+            day: "numeric",
+            month: "long"
+        };
+
+        const fechaFormateada = fecha.toLocaleDateString("es-ES", opciones);
+
+        // Capitalizar la primera letra
+        return `Hoy es ${fechaFormateada.charAt(0).toUpperCase()}${fechaFormateada.slice(1)}`;
+    }
+
 
     // Construir los atajos a partir de menuItems
     const shortcuts = menuItems.reduce((map, item) => {
@@ -43,8 +61,8 @@ const Container = () => {
         <div className={"container"}>
             <Breadcrumb items={items} />
             <div className={style.msg__welcome}>
-                <h1>¡Hola Don John Lopez!</h1>
-                <p>Hoy es Martes, 8 de julio</p>
+                <h1>¡Hola Don {user?.nombre}!</h1>
+                <p>{obtenerFechaEstilo()}</p>
             </div>
             <div className={style.cards}>
                 {menuItems.map((item, index) => (
@@ -55,6 +73,8 @@ const Container = () => {
                         title={item.title}
                         redirect={() => navigate(item.destiny)}
                         to={item.destiny}
+                        codigo_permiso={item.codigo_permiso}
+                        permisos={user?.permisos}
                     />
                 ))}
             </div>
