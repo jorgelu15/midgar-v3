@@ -2,7 +2,7 @@ import style from "./cardcuentalavado.module.css";
 import wash from "../../assets/wash.svg"
 interface Producto {
     nombre: string;
-    precio: number;
+    precio_venta: number;
     descuento: number;
     cantidad: number;
 }
@@ -27,7 +27,7 @@ const CardCuentaLavado = ({
     onClick,
 }: CuentaLavadoProps) => {
     const total = productos.reduce(
-        (acc, p) => acc + p.precio * p.cantidad,
+        (acc, p) => acc + p.precio_venta * p.cantidad,
         0
     );
 

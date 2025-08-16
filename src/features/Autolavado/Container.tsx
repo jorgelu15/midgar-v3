@@ -58,9 +58,8 @@ const Container = () => {
     const [ultimoProducto, setUltimoProducto] = useState<ProductoRepository | null>(null);
     const { form, onChangeGeneral, resetForm } = useForm({ codigo: "" });
 
-    const { cuentasQuery, cuentaByIdiDQuery, createCuenta, agregarProductoCuenta } = useCuenta(cuentaSeleccionada?.id_cuenta_cliente);
-
-
+    const { cuentasQuery, cuentaByIdiDQuery, createCuenta, agregarProductoCuenta } = useCuenta(cuentaSeleccionada?.id_cuenta_cliente || null);
+    
     const openCuentaModal = () => setAbrirCuenta(true);
     const closeCuentaModal = () => setAbrirCuenta(false);
 
@@ -69,7 +68,8 @@ const Container = () => {
 
     const handleAgregarProducto = async (producto: ProductoRepository) => {
         // Copia del estado actual
-        let updated = [...productosFactura];
+        let updated = [...cuentaSeleccionada?.productos || []];
+
         const index = updated.findIndex((p) => p.codigo === producto.codigo);
         let cantidadFinal = 1;
 
@@ -78,6 +78,10 @@ const Container = () => {
             cantidadFinal = updated[index].cantidad;
         } else {
             updated.push({ ...producto, cantidad: 1 });
+            setCuentaSeleccionada({
+                ...cuentaSeleccionada,
+                productos: [...cuentaSeleccionada?.productos, {...producto, cantidad: 1}]
+            });
         }
 
         // Llamada a la API antes de setear el estado
@@ -146,14 +150,16 @@ const Container = () => {
             return;
         }
 
-        let updated = [...productosFactura];
+        let updated = [...cuentaSeleccionada?.productos || []];
         const index = updated.findIndex((p) => p.codigo === codigo);
         let cantidadFinal = cantidadIngresada;
 
         if (index !== -1) {
             updated[index].cantidad = (updated[index].cantidad || 0) + cantidadIngresada;
             cantidadFinal = updated[index].cantidad;
+            console.log("antes", updated);
             if (cantidadFinal <= 0) updated.splice(index, 1);
+            console.log("después", updated);
         } else {
             if (cantidadIngresada <= 0) return;
             updated.push({ ...producto, cantidad: Number(cantidadIngresada) ?? 0 });
@@ -170,7 +176,14 @@ const Container = () => {
 
         // Ahora sí, actualizar en función de la respuesta
         if (res.status === 200) {
-            setProductosFactura(updated);
+            // setProductosFactura(updated);
+            console.log(updated);
+            setCuentaSeleccionada({
+                ...cuentaSeleccionada,
+                productos: updated
+            });
+            resetForm();
+            // Aquí podrías hacer algo con la cuenta actualizada, como mostrar un mensaje o actualizar el estado
         } else {
             console.log("Error agregando producto");
         }
@@ -193,7 +206,7 @@ const Container = () => {
         currency: "COP"
     });
 
-    const total = productosFactura.reduce((acc, p) => acc + (p.precio_venta * (p.cantidad || 1)), 0);
+    const total = cuentaSeleccionada?.productos.reduce((acc, p) => acc + (p.precio_venta * (p.cantidad || 1)), 0);
 
     const opciones = [
         { label: "Lavador 1", value: "1" },
@@ -201,69 +214,6 @@ const Container = () => {
         { label: "Sala A", value: "A" },
         { label: "Sala B", value: "B" }
     ];
-
-    // mock.ts
-    // const mockProductos = [
-    //     { nombre: "Cerveza", precio: 5000, descuento: 0, cantidad: 2 },
-    //     { nombre: "Gaseosa", precio: 3000, descuento: 0, cantidad: 1 },
-    //     { nombre: "Snacks", precio: 4000, descuento: 0, cantidad: 3 },
-    // ];
-
-    // const mockProductos: ProductoRepository[] = [
-    //     {
-    //         id_producto: "1",
-    //         codigo: "123",
-    //         nombre: "Coca-Cola 400ml 1",
-    //         precio_venta: 3500,
-    //         cantidad: 0,
-    //         cantidad_minima: 0,
-    //         categoria_id: 1,
-    //         costo: 2500,
-    //         estado: true,
-    //         foto_url: "https://licoresmedellin.com/cdn/shop/files/GASEOSA_COCA_COLA_ORIGINAL_MEDIANA_1_5L.jpg",
-    //         id_inst: 1,
-    //         impuesto_id: 1,
-    //         marca_id: 1,
-    //         proveedor_id: 1,
-    //         unidad_medida_id: 1
-    //     },
-    //     {
-    //         id_producto: "2",
-    //         codigo: "124",
-    //         nombre: "Coca-Cola 400ml 2",
-    //         precio_venta: 3500,
-    //         cantidad: 0,
-    //         cantidad_minima: 0,
-    //         categoria_id: 1,
-    //         costo: 2500,
-    //         estado: true,
-    //         foto_url: "https://licoresmedellin.com/cdn/shop/files/GASEOSA_COCA_COLA_ORIGINAL_MEDIANA_1_5L.jpg",
-    //         id_inst: 1,
-    //         impuesto_id: 1,
-    //         marca_id: 1,
-    //         proveedor_id: 1,
-    //         unidad_medida_id: 1
-    //     },
-    //     {
-    //         id_producto: "3",
-    //         codigo: "125",
-    //         nombre: "Coca-Cola 400ml 3",
-    //         precio_venta: 3500,
-    //         cantidad: 0,
-    //         cantidad_minima: 0,
-    //         categoria_id: 1,
-    //         costo: 2500,
-    //         estado: true,
-    //         foto_url: "https://licoresmedellin.com/cdn/shop/files/GASEOSA_COCA_COLA_ORIGINAL_MEDIANA_1_5L.jpg",
-    //         id_inst: 1,
-    //         impuesto_id: 1,
-    //         marca_id: 1,
-    //         proveedor_id: 1,
-    //         unidad_medida_id: 1
-    //     },
-
-    // ];
-
 
     return (
         <div className="container" style={{ marginTop: 0 }}>
@@ -404,12 +354,12 @@ const Container = () => {
                     <div className={style.facture}>
 
                         {
-                            productosFactura.map((p: any, i: any) => (
+                            cuentaSeleccionada?.productos.map((p: any, i: any) => (
                                 <div key={i} className={style.facture__content__item}>
                                     <p className={style.title__item}>{p.nombre}</p>
                                     <div className={style.facture__content__item__info}>
-                                        <p>{p.cantidad} UND x {p.precio}</p>
-                                        <p>{currencyFormat.format(p.precio * p.cantidad)}</p>
+                                        <p>{p.cantidad} UND x {p.precio_venta}</p>
+                                        <p>{currencyFormat.format(p.precio_venta * p.cantidad)}</p>
                                     </div>
                                 </div>
                             ))

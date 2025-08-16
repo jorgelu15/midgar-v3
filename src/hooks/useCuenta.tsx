@@ -30,7 +30,7 @@ export const useCuenta = (id_cuenta_cliente?: string | null) => {
         queryKey: ["cuenta_cliente", usuarioQuery.data?.cliente.id_cliente, id_cuenta_cliente],
         queryFn: fetchCuentaById,
         refetchOnWindowFocus: true,
-        enabled: usuarioQuery.data?.cliente.id_cliente != null
+        enabled: usuarioQuery.data?.cliente.id_cliente != null && id_cuenta_cliente != null
     });
 
     return {
