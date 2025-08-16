@@ -10,7 +10,7 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { useTheme } from '../../context/ThemeContext/ThemeContext';
 const Signin = () => {
-    const { isAuthenticated, signIn } = useAuth();
+    const { isAuthenticated, signIn, usuarioAutenticado } = useAuth();
     const { theme } = useTheme();
 
     const { form, onChangeGeneral } = useForm({
@@ -24,11 +24,17 @@ const Signin = () => {
     let navigate = useNavigate();
 
 
-    let from = location.state?.from?.pathname || routes.signin;
+    let from = location.state?.from?.pathname || routes.dashboard;
+
+    useEffect(() => {
+        usuarioAutenticado();
+    }, []);
 
     useEffect(() => {
         if (isAuthenticated) navigate(from, { replace: true });
     }, [isAuthenticated, navigate, from]);
+
+    
 
     const onAuthenticate = (e: any) => {
         e.preventDefault();

@@ -1,0 +1,23 @@
+.notpermissions {
+    display: flex;
+}
+
+.msg_alert {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start; /* en lugar de center */
+    gap: 20px;
+}
+
+.img {
+    display: flex;
+    align-items: flex-start; /* opcional si quieres forzar que la imagen se quede arriba */
+}
+
+.text {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    color: var(--text-muted);
+
+}

@@ -102,6 +102,55 @@ label {
   align-items: center;
 }
 
-input[type="checkbox"] {
-  margin-right: 8px;
+/* Contenedor del toggle */
+.toggle {
+  position: relative;
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  color: var(--text-muted);
+  cursor: pointer;
+  gap: 10px;
+  /* espacio entre switch y texto */
+}
+
+/* Escondemos el checkbox */
+.toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  position: absolute;
+}
+
+/* Estilo del switch */
+.slider {
+  position: relative;
+  width: 40px;
+  height: 20px;
+  background-color: var(--secondary);
+  border-radius: 20px;
+  transition: 0.3s;
+  flex-shrink: 0;
+}
+
+/* Botón dentro del switch */
+.slider::before {
+  content: "";
+  position: absolute;
+  height: 16px;
+  width: 16px;
+  left: 2px;
+  bottom: 2px;
+  background-color: white;
+  border-radius: 50%;
+  transition: 0.3s;
+}
+
+/* Activado */
+.toggle input:checked+.slider {
+  background-color: var(--accent, #4caf50);
+}
+
+.toggle input:checked+.slider::before {
+  transform: translateX(20px);
 }

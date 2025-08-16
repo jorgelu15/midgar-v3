@@ -25,7 +25,7 @@ const CardMenu = ({ shortcode, image, title, redirect, to, permisos, codigo_perm
   };
 
   const tienePermiso = permisos?.some((permiso) => permiso.codigo_permiso === codigo_permiso || codigo_permiso === "");
-  console.log(tienePermiso)
+  
   if (!tienePermiso) return null
 
   return (
