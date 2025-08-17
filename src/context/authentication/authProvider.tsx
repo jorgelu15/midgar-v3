@@ -39,6 +39,10 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             withCredentials: true
         });
 
+        dispatch({
+            type: typeState.LOGIN_EXITOSO,
+            payload: res.data
+        });
 
         return res;
     }

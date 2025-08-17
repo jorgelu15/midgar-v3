@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer, Bounce } from "react-toastify";
 
@@ -10,6 +10,13 @@ import { useForm } from "../../hooks/useForm";
 import { useShortcuts } from "../../hooks/useShortcodes";
 import { routes } from "../../utils/routes";
 import style from "./container.module.css";
+import { useUserInfo } from "../../hooks/useUserInfo";
+import NotPermissions from "../../components/NotPermissions/NotPermissions";
+import type { PermisoRepository } from "../../models/Permiso.repository";
+import { useUsuarios } from "../../hooks/useUsuarios";
+import { mapUsuariosToRows } from "../../utils/adapters/usuarios.adapter";
+import add_permission from "../../assets/add_permission.svg";
+import type { RolRepository } from "../../models/Rol.repository";
 
 const items = [
     { label: "Dashboard", href: routes.dashboard },
@@ -30,9 +37,10 @@ const menuItems = [
 ];
 
 const Container = () => {
-
     const navigate = useNavigate();
     const searchInputRef = useRef<HTMLInputElement>(null);
+
+    const PERMISSION_ACCESS = "USUARIOS_PERMISOS";
 
     const [openModal, setOpenModal] = useState(false);
     const [openModalPermissions, setOpenModalPermissions] = useState<{ isOpen: boolean, userId: string | null }>({
@@ -40,7 +48,39 @@ const Container = () => {
         userId: null
     });
 
-    const { form, onChangeGeneral } = useForm({
+    const [selectedPermissions, setSelectedPermissions] = useState<PermisoRepository[]>([]);
+
+
+    const { usuarioQuery, } = useUserInfo();
+    const user = usuarioQuery.data;
+
+    const {
+        usuariosByClienteQuery,
+        rolesByClienteQuery,
+        permisosByClienteQuery,
+        usuarioInfoQuery,
+        createEmpleadoMutation,
+        updateEmpleadoMutation,
+        asignarPermisosMutation,
+        quitarPermisosMutation
+
+    } = useUsuarios(openModalPermissions?.userId);
+
+    const usuarios = usuariosByClienteQuery.data;
+    const empleado = usuarioInfoQuery.data
+
+
+
+    const roles = rolesByClienteQuery.data;
+
+    const permisos = user?.permisos;
+    const grantedPermission = permisos?.some((permiso: PermisoRepository) =>
+        permiso.codigo_permiso === PERMISSION_ACCESS);
+
+    const permisosByCliente = permisosByClienteQuery.data
+
+
+    const { form, onChangeGeneral, setState, resetForm } = useForm({
         query: "",
         nombre: "",
         email: "",
@@ -48,22 +88,38 @@ const Container = () => {
         tipo: "",
     });
 
+    useEffect(() => {
+        if (empleado) {
+            setState({
+                nombre: empleado.nombre,
+                email: empleado.email,
+            });
+            setRol(empleado.roles[0].id_rol ?? "");
+            setSelectedPermissions(empleado.permisos || []);
+        }
+    }, [empleado]);
+
+
+    const [rol, setRol] = useState<string>("");
+
+    const onChangeRol = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        setRol(e.target.value);
+    };
+
+
     const header_items = ["Nombre", "Correo", "Rol", "Fecha de registro", "Acciones"];
 
-    const originalRows: string[][] = [
-        ["Jorge Guardo", "jorge@gmail.com", "Administrador", "09/07/2025"],
-        ["Ana Pérez", "ana@gmail.com", "Empleado", "09/07/2025"],
-        ["Luis Martínez", "luis@hotmail.com", "Empleado", "08/07/2025"],
-        ["Carlos Ramírez", "carlos@yahoo.com", "Administrador", "07/07/2025"],
-    ];
+    const originalRows = mapUsuariosToRows(usuarios || []);
 
     const filteredRows = useMemo(() => {
-        const query = form.query.toLowerCase();
+        const query = form?.query?.toLowerCase();
         if (!query) return originalRows;
         return originalRows.filter((row) =>
-            row.some((cell) => String(cell).toLowerCase().includes(query))
+            Object.values(row).some((value) =>
+                String(value).toLowerCase().includes(query)
+            )
         );
-    }, [form.query]);
+    }, [form.query, originalRows]);
 
     const shortcuts = menuItems.reduce((map, item) => {
         const key = item.shortcode;
@@ -81,15 +137,82 @@ const Container = () => {
 
     useShortcuts(shortcuts);
 
-    const onCreateUser = () => {
-        if (!form.nombre || !form.email || !form.password || !form.tipo) {
+    const onCreateEmpleado = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        if (!form.nombre || !form.email || !form.password || rol === "" || user?.cliente.id_cliente == null) {
             toast.error("Por favor, completa todos los campos.");
             return;
         }
 
-        toast.success("Usuario creado correctamente");
+        createEmpleadoMutation.mutate({
+            nombre: form.nombre,
+            email: form.email,
+            password_hash: form.password,
+            id_rol: rol,
+            id_cliente: user?.cliente.id_cliente
+        }, {
+            onSuccess: () => {
+                toast.success("Usuario creado exitosamente");
+                setOpenModal(false);
+            },
+            onError: (error: any) => {
+                toast.error(error.message);
+            }
+        });
+
         setOpenModal(false);
     };
+
+
+    const onAssignPermissions = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+
+        if (openModalPermissions.userId === null) {
+            toast.error("Por favor, selecciona un usuario");
+            return;
+        }
+
+    }
+
+    const onTogglePermission = (permisoId: string, checked: boolean) => {
+        if (!openModalPermissions.userId) return;
+
+        const payload = {
+            id_rol: rol,
+            id_permiso: permisoId,
+            id_cliente: empleado?.cliente.id_cliente,
+            id_usuario: openModalPermissions.userId
+        };
+
+        console.log(checked)
+
+        if (!checked) {
+            // Asignar permiso
+            asignarPermisosMutation.mutate(payload, {
+                onSuccess: () => {
+                    toast.success("Permiso asignado exitosamente");
+                },
+                onError: (error: any) => {
+                    toast.error(error.message);
+                }
+            });
+        } else {
+            // Quitar permiso
+            quitarPermisosMutation.mutate(payload, {
+                onSuccess: () => {
+                    toast.success("Permiso quitado exitosamente");
+                },
+                onError: (error: any) => {
+                    toast.error(error.message);
+                }
+            });
+        }
+    };
+
+
+
+    if (!grantedPermission) return <NotPermissions />
+
 
     return (
         <div className="container">
@@ -107,7 +230,7 @@ const Container = () => {
                             ref={searchInputRef}
                             type="search"
                             placeholder="Buscar un usuario"
-                            value={form.query}
+                            value={form.query ?? ""}
                             onChange={(e) => onChangeGeneral(e, "query")}
                         />
                     </div>
@@ -121,20 +244,25 @@ const Container = () => {
                         defaultRowsPerPage={10}
                         renderRow={(row) => (
                             <>
-                                {row.map((cell, i) => (
-                                    <td key={i}>{cell}</td>
-                                ))}
+                                <td>{row.nombre}</td>
+                                <td>{row.correo}</td>
+                                <td>{row.rol}</td>
+                                <td>{row.fechaRegistro}</td>
                                 <td>
                                     <img
-                                        src="/icon.svg"
+                                        src={add_permission}
                                         alt="Gestionar"
+                                        title="Gestionar"
                                         style={{ cursor: "pointer" }}
-                                        onClick={() => setOpenModalPermissions({ isOpen: true, userId: row[0] })}
+                                        onClick={() =>
+                                            setOpenModalPermissions({ isOpen: true, userId: row.id })
+                                        }
                                     />
                                 </td>
                             </>
                         )}
                     />
+
 
                     <div className={style.shortcut_guide}>
                         <h3>Atajos de teclado</h3>
@@ -155,80 +283,98 @@ const Container = () => {
 
             {openModal && (
                 <Modal title="Crear usuario" onClose={() => setOpenModal(false)} isOpen={openModal}>
-                    <div className={style.form_control}>
-                        <label>Nombre</label>
-                        <input value={form.nombre} onChange={(e) => onChangeGeneral(e, "nombre")} placeholder="Ingrese un nombre" />
-                    </div>
-                    <div className={style.form_control}>
-                        <label>Correo</label>
-                        <input value={form.email} onChange={(e) => onChangeGeneral(e, "email")} placeholder="Ingrese un correo electrónico" />
-                    </div>
-                    <div className={style.form_control}>
-                        <label>Contraseña</label>
-                        <input type="password" value={form.password} onChange={(e) => onChangeGeneral(e, "password")} placeholder="Ingrese una contraseña" />
-                    </div>
-                    <div className={style.form_control}>
-                        <label>Rol</label>
-                        <select value={form.tipo} onChange={(e) => onChangeGeneral(e, "tipo")}>
-                            <option value="">Selecciona un rol</option>
-                            <option value="admin">Administrador</option>
-                            <option value="cajero">Cajero</option>
-                            <option value="domiciliario">Domiciliario</option>
-                        </select>
-                    </div>
-                    <button className="btn btn_primary" onClick={onCreateUser} style={{ width: "100%" }}>
-                        Guardar cambios
-                    </button>
+                    <form onSubmit={onCreateEmpleado}>
+                        <div className={style.form_control}>
+                            <label>Nombre</label>
+                            <input value={form.nombre} onChange={(e) => onChangeGeneral(e, "nombre")} placeholder="Ingrese un nombre" />
+                        </div>
+                        <div className={style.form_control}>
+                            <label>Correo</label>
+                            <input value={form.email} onChange={(e) => onChangeGeneral(e, "email")} placeholder="Ingrese un correo electrónico" />
+                        </div>
+                        <div className={style.form_control}>
+                            <label>Contraseña</label>
+                            <input type="password" value={form.password} onChange={(e) => onChangeGeneral(e, "password")} placeholder="Ingrese una contraseña" />
+                        </div>
+                        <div className={style.form_control}>
+                            <label>Rol</label>
+                            <select value={rol} onChange={onChangeRol}>
+                                <option value="">Selecciona un rol</option>
+                                {
+                                    roles.map((rol: RolRepository, index: number) => (
+                                        <option key={index} value={rol.id}>{rol.nombre_rol}</option>
+                                    ))
+                                }
+                            </select>
+                        </div>
+                        <button className="btn btn_primary" type="submit" style={{ width: "100%" }}>
+                            Guardar cambios
+                        </button>
+                    </form>
                 </Modal>
             )}
 
             {openModalPermissions.isOpen && (
-                <Modal title="Gestionar datos y permisos del usuario" onClose={() => setOpenModalPermissions({ isOpen: !openModalPermissions.isOpen, userId: null })} isOpen={openModalPermissions.isOpen}>
-                    <div className={style.form_control}>
-                        <label>Nombre de usuario</label>
-                        <input
-                            required
-                            value={form.nombre}
-                            onChange={(e) => onChangeGeneral(e, "nombre")}
-                            type="nombre"
-                            placeholder="Ingresa el nombre de usuario"
-                        />
-                    </div>
-                    <div className={style.form_control}>
-                        <label>Correo electrónico</label>
-                        <input
-                            required
-                            value={form.email}
-                            onChange={(e) => onChangeGeneral(e, "email")}
-                            type="email"
-                            placeholder="Ingresa el correo electrónico"
-                        />
-                    </div>
-                    <div className={style.form_control}>
-                        <label>Rol de usuario</label>
-                        <select
-                            required
-                            value={form.tipo}
-                            onChange={(e) => onChangeGeneral(e, "tipo")}
-                        >
-                            <option value="">Selecciona un rol</option>
-                            <option value="usuario1">Administrador</option>
-                            <option value="usuario2">Cajero</option>
-                            <option value="usuario3">Domiciliario</option>
-                        </select>
-                    </div>
-                    <div className={style.form_control}>
-                        <p>Permisos del usuario</p>
-                        <div className={style.permissions_group}>
-                            <label><input type="checkbox" name="permissions" value="view_sales" /> Ver Ventas</label>
-                            <label><input type="checkbox" name="permissions" value="manage_sales" /> Gestionar Ventas</label>
-                            <label><input type="checkbox" name="permissions" value="view_products" /> Ver Productos</label>
-                            <label><input type="checkbox" name="permissions" value="manage_products" /> Gestionar Productos</label>
-                            <label><input type="checkbox" name="permissions" value="view_customers" /> Ver Clientes</label>
-                            <label><input type="checkbox" name="permissions" value="manage_customers" /> Gestionar Clientes</label>
+                <Modal title="Gestionar datos y permisos del usuario" onClose={() => {
+                    setOpenModalPermissions({ isOpen: !openModalPermissions.isOpen, userId: null });
+                    setRol("");
+                    setSelectedPermissions([]);
+                    resetForm()
+                }} isOpen={openModalPermissions.isOpen}>
+                    <form onSubmit={onAssignPermissions}>
+                        <div className={style.form_control}>
+                            <label>Nombre de usuario</label>
+                            <input
+                                required
+                                value={form.nombre ?? ""}
+                                onChange={(e) => onChangeGeneral(e, "nombre")}
+                                type="nombre"
+                                placeholder="Ingresa el nombre de usuario"
+                            />
                         </div>
-                    </div>
-                    <button className="btn btn_primary" onClick={onCreateUser} style={{ width: "100%" }}>Guardar cambios</button>
+                        <div className={style.form_control}>
+                            <label>Correo electrónico</label>
+                            <input
+                                required
+                                value={form.email ?? ""}
+                                onChange={(e) => onChangeGeneral(e, "email")}
+                                type="email"
+                                placeholder="Ingresa el correo electrónico"
+                            />
+                        </div>
+                        <div className={style.form_control}>
+                            <label>Rol de usuario</label>
+                            <select value={rol ?? ""} onChange={onChangeRol}>
+                                <option value="">Selecciona un rol</option>
+                                {
+                                    roles.map((rol: RolRepository, index: number) => (
+                                        <option key={index} value={rol.id}>{rol.nombre_rol}</option>
+                                    ))
+                                }
+                            </select>
+                        </div>
+                        <div className={style.form_control}>
+                            <p>Permisos del usuario</p>
+                            <div className={style.permissions_group}>
+                                {permisosByCliente?.map((permiso: PermisoRepository, index: number) => (
+                                    <label key={index} className={style.toggle}>
+                                        <input
+                                            type="checkbox"
+                                            checked={selectedPermissions.some((p: PermisoRepository) => p.id_permiso === permiso.id_permiso)}
+                                            onChange={() => onTogglePermission(permiso.id_permiso, selectedPermissions.some((p: PermisoRepository) => p.id_permiso === permiso.id_permiso))}
+                                        />
+                                        <span className={style.slider}></span>
+                                        {typeof permiso.nombre_permiso === "string"
+                                            ? permiso.nombre_permiso
+                                            : JSON.stringify(permiso.nombre_permiso)}
+                                    </label>
+                                ))}
+
+                            </div>
+                        </div>
+
+                        <button className="btn btn_primary" type="submit" style={{ width: "100%" }}>Guardar cambios</button>
+                    </form>
                 </Modal>
             )}
 

@@ -43,7 +43,6 @@ const AjustarStockModal = ({
             isNaN(form.saldo) || form.saldo === 0 ||
             isNaN(form.costo) || form.costo === 0
         ) {
-            console.log(form, usuario);
             toast.error("Por favor complete todos los campos obligatorios.");
             return;
         }

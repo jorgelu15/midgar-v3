@@ -8,19 +8,22 @@ import { ThemeProvider } from './context/ThemeContext/ThemeContext.tsx'
 import AuthProvider from './context/Authentication/authProvider.tsx'
 import InventarioFisicoProvider from './context/InventarioFisico/InventarioFisicoProvider.tsx'
 import AutoLavadoProvider from './context/AutoLavado/AutoLavadoProvider.tsx'
+import GestionDeUsuariosProvider from './context/gestion-de-usuarios/gestion-de-usuariosProvider.tsx'
 
 const queryClient = new QueryClient()
 
 createRoot(document.getElementById('root')!).render(
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
-      <InventarioFisicoProvider>
-        <AutoLavadoProvider>
-          <ThemeProvider>
-            <App />
-          </ThemeProvider>
-        </AutoLavadoProvider>
-      </InventarioFisicoProvider>
+      <GestionDeUsuariosProvider>
+        <InventarioFisicoProvider>
+          <AutoLavadoProvider>
+            <ThemeProvider>
+              <App />
+            </ThemeProvider>
+          </AutoLavadoProvider>
+        </InventarioFisicoProvider>
+      </GestionDeUsuariosProvider>
     </AuthProvider>
     <ReactQueryDevtools />
   </QueryClientProvider>
