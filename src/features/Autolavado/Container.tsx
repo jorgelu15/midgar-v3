@@ -1,4 +1,4 @@
-import { useState, type KeyboardEvent } from "react";
+import { useEffect, useState, type KeyboardEvent } from "react";
 import Card from "../../components/cards/Card";
 import Modal from "../../components/modales/Modal";
 import SelectSearch from "../../components/selects/SelectSearch";
@@ -14,6 +14,7 @@ import type { ProductoRepository } from "../../models/Producto.repository";
 import { useForm } from "../../hooks/useForm";
 import { useUserInfo } from "../../hooks/useUserInfo";
 import { useInventario } from "../../hooks/useInventario";
+import { useQueryClient } from "@tanstack/react-query";
 
 // Interfaces
 // interface ProductoRepository {
@@ -43,7 +44,7 @@ const Container = () => {
     const { theme } = useTheme();
 
     // const { usuario } = useAuth();
-    const { usuarioQuery } = useUserInfo();
+    const { usuarioQuery, lavadoresQuery } = useUserInfo();
     const { productosQuery } = useInventario();
 
     const [progress, setProgress] = useState<number | null>(null);
@@ -59,7 +60,25 @@ const Container = () => {
     const { form, onChangeGeneral, resetForm } = useForm({ codigo: "" });
 
     const { cuentasQuery, cuentaByIdiDQuery, createCuenta, agregarProductoCuenta } = useCuenta(cuentaSeleccionada?.id_cuenta_cliente || null);
-    
+
+    const queryClient = useQueryClient();
+    // Sincroniza productos de cuentaSeleccionada en cuentasQuery (React Query)
+    // Se ejecuta cada vez que cambia cuentaSeleccionada
+    useEffect(() => {
+        if (!cuentaSeleccionada) return;
+        queryClient.setQueryData(
+            ["cuenta_cliente", usuarioQuery.data?.cliente.id_cliente],
+            (oldData: any) => {
+                if (!oldData) return oldData;
+                return oldData.map((cuenta: any) =>
+                    cuenta.id_cuenta_cliente === cuentaSeleccionada.id_cuenta_cliente
+                        ? { ...cuenta, productos: cuentaSeleccionada.productos }
+                        : cuenta
+                );
+            }
+        );
+    }, [cuentaSeleccionada, queryClient, usuarioQuery.data?.cliente.id_cliente]);
+
     const openCuentaModal = () => setAbrirCuenta(true);
     const closeCuentaModal = () => setAbrirCuenta(false);
 
@@ -80,7 +99,7 @@ const Container = () => {
             updated.push({ ...producto, cantidad: 1 });
             setCuentaSeleccionada({
                 ...cuentaSeleccionada,
-                productos: [...cuentaSeleccionada?.productos, {...producto, cantidad: 1}]
+                productos: [...cuentaSeleccionada?.productos, { ...producto, cantidad: 1 }]
             });
         }
 
@@ -234,7 +253,13 @@ const Container = () => {
                         placa={cuenta.placa}
                         lavador={cuenta.lavador}
                         sala={cuenta.sala}
-                        ingreso={cuenta.ingreso}
+                        ingreso={new Date(cuenta.ingreso).toLocaleString("es-CO", {
+                            year: "numeric",
+                            month: "2-digit",
+                            day: "2-digit",
+                            hour: "2-digit",
+                            minute: "2-digit"
+                        })}
                         productos={cuenta.productos || []}
                         onClick={() => {
                             setCuentaSeleccionada(cuenta);
@@ -290,7 +315,7 @@ const Container = () => {
                 <div className={style.form_control}>
                     <label>Lavador*</label>
                     <SelectSearch
-                        options={opciones.filter(o => o.label.includes("Lavador"))}
+                        options={lavadoresQuery.data?.map((lavador: any) => ({ label: lavador.nombre, value: lavador.id_usuario }))}
                         value={lavador}
                         onSelect={setLavador}
                     />
@@ -355,7 +380,7 @@ const Container = () => {
 
                         {
                             cuentaSeleccionada?.productos.map((p: any, i: any) => (
-                                <div key={i} className={style.facture__content__item}>
+                                p.cantidad > 0 && <div key={i} className={style.facture__content__item}>
                                     <p className={style.title__item}>{p.nombre}</p>
                                     <div className={style.facture__content__item__info}>
                                         <p>{p.cantidad} UND x {p.precio_venta}</p>

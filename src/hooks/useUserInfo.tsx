@@ -10,14 +10,28 @@ export const useUserInfo = () => {
         return res.data;
     };
 
+    const fetchLavadores = async () => {
+        const res = await api.get(`/gestion-de-usuarios/usuarios/rol/${4}`);
+        console.log(res);
+        return res.data;
+    };
+
     const usuarioQuery = useQuery({
         queryKey: ["usuario", usuario?.id_usuario],
         queryFn: fetchUsuario,
         refetchOnWindowFocus: true,
         enabled: usuario?.id_usuario != null
     });
+
+    const lavadoresQuery = useQuery({
+        queryKey: ["lavadores"],
+        queryFn: fetchLavadores,
+        refetchOnWindowFocus: true,
+        enabled: true
+    });
     
     return {
-        usuarioQuery
+        usuarioQuery,
+        lavadoresQuery
     };
 };
