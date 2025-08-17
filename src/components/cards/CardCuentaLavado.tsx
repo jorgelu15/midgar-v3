@@ -45,7 +45,7 @@ const CardCuentaLavado = ({
             <ul className={style.detalles}>
                 <li>Lavador: <strong>{lavador}</strong></li>
                 <li>Sala: <strong>{sala}</strong></li>
-                <li>Productos: <strong>{productos.length}</strong></li>
+                <li>Productos: <strong>{productos.reduce((acc, p) => acc + (p.cantidad || 0), 0)}</strong></li>
                 <li>Ingreso: <strong>{ingreso}</strong></li>
             </ul>
 
