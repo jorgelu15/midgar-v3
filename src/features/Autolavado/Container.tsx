@@ -251,7 +251,7 @@ const Container = () => {
                         key={cuenta.id_cuenta_cliente}
                         nombreCliente={cuenta.nombre}
                         placa={cuenta.placa}
-                        lavador={cuenta.lavador}
+                        lavador={cuenta.lavador.nombre}
                         sala={cuenta.sala}
                         ingreso={new Date(cuenta.ingreso).toLocaleString("es-CO", {
                             year: "numeric",
