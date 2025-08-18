@@ -315,7 +315,15 @@ const Container = () => {
             .then((response: any) => {
                 if (response.status === 200) {
                     toast.success("Venta realizada con exito");
-                    queryClient.invalidateQueries({ queryKey: ["cuenta_cliente", usuarioQuery.data?.cliente.id_cliente] });
+                    queryClient.setQueryData(
+                        ["cuenta_cliente", usuarioQuery.data?.cliente.id_cliente],
+                        (oldData: any) => {
+                            if (!oldData) return oldData;
+                            return oldData.filter(
+                                (c: any) => c.id_cuenta_cliente !== cuentaSeleccionada?.id_cuenta_cliente
+                            );
+                        }
+                    );
                     setOpenModalCuenta(false);
                 } else {
                     toast.error("Error al cerrar cuenta");
