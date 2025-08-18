@@ -7,7 +7,7 @@ import { useUserInfo } from "./useUserInfo";
 export const useCuenta = (id_cuenta_cliente?: string | null) => {
     const { usuarioQuery } = useUserInfo();
     
-    const { createCuenta, agregarProductoCuenta, cancelarCuenta }: any = useContext(autoLavadoContext);
+    const { createCuenta, agregarProductoCuenta, cancelarCuenta, cerrarCuenta }: any = useContext(autoLavadoContext);
 
     const fetchCuentas = async () => {
         const res = await api.get(`/ventas-y-servicios/cuenta/${usuarioQuery.data?.cliente.id_cliente}`);
@@ -18,6 +18,11 @@ export const useCuenta = (id_cuenta_cliente?: string | null) => {
         const res = await api.get(`/ventas-y-servicios/cuenta/${id_cuenta_cliente}/${usuarioQuery.data?.cliente.id_cliente}`);
         return res.data;
     };
+
+    const fetchMetodosPago = async () => {
+        const res = await api.get(`/ventas-y-servicios/metodos-de-pago/${usuarioQuery.data?.cliente.id_cliente}`);
+        return res.data;
+    }
 
     const cuentasQuery = useQuery({
         queryKey: ["cuenta_cliente", usuarioQuery.data?.cliente.id_cliente],
@@ -33,11 +38,20 @@ export const useCuenta = (id_cuenta_cliente?: string | null) => {
         enabled: usuarioQuery.data?.cliente.id_cliente != null && id_cuenta_cliente != null
     });
 
+    const metodosPagoQuery = useQuery({
+        queryKey: ["metodos-pago", usuarioQuery.data?.cliente.id_cliente],
+        queryFn: fetchMetodosPago,
+        refetchOnWindowFocus: false,
+        enabled: usuarioQuery.data?.cliente.id_cliente != null
+    });
+
     return {
         cuentasQuery,
         cuentaByIdiDQuery,
+        metodosPagoQuery,
         createCuenta,
         agregarProductoCuenta,
-        cancelarCuenta
+        cancelarCuenta,
+        cerrarCuenta
     };
 };
