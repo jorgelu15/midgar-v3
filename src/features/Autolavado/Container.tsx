@@ -15,6 +15,8 @@ import { useInventario } from "../../hooks/useInventario";
 import { useQueryClient } from "@tanstack/react-query";
 import CardPOS from "../../components/cards/CardPOS";
 import confirm__wallet from "../../assets/confirm_wallet.svg";
+import { useShortcuts } from "../../hooks/useShortcodes";
+import { routes } from "../../utils/routes";
 
 
 // Interfaces
@@ -34,6 +36,10 @@ interface CuentaLavado {
     productos: ProductoRepository[];
 }
 
+const menuItems = [
+    { shortcode: "Escape", image: "", title: "Volver", destiny: routes.vender },
+];
+
 const Container = () => {
     const {
         abrirCuenta,
@@ -43,6 +49,7 @@ const Container = () => {
     } = useProductModals();
 
     const { theme } = useTheme();
+    const navigate = useNa
 
     // const { usuario } = useAuth();
     const { usuarioQuery, lavadoresQuery } = useUserInfo();
@@ -275,6 +282,8 @@ const Container = () => {
         }
     };
 
+    
+
     const currencyFormat = new Intl.NumberFormat("es-CO", {
         style: "currency",
         currency: "COP"
@@ -307,6 +316,60 @@ const Container = () => {
         { label: "Sala A", value: "A" },
         { label: "Sala B", value: "B" }
     ];
+
+    const shortcuts = menuItems.reduce((map, item) => {
+        map[item.shortcode] = () => navigate(item.destiny);
+        return map;
+    }, {} as Record<string, () => void>);
+
+    useShortcuts(shortcuts);
+
+    const handleKeyDown = (e: KeyboardEvent | KeyboardEvent<HTMLDivElement>) => {
+        if (totatilizar && !medioSeleccionado) {
+            const found = mediosDePago.find((m) => m.shortcode === e.code);
+            if (found) {
+                e.preventDefault();
+                setMedioSeleccionado(found.nombre);
+                return;
+            }
+
+            if (e.code === "F9" && faltante <= 0 && pagos.length > 0) {
+                e.preventDefault();
+                handleConfirmarVenta();
+                return;
+            }
+        }
+
+        switch (e.code) {
+            case "Escape":
+                e.preventDefault();
+                if (modoTotalizar && !medioSeleccionado) {
+                    setModoTotalizar(false);
+                    setPagos([]);
+                    setFiltroMedio("");
+                } else if (medioSeleccionado) {
+                    setMedioSeleccionado(null);
+                    setMontoMedio("");
+                } else {
+                    navigate(routes.vender);
+                }
+                break;
+            case "F1":
+                e.preventDefault();
+                if (clienteSeleccionado && !modoTotalizar) setModoBusqueda("producto");
+                break;
+            case "F2":
+                e.preventDefault();
+                if (!modoTotalizar) setModoBusqueda("cliente");
+                break;
+            case "F12":
+                e.preventDefault();
+                if (!clienteSeleccionado) return alert("Debe seleccionar un cliente");
+                if (productosFactura.length === 0) return alert("No hay productos");
+                setModoTotalizar(true);
+                break;
+        }
+    };
 
     return (
         <div className="container" style={{ marginTop: 0 }}>
