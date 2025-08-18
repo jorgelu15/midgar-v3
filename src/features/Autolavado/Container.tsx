@@ -71,7 +71,7 @@ const Container = () => {
     const [productosFactura, setProductosFactura] = useState<ProductoRepository[]>([]);
     const [ultimoProducto, setUltimoProducto] = useState<ProductoRepository | null>(null);
     const { form, onChangeGeneral, resetForm } = useForm({ codigo: "" });
-    const { cuentasQuery, cuentaByIdiDQuery, createCuenta, agregarProductoCuenta, cancelarCuenta, cerrarCuenta } = useCuenta(cuentaSeleccionada?.id_cuenta_cliente || null);
+    const { cuentasQuery, cuentaByIdiDQuery, metodosPagoQuery, createCuenta, agregarProductoCuenta, cancelarCuenta, cerrarCuenta } = useCuenta(cuentaSeleccionada?.id_cuenta_cliente || null);
 
     const queryClient = useQueryClient();
     // Sincroniza productos de cuentaSeleccionada en cuentasQuery (React Query)
@@ -92,16 +92,6 @@ const Container = () => {
     }, [cuentaSeleccionada, queryClient, usuarioQuery.data?.cliente.id_cliente]);
 
     const inputRef = useRef<HTMLInputElement | null>(null);
-
-    // Lista de medios de pago disponibles
-    const mediosDePago = [
-        { id_medio_pago: 1, nombre: "Efectivo", shortcode: "F1" },
-        { id_medio_pago: 2, nombre: "Nequi", shortcode: "F2" },
-        { id_medio_pago: 3, nombre: "Daviplata", shortcode: "F3" },
-        { id_medio_pago: 4, nombre: "Tarjeta Débito", shortcode: "F4" },
-        { id_medio_pago: 5, nombre: "Tarjeta Crédito", shortcode: "F5" }
-    ];
-
 
     const openCuentaModal = () => setAbrirCuenta(true);
     const closeCuentaModal = () => setAbrirCuenta(false);
@@ -235,9 +225,7 @@ const Container = () => {
         if (index !== -1) {
             updated[index].cantidad = (updated[index].cantidad || 0) + cantidadIngresada;
             cantidadFinal = updated[index].cantidad;
-            console.log("antes", updated);
             if (cantidadFinal <= 0) updated.splice(index, 1);
-            console.log("después", updated);
         } else {
             if (cantidadIngresada <= 0) return;
             updated.push({ ...producto, cantidad: Number(cantidadIngresada) ?? 0 });
@@ -532,12 +520,12 @@ const Container = () => {
                                 </div>
 
                                 <div className={style.cards}>
-                                    {mediosDePago
-                                        .filter(mp => mp.nombre.toLowerCase().includes(filtroMedio.toLowerCase()))
-                                        .map((medio, index) => (
+                                    {metodosPagoQuery.data
+                                        .filter((mp: { nombre: string }) => mp.nombre.toLowerCase().includes(filtroMedio.toLowerCase()))
+                                        .map((medio: any, index: number) => (
                                             <CardPOS
                                                 key={index}
-                                                shortcode={medio.shortcode}
+                                                shortcode={"F" + (index + 1)}
                                                 title={medio.nombre}
                                                 redirect={() => setMedioSeleccionado(medio)}
                                                 image={confirm__wallet}

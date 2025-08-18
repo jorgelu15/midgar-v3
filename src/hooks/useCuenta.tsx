@@ -19,6 +19,11 @@ export const useCuenta = (id_cuenta_cliente?: string | null) => {
         return res.data;
     };
 
+    const fetchMetodosPago = async () => {
+        const res = await api.get(`/ventas-y-servicios/metodos-de-pago/${usuarioQuery.data?.cliente.id_cliente}`);
+        return res.data;
+    }
+
     const cuentasQuery = useQuery({
         queryKey: ["cuenta_cliente", usuarioQuery.data?.cliente.id_cliente],
         queryFn: fetchCuentas,
@@ -33,9 +38,17 @@ export const useCuenta = (id_cuenta_cliente?: string | null) => {
         enabled: usuarioQuery.data?.cliente.id_cliente != null && id_cuenta_cliente != null
     });
 
+    const metodosPagoQuery = useQuery({
+        queryKey: ["metodos-pago", usuarioQuery.data?.cliente.id_cliente],
+        queryFn: fetchMetodosPago,
+        refetchOnWindowFocus: false,
+        enabled: usuarioQuery.data?.cliente.id_cliente != null
+    });
+
     return {
         cuentasQuery,
         cuentaByIdiDQuery,
+        metodosPagoQuery,
         createCuenta,
         agregarProductoCuenta,
         cancelarCuenta,
