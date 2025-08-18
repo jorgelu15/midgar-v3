@@ -7,7 +7,6 @@ import CardCuentaLavado from "../../components/cards/CardCuentaLavado";
 import style from "./container.module.css";
 import CardProductotienda from "../../components/cards/CardProductoTiendas";
 import { useCuenta } from "../../hooks/useCuenta";
-import { useAuth } from "../../hooks/useAuth";
 import { Bounce, toast, ToastContainer } from "react-toastify";
 import { useTheme } from "../../context/ThemeContext/ThemeContext";
 import type { ProductoRepository } from "../../models/Producto.repository";
