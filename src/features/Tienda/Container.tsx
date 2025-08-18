@@ -9,13 +9,13 @@ import trash from "../../assets/borrar.svg";
 import consulta from "../../assets/consulta.svg";
 import clients from "../../assets/clientes.png";
 
-import CardMenu from "../../components/cards/CardMenu";
 
 import { useForm } from "../../hooks/useForm";
 import { useRef, useState, useEffect } from "react";
 import type { KeyboardEvent } from "react";
 import CardProductotienda from "../../components/cards/CardProductoTiendas";
 import type { ProductoRepository } from "../../models/Producto.repository";
+import CardPOS from "../../components/cards/CardPOS";
 
 interface Cliente {
   cedula: string;
@@ -80,6 +80,7 @@ const currencyFormat = new Intl.NumberFormat("es-CO", {
 
 const Container = () => {
   const navigate = useNavigate();
+  
   const { form, onChangeGeneral, resetForm } = useForm({ codigo: "", valor: "" });
 
   const [productosFactura, setProductosFactura] = useState<ProductoRepository[]>([]);
@@ -277,7 +278,7 @@ const Container = () => {
             <>
               <div className={style.cards}>
                 {menuItems.map((item, index) => (
-                  <CardMenu
+                  <CardPOS
                     key={index}
                     shortcode={item.shortcode}
                     title={item.title}
@@ -359,7 +360,7 @@ const Container = () => {
                     {mediosDePago
                       .filter(mp => mp.nombre.toLowerCase().includes(filtroMedio.toLowerCase()))
                       .map((medio, index) => (
-                        <CardMenu
+                        <CardPOS
                           key={index}
                           shortcode={medio.shortcode}
                           title={medio.nombre}
@@ -403,7 +404,7 @@ const Container = () => {
                 </p>
               )}
 
-              <CardMenu title="Vender" shortcode="F9" to="" redirect={() => { }} />
+              <CardPOS title="Vender" shortcode="F9" to="" redirect={() => { }} />
             </div>
           )}
         </div>

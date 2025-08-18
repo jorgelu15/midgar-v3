@@ -1,5 +1,4 @@
-import { useEffect, useState, type KeyboardEvent } from "react";
-import Card from "../../components/cards/Card";
+import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import Modal from "../../components/modales/Modal";
 import SelectSearch from "../../components/selects/SelectSearch";
 import { useProductModals } from "../../hooks/useProductModals";
@@ -7,7 +6,6 @@ import CardCuentaLavado from "../../components/cards/CardCuentaLavado";
 import style from "./container.module.css";
 import CardProductotienda from "../../components/cards/CardProductoTiendas";
 import { useCuenta } from "../../hooks/useCuenta";
-import { useAuth } from "../../hooks/useAuth";
 import { Bounce, toast, ToastContainer } from "react-toastify";
 import { useTheme } from "../../context/ThemeContext/ThemeContext";
 import type { ProductoRepository } from "../../models/Producto.repository";
@@ -15,6 +13,9 @@ import { useForm } from "../../hooks/useForm";
 import { useUserInfo } from "../../hooks/useUserInfo";
 import { useInventario } from "../../hooks/useInventario";
 import { useQueryClient } from "@tanstack/react-query";
+import CardPOS from "../../components/cards/CardPOS";
+import confirm__wallet from "../../assets/confirm_wallet.svg";
+
 
 // Interfaces
 // interface ProductoRepository {
@@ -53,6 +54,12 @@ const Container = () => {
     const [placa, setPlaca] = useState("");
     const [lavador, setLavador] = useState({ label: "", value: "" });
     const [sala, setSala] = useState({ label: "", value: "" });
+    const [totatilizar, setTotatilizar] = useState(false);
+
+    const [medioSeleccionado, setMedioSeleccionado] = useState<string | null>(null);
+    const [filtroMedio, setFiltroMedio] = useState("");
+    const [montoMedio, setMontoMedio] = useState("");
+    const [pagos, setPagos] = useState<{ medio: string; monto: number }[]>([]);
 
     const [cuentaSeleccionada, setCuentaSeleccionada] = useState<CuentaLavado | null>(null);
     const [productosFactura, setProductosFactura] = useState<ProductoRepository[]>([]);
@@ -79,6 +86,18 @@ const Container = () => {
         );
     }, [cuentaSeleccionada, queryClient, usuarioQuery.data?.cliente.id_cliente]);
 
+    const inputRef = useRef<HTMLInputElement | null>(null);
+
+    // Lista de medios de pago disponibles
+    const mediosDePago = [
+        { nombre: "Efectivo", shortcode: "F1" },
+        { nombre: "Nequi", shortcode: "F2" },
+        { nombre: "Daviplata", shortcode: "F3" },
+        { nombre: "Tarjeta Débito", shortcode: "F4" },
+        { nombre: "Tarjeta Crédito", shortcode: "F5" }
+    ];
+
+    
     const openCuentaModal = () => setAbrirCuenta(true);
     const closeCuentaModal = () => setAbrirCuenta(false);
 
@@ -254,7 +273,26 @@ const Container = () => {
         currency: "COP"
     });
 
-    const total = cuentaSeleccionada?.productos.reduce((acc, p) => acc + (p.precio_venta * (p.cantidad || 1)), 0);
+    const total = cuentaSeleccionada?.productos.reduce((acc, p) => acc + (p.precio_venta * (p.cantidad || 1)), 0) || 0;
+
+    const totalPagado = pagos.reduce((acc, p) => acc + p.monto, 0);
+    const faltante = total - totalPagado;
+
+    // Función para agregar un pago
+    const handleAgregarPago = () => {
+        if (!medioSeleccionado || !montoMedio) return;
+
+        const monto = parseFloat(montoMedio);
+        if (isNaN(monto) || monto <= 0) {
+            toast.error("Monto inválido");
+            return;
+        }
+
+        setPagos([...pagos, { medio: medioSeleccionado, monto }]);
+        setMontoMedio("");
+        setMedioSeleccionado(null);
+        inputRef.current?.focus();
+    };
 
     const opciones = [
         { label: "Lavador 1", value: "1" },
@@ -262,6 +300,8 @@ const Container = () => {
         { label: "Sala A", value: "A" },
         { label: "Sala B", value: "B" }
     ];
+
+
 
     return (
         <div className="container" style={{ marginTop: 0 }}>
@@ -370,56 +410,132 @@ const Container = () => {
                         <button className="btn btn_secondary" onClick={closeCuentaLavadoModal}>
                             Cancelar Cuenta
                         </button>
-                        <button className="btn btn_primary" onClick={() => console.log("Procesar")}>
-                            Procesar
+                        <button className="btn btn_primary" onClick={() => setTotatilizar(true)}>
+                            Totalizar
                         </button>
                     </div>
                 }
             >
-                <div className={style.container__compact}>
-                    <div className={style.main__modal}>
-                        <div className={style.cards} style={{ gap: 0 }}>
-                            <div className={style.form_control}>
-                                <label>Código de barras</label>
-                                <input type="search" onChange={(e) => onChangeGeneral(e, "codigo")}
-                                    onKeyDown={(e) => {
-                                        handleEnter(e);
-                                        handleBackspace(e);
-                                    }}
-                                    value={form.codigo} />
+                {totatilizar === false && (
+                    <div className={style.container__compact}>
+                        <div className={style.main__modal}>
+                            <div className={style.cards} style={{ gap: 0 }}>
+                                <div className={style.form_control}>
+                                    <label>Código de barras</label>
+                                    <input type="search" onChange={(e) => onChangeGeneral(e, "codigo")}
+                                        onKeyDown={(e) => {
+                                            handleEnter(e);
+                                            handleBackspace(e);
+                                        }}
+                                        value={form.codigo} />
+                                </div>
+
+                            </div>
+                            <div className={style.cards} style={{ display: "flex", flexDirection: "row", flexWrap: "wrap", gap: 20, maxHeight: 220, overflowY: "auto" }}>
+                                {productosQuery.data?.map((producto: any) => (
+                                    <CardProductotienda
+                                        key={producto.codigo}
+                                        {...producto}
+                                        onClick={() => handleAgregarProducto(producto)}
+                                    />
+                                ))}
+                            </div>
+                            <div style={{ padding: "20px", display: "flex", justifyContent: "space-between" }}>
+                                <p><strong>Total:</strong></p>
+                                <p><strong>{currencyFormat.format(total ?? 0)}</strong></p>
                             </div>
 
                         </div>
-                        <div className={style.cards} style={{ display: "flex", flexDirection: "row", flexWrap: "wrap", gap: 20, maxHeight: 220, overflowY: "auto" }}>
-                            {productosQuery.data?.map((producto: any) => (
-                                <CardProductotienda
-                                    key={producto.codigo}
-                                    {...producto}
-                                    onClick={() => handleAgregarProducto(producto)}
+                        <div className={style.facture}>
+
+                            {
+                                cuentaSeleccionada?.productos.map((p: any, i: any) => (
+                                    p.cantidad > 0 && <div key={i} className={style.facture__content__item}>
+                                        <p className={style.title__item}>{p.nombre}</p>
+                                        <div className={style.facture__content__item__info}>
+                                            <p>{p.cantidad} UND x {p.precio_venta}</p>
+                                            <p>{currencyFormat.format(p.precio_venta * p.cantidad)}</p>
+                                        </div>
+                                    </div>
+                                ))
+                            }
+                        </div>
+                    </div>
+                )}
+
+                {totatilizar === true && (
+                    <div className={style.main__content}>
+                        {!medioSeleccionado ? (
+                            <>
+                                <div className={style.form_control}>
+                                    <label>Buscar medio de pago</label>
+                                    <input
+                                        type="search"
+                                        placeholder="Ej: Nequi"
+                                        value={filtroMedio}
+                                        onChange={(e) => setFiltroMedio(e.target.value)}
+                                    />
+                                </div>
+
+                                <div className={style.cards}>
+                                    {mediosDePago
+                                        .filter(mp => mp.nombre.toLowerCase().includes(filtroMedio.toLowerCase()))
+                                        .map((medio, index) => (
+                                            <CardPOS
+                                                key={index}
+                                                shortcode={medio.shortcode}
+                                                title={medio.nombre}
+                                                redirect={() => setMedioSeleccionado(medio.nombre)}
+                                                image={confirm__wallet}
+                                                to=""
+                                            />
+                                        ))}
+                                </div>
+                            </>
+                        ) : (
+                            <div className={style.form_control}>
+                                <label>Ingresar monto en {medioSeleccionado}</label>
+                                <input
+                                    ref={inputRef}
+                                    type="number"
+                                    placeholder="Ej: 50000"
+                                    value={montoMedio}
+                                    onChange={(e) => setMontoMedio(e.target.value)}
+                                    onKeyDown={(e) => e.key === "Enter" && handleAgregarPago()}
                                 />
+                            </div>
+                        )}
+
+                        {/* Lista de pagos agregados */}
+                        <div className={style.pagos_list}>
+                            {pagos.map((p, i) => (
+                                <div key={i} className={style.info__producto}>
+                                    <p>{p.medio}</p>
+                                    <p>{currencyFormat.format(p.monto)}</p>
+                                </div>
                             ))}
                         </div>
-                        <div style={{ padding: "20px", display: "flex", justifyContent: "space-between" }}>
-                            <p><strong>Total:</strong></p>
-                            <p><strong>{currencyFormat.format(total ?? 0)}</strong></p>
-                        </div>
 
-                    </div>
-                    <div className={style.facture}>
+                        {/* Mostrar faltante o vuelto */}
+                        {faltante > 0 && (
+                            <p style={{ color: "#f44336", marginTop: 10 }}>
+                                Faltante: {currencyFormat.format(faltante)}
+                            </p>
+                        )}
+                        {faltante < 0 && (
+                            <p style={{ color: "#4caf50", marginTop: 10 }}>
+                                Vuelto: {currencyFormat.format(-faltante)}
+                            </p>
+                        )}
 
-                        {
-                            cuentaSeleccionada?.productos.map((p: any, i: any) => (
-                                p.cantidad > 0 && <div key={i} className={style.facture__content__item}>
-                                    <p className={style.title__item}>{p.nombre}</p>
-                                    <div className={style.facture__content__item__info}>
-                                        <p>{p.cantidad} UND x {p.precio_venta}</p>
-                                        <p>{currencyFormat.format(p.precio_venta * p.cantidad)}</p>
-                                    </div>
-                                </div>
-                            ))
-                        }
+                        {faltante === 0 && total > 0 && (
+                            <button className="btn btn_success" onClick={() => toast.success("Venta finalizada")}>
+                                Confirmar Venta
+                            </button>
+                        )}
                     </div>
-                </div>
+                )}
+
             </Modal>
 
             <ToastContainer
