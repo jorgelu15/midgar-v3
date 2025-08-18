@@ -28,6 +28,11 @@
   align-items: center;
   justify-content: space-between;
 }
+.btn__container {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+}
 
 .form_control {
   display: flex;

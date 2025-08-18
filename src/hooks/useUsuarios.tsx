@@ -12,7 +12,7 @@ export const useUsuarios = (empleado?: string | null) => {
         createCuentaEmpleados,
         updateCuentaEmpleados,
         asignarPermisos,
-        quitarPermisos }: any = useContext(GestionDeUsuariosContext);
+        quitarPermisos, crearRol }: any = useContext(GestionDeUsuariosContext);
     const queryClient = useQueryClient();
 
     const fetchUsuario = async () => {
@@ -106,6 +106,7 @@ export const useUsuarios = (empleado?: string | null) => {
         createEmpleadoMutation,
         updateEmpleadoMutation,
         asignarPermisosMutation,
-        quitarPermisosMutation
+        quitarPermisosMutation,
+        crearRol
     };
 };

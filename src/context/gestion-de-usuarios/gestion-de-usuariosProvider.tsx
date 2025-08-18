@@ -57,6 +57,17 @@ const GestionDeUsuariosProvider = ({ children }: { children: React.ReactNode }) 
         }
     }
 
+    const crearRol = async (rol: any) => {
+        try {
+            console.log(rol);
+            const res = await api.post('/gestion-de-usuarios/roles', rol, {
+                withCredentials: true
+            });
+            return res;
+        } catch (error: any) {
+            throw new Error(error.response.data);
+        }
+    }
 
     return (
         <GestionDeUsuariosContext.Provider
@@ -64,7 +75,8 @@ const GestionDeUsuariosProvider = ({ children }: { children: React.ReactNode }) 
                 createCuentaEmpleados,
                 updateCuentaEmpleados,
                 asignarPermisos,
-                quitarPermisos
+                quitarPermisos,
+                crearRol
             }}
         >
             {children}

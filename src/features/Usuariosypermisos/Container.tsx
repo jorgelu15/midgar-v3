@@ -43,6 +43,7 @@ const Container = () => {
     const PERMISSION_ACCESS = "USUARIOS_PERMISOS";
 
     const [openModal, setOpenModal] = useState(false);
+    const [openModalCreateRol, setOpenModalCreateRol] = useState(false);
     const [openModalPermissions, setOpenModalPermissions] = useState<{ isOpen: boolean, userId: string | null }>({
         isOpen: false,
         userId: null
@@ -62,7 +63,8 @@ const Container = () => {
         createEmpleadoMutation,
         updateEmpleadoMutation,
         asignarPermisosMutation,
-        quitarPermisosMutation
+        quitarPermisosMutation,
+        crearRol
 
     } = useUsuarios(openModalPermissions?.userId);
 
@@ -86,6 +88,8 @@ const Container = () => {
         email: "",
         password: "",
         tipo: "",
+        nombre_rol: "",
+        descripcion_rol: ""
     });
 
     useEffect(() => {
@@ -163,6 +167,28 @@ const Container = () => {
         setOpenModal(false);
     };
 
+    const onCreateRol = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        if (!form.nombre_rol || !form.descripcion_rol || user?.cliente.id_cliente == null) {
+            toast.error("Por favor, completa todos los campos.");
+            return;
+        }
+        crearRol({
+            nombre_rol: form.nombre_rol,
+            descripcion_rol: form.descripcion_rol,
+            id_cliente: user?.cliente.id_cliente,
+            id_usuario: user?.id_usuario
+        }).then(() => {
+            toast.success("Rol creado exitosamente");
+            setState({ nombre_rol: "", descripcion_rol: "" });
+
+        }).catch((error: any) => {
+            toast.error(error.message);
+        });
+
+        setOpenModalCreateRol(false);
+    };
+
 
     const onAssignPermissions = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -224,7 +250,10 @@ const Container = () => {
 
             <div className={style.content}>
                 <div className={style.header__container}>
-                    <button className="btn btn_primary" onClick={() => setOpenModal(true)}>Crear usuario</button>
+                    <div className={style.btn__container}>
+                        <button className="btn btn_primary" onClick={() => setOpenModal(true)}>Crear usuario</button>
+                        <button className="btn btn_primary" onClick={() => setOpenModalCreateRol(true)}>Crear rol</button>
+                    </div>
                     <div className={style.form_control}>
                         <input
                             ref={searchInputRef}
@@ -280,6 +309,24 @@ const Container = () => {
                     </div>
                 </div>
             </div>
+
+            {openModalCreateRol && (
+                <Modal title="Crear rol" onClose={() => setOpenModalCreateRol(false)} isOpen={openModalCreateRol}>
+                    <form onSubmit={onCreateRol}>
+                        <div className={style.form_control}>
+                            <label>Nombre del rol</label>
+                            <input value={form.nombre_rol} onChange={(e) => onChangeGeneral(e, "nombre_rol")} placeholder="Ingrese un nombre" />
+                        </div>
+                        <div className={style.form_control}>
+                            <label>Descripción del rol</label>
+                            <input value={form.descripcion_rol} onChange={(e) => onChangeGeneral(e, "descripcion_rol")} placeholder="Ingrese una descripción" />
+                        </div>
+                        <button className="btn btn_primary" type="submit" style={{ width: "100%" }}>
+                            Guardar cambios
+                        </button>
+                    </form>
+                </Modal>
+            )}
 
             {openModal && (
                 <Modal title="Crear usuario" onClose={() => setOpenModal(false)} isOpen={openModal}>
