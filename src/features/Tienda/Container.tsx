@@ -9,7 +9,6 @@ import trash from "../../assets/borrar.svg";
 import consulta from "../../assets/consulta.svg";
 import clients from "../../assets/clientes.png";
 
-import CardMenu from "../../components/cards/CardMenu";
 
 import { useForm } from "../../hooks/useForm";
 import { useRef, useState, useEffect } from "react";
