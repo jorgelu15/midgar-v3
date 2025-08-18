@@ -34,8 +34,6 @@ const Container = () => {
   const valorInventarioFisico = valorInventarioFisicoQuery.data?.valor_inventario_fisico || 0;
   const gananciaEstimada = gananciaEstimadaQuery.data?.ganancia_estimada || 0;
   const productosAgotados = productosAgotadosQuery.data?.productos_agotados || 0;
-
-console.log("productos", productos);  
   
   const navigate = useNavigate();
   const { form, onChangeGeneral } = useForm({ query: "" });
@@ -60,6 +58,7 @@ console.log("productos", productos);
   }, {} as Record<string, () => void>);
 
   useShortcuts(shortcuts);
+  
 
   const openKardexModal = (product: ProductoRepository) => {
     setSelectedProduct(product);

@@ -17,6 +17,7 @@ import CardPOS from "../../components/cards/CardPOS";
 import confirm__wallet from "../../assets/confirm_wallet.svg";
 import { useShortcuts } from "../../hooks/useShortcodes";
 import { routes } from "../../utils/routes";
+import { useNavigate } from "react-router-dom";
 
 
 // Interfaces
@@ -55,7 +56,7 @@ const Container = () => {
     } = useProductModals();
 
     const { theme } = useTheme();
-    const navigate = useNa
+    const navigate = useNavigate()
 
     // const { usuario } = useAuth();
     const { usuarioQuery, lavadoresQuery } = useUserInfo();
@@ -275,7 +276,7 @@ const Container = () => {
         }
     };
 
-    
+
 
     const currencyFormat = new Intl.NumberFormat("es-CO", {
         style: "currency",
@@ -339,6 +340,7 @@ const Container = () => {
                 }
             })
             .catch((error: any) => {
+                console.error("Error al cerrar cuenta:", error);
                 toast.error("Error al cerrar cuenta");
             });
     }
@@ -359,7 +361,7 @@ const Container = () => {
 
     const handleKeyDown = (e: KeyboardEvent | KeyboardEvent<HTMLDivElement>) => {
         if (totatilizar && !medioSeleccionado) {
-            const found = mediosDePago.find((m) => m.shortcode === e.code);
+            const found = metodosPagoQuery?.data.find((m: MedioPago) => m.shortcode === e.code);
             if (found) {
                 e.preventDefault();
                 setMedioSeleccionado(found.nombre);
@@ -368,7 +370,7 @@ const Container = () => {
 
             if (e.code === "F9" && faltante <= 0 && pagos.length > 0) {
                 e.preventDefault();
-                handleConfirmarVenta();
+                handlerConfirmarVenta();
                 return;
             }
         }
@@ -376,8 +378,8 @@ const Container = () => {
         switch (e.code) {
             case "Escape":
                 e.preventDefault();
-                if (modoTotalizar && !medioSeleccionado) {
-                    setModoTotalizar(false);
+                if (totatilizar && !medioSeleccionado) {
+                    setTotatilizar(false);
                     setPagos([]);
                     setFiltroMedio("");
                 } else if (medioSeleccionado) {
@@ -389,20 +391,21 @@ const Container = () => {
                 break;
             case "F1":
                 e.preventDefault();
-                if (clienteSeleccionado && !modoTotalizar) setModoBusqueda("producto");
-                break;
-            case "F2":
-                e.preventDefault();
-                if (!modoTotalizar) setModoBusqueda("cliente");
+                setAbrirCuenta(true);
                 break;
             case "F12":
                 e.preventDefault();
-                if (!clienteSeleccionado) return alert("Debe seleccionar un cliente");
+                if (!cuentaSeleccionada) return alert("Debe seleccionar una cuenta");
                 if (productosFactura.length === 0) return alert("No hay productos");
-                setModoTotalizar(true);
+                setTotatilizar(true);
                 break;
         }
     };
+
+    useEffect(() => {
+        window.addEventListener("keydown", handleKeyDown as any);
+        return () => window.removeEventListener("keydown", handleKeyDown as any);
+    }, [totatilizar, cuentaSeleccionada, productosFactura, medioSeleccionado]);
 
     return (
         <div className="container" style={{ marginTop: 0 }}>
@@ -591,7 +594,7 @@ const Container = () => {
                                 </div>
 
                                 <div className={style.cards}>
-                                    {metodosPagoQuery.data
+                                    {metodosPagoQuery?.data
                                         .filter((mp: { nombre: string }) => mp.nombre.toLowerCase().includes(filtroMedio.toLowerCase()))
                                         .map((medio: any, index: number) => (
                                             <CardPOS
