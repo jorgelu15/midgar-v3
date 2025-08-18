@@ -64,8 +64,8 @@ const Container = () => {
         updateEmpleadoMutation,
         asignarPermisosMutation,
         quitarPermisosMutation,
-        crearRol
-
+        crearRol,
+        usuario
     } = useUsuarios(openModalPermissions?.userId);
 
     const usuarios = usuariosByClienteQuery.data;
@@ -92,13 +92,14 @@ const Container = () => {
         descripcion_rol: ""
     });
 
+
     useEffect(() => {
         if (empleado) {
             setState({
                 nombre: empleado.nombre,
                 email: empleado.email,
             });
-            setRol(empleado.roles[0].id_rol ?? "");
+            setRol(empleado?.roles[0]?.id_rol ?? "");
             setSelectedPermissions(empleado.permisos || []);
         }
     }, [empleado]);
@@ -207,16 +208,24 @@ const Container = () => {
             id_rol: rol,
             id_permiso: permisoId,
             id_cliente: empleado?.cliente.id_cliente,
-            id_usuario: openModalPermissions.userId
+            id_usuario: usuario?.id_usuario
         };
 
-        console.log(checked)
+        if (rol.trim() === "") {
+            toast.error("Por favor, selecciona un rol");
+            return;
+        }
 
         if (!checked) {
             // Asignar permiso
             asignarPermisosMutation.mutate(payload, {
                 onSuccess: () => {
                     toast.success("Permiso asignado exitosamente");
+                    // 🔹 Agregar el permiso al estado local
+                    setSelectedPermissions((prev) => [
+                        ...prev,
+                        permisosByCliente.find((p: PermisoRepository) => p.id_permiso === permisoId)!
+                    ]);
                 },
                 onError: (error: any) => {
                     toast.error(error.message);
@@ -227,6 +236,10 @@ const Container = () => {
             quitarPermisosMutation.mutate(payload, {
                 onSuccess: () => {
                     toast.success("Permiso quitado exitosamente");
+                    // 🔹 Remover el permiso del estado local
+                    setSelectedPermissions((prev) =>
+                        prev.filter((p) => p.id_permiso !== permisoId)
+                    );
                 },
                 onError: (error: any) => {
                     toast.error(error.message);
@@ -234,6 +247,7 @@ const Container = () => {
             });
         }
     };
+
 
 
 
@@ -252,7 +266,7 @@ const Container = () => {
                 <div className={style.header__container}>
                     <div className={style.btn__container}>
                         <button className="btn btn_primary" onClick={() => setOpenModal(true)}>Crear usuario</button>
-                        <button className="btn btn_primary" onClick={() => setOpenModalCreateRol(true)}>Crear rol</button>
+                        <button className="btn btn_secondary" onClick={() => setOpenModalCreateRol(true)}>Crear rol</button>
                     </div>
                     <div className={style.form_control}>
                         <input

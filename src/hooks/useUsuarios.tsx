@@ -107,6 +107,7 @@ export const useUsuarios = (empleado?: string | null) => {
         updateEmpleadoMutation,
         asignarPermisosMutation,
         quitarPermisosMutation,
-        crearRol
+        crearRol,
+        usuario
     };
 };
