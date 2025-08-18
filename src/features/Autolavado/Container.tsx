@@ -275,12 +275,12 @@ const Container = () => {
             <div className={style.gridContainer}>
                 {cuentasQuery.isLoading && <p>Cargando cuentas...</p>}
                 {cuentasQuery.isError && <p>Error al cargar las cuentas</p>}
-                {cuentasQuery.data && cuentasQuery.data.map((cuenta: any) => (
+                {cuentasQuery?.data && cuentasQuery.data.map((cuenta: any) => (
                     <CardCuentaLavado
                         key={cuenta.id_cuenta_cliente}
                         nombreCliente={cuenta.nombre}
                         placa={cuenta.placa}
-                        lavador={cuenta.lavador.nombre}
+                        lavador={cuenta.lavador?.nombre ?? ""}
                         sala={cuenta.sala}
                         ingreso={new Date(cuenta.ingreso).toLocaleString("es-CO", {
                             year: "numeric",
@@ -344,7 +344,7 @@ const Container = () => {
                 <div className={style.form_control}>
                     <label>Lavador*</label>
                     <SelectSearch
-                        options={lavadoresQuery.data?.map((lavador: any) => ({ label: lavador.nombre, value: lavador.id_usuario }))}
+                        options={lavadoresQuery.data?.map((lavador: any) => ({ label: lavador.nombre, value: lavador.id_usuario })) ?? []}
                         value={lavador}
                         onSelect={(option) => setLavador({ label: option.label, value: option.value.toString() })}
                     />
