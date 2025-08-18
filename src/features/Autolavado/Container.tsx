@@ -97,12 +97,19 @@ const Container = () => {
         { nombre: "Tarjeta Crédito", shortcode: "F5" }
     ];
 
-    
+
     const openCuentaModal = () => setAbrirCuenta(true);
     const closeCuentaModal = () => setAbrirCuenta(false);
 
     const openCuentaLavadoModal = () => setOpenModalCuenta(true);
     const closeCuentaLavadoModal = () => {
+        setOpenModalCuenta(false);
+        setMedioSeleccionado(null);
+        setMontoMedio("");
+        setPagos([]);
+        setTotatilizar(false);
+    }
+    const handlerCancelarCuenta = () => {
         if (cuentaSeleccionada)
             cancelarCuenta(cuentaSeleccionada.id_cuenta_cliente as unknown as number, usuarioQuery?.data.cliente.id_cliente)
                 .then((response: any) => {
@@ -301,8 +308,6 @@ const Container = () => {
         { label: "Sala B", value: "B" }
     ];
 
-
-
     return (
         <div className="container" style={{ marginTop: 0 }}>
             <header className={style.header}>
@@ -402,17 +407,29 @@ const Container = () => {
             {/* MODAL 2: Cuenta abierta */}
             <Modal
                 isOpen={openModalCuenta}
-                onClose={() => setOpenModalCuenta(false)}
+                onClose={() => closeCuentaLavadoModal()}
                 title="Cuenta Lavado"
                 size="lg"
                 footer={
                     <div className={style.modal_footer_actions}>
-                        <button className="btn btn_secondary" onClick={closeCuentaLavadoModal}>
+                        {totatilizar === true && (
+                            <button className="btn btn_secondary" onClick={() => setTotatilizar(false)}>
+                                Regresar
+                            </button>
+                        )}
+                        <button className="btn btn_secondary" onClick={handlerCancelarCuenta}>
                             Cancelar Cuenta
                         </button>
-                        <button className="btn btn_primary" onClick={() => setTotatilizar(true)}>
-                            Totalizar
-                        </button>
+                        {faltante <= 0 && total > 0 && (
+                            <button className="btn btn_primary" onClick={() => toast.success("Venta finalizada")}>
+                                Confirmar Venta
+                            </button>
+                        )}
+                        {totatilizar === false && (
+                            <button className="btn btn_primary" onClick={() => setTotatilizar(true)}>
+                                Totalizar
+                            </button>
+                        )}
                     </div>
                 }
             >
@@ -526,12 +543,6 @@ const Container = () => {
                             <p style={{ color: "#4caf50", marginTop: 10 }}>
                                 Vuelto: {currencyFormat.format(-faltante)}
                             </p>
-                        )}
-
-                        {faltante === 0 && total > 0 && (
-                            <button className="btn btn_success" onClick={() => toast.success("Venta finalizada")}>
-                                Confirmar Venta
-                            </button>
                         )}
                     </div>
                 )}
