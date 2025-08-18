@@ -54,6 +54,22 @@ const CuentaProvider = ({ children }: { children: React.ReactNode }) => {
         }
     }
 
+    const cerrarCuenta = async (factura: any, setProgress: any) => {
+        try {
+            const res = await api.post(`/ventas-y-servicios/cuenta/cerrar`, {factura: factura},
+            {
+                withCredentials: true,
+                onUploadProgress: (progressEvent: AxiosProgressEvent) => {
+                    const percentage = Math.round((progressEvent.loaded * 100) / (progressEvent?.total ? progressEvent?.total : 0));
+                    setProgress(percentage);
+                }
+            });
+            return res;
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
     const cancelarCuenta = async (id_cuenta_cliente: number, id_inst: number) => {
         try {
             const res = await api.delete(`/ventas-y-servicios/cuenta/cancelar/${id_cuenta_cliente}/${id_inst}`);
@@ -71,7 +87,8 @@ const CuentaProvider = ({ children }: { children: React.ReactNode }) => {
                 cargando: state.cargando,
                 createCuenta,
                 agregarProductoCuenta,
-                cancelarCuenta
+                cancelarCuenta,
+                cerrarCuenta
             }}
         >
             {children}

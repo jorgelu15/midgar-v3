@@ -7,7 +7,7 @@ import { useUserInfo } from "./useUserInfo";
 export const useCuenta = (id_cuenta_cliente?: string | null) => {
     const { usuarioQuery } = useUserInfo();
     
-    const { createCuenta, agregarProductoCuenta, cancelarCuenta }: any = useContext(autoLavadoContext);
+    const { createCuenta, agregarProductoCuenta, cancelarCuenta, cerrarCuenta }: any = useContext(autoLavadoContext);
 
     const fetchCuentas = async () => {
         const res = await api.get(`/ventas-y-servicios/cuenta/${usuarioQuery.data?.cliente.id_cliente}`);
@@ -38,6 +38,7 @@ export const useCuenta = (id_cuenta_cliente?: string | null) => {
         cuentaByIdiDQuery,
         createCuenta,
         agregarProductoCuenta,
-        cancelarCuenta
+        cancelarCuenta,
+        cerrarCuenta
     };
 };

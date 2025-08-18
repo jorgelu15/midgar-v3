@@ -27,11 +27,17 @@ import confirm__wallet from "../../assets/confirm_wallet.svg";
 
 interface CuentaLavado {
     id_cuenta_cliente: string;
-    nombreCliente: string;
+    nombre: string;
     placa: string;
     lavador: string;
     sala: string;
     productos: ProductoRepository[];
+}
+
+interface MedioPago {
+    id_medio_pago: number;
+    nombre: string;
+    shortcode: string;
 }
 
 const Container = () => {
@@ -56,17 +62,16 @@ const Container = () => {
     const [sala, setSala] = useState({ label: "", value: "" });
     const [totatilizar, setTotatilizar] = useState(false);
 
-    const [medioSeleccionado, setMedioSeleccionado] = useState<string | null>(null);
+    const [medioSeleccionado, setMedioSeleccionado] = useState<MedioPago | null>(null);
     const [filtroMedio, setFiltroMedio] = useState("");
     const [montoMedio, setMontoMedio] = useState("");
-    const [pagos, setPagos] = useState<{ medio: string; monto: number }[]>([]);
+    const [pagos, setPagos] = useState<{ id: number; medio: string; monto: number }[]>([]);
 
     const [cuentaSeleccionada, setCuentaSeleccionada] = useState<CuentaLavado | null>(null);
     const [productosFactura, setProductosFactura] = useState<ProductoRepository[]>([]);
     const [ultimoProducto, setUltimoProducto] = useState<ProductoRepository | null>(null);
     const { form, onChangeGeneral, resetForm } = useForm({ codigo: "" });
-
-    const { cuentasQuery, cuentaByIdiDQuery, createCuenta, agregarProductoCuenta, cancelarCuenta } = useCuenta(cuentaSeleccionada?.id_cuenta_cliente || null);
+    const { cuentasQuery, cuentaByIdiDQuery, createCuenta, agregarProductoCuenta, cancelarCuenta, cerrarCuenta } = useCuenta(cuentaSeleccionada?.id_cuenta_cliente || null);
 
     const queryClient = useQueryClient();
     // Sincroniza productos de cuentaSeleccionada en cuentasQuery (React Query)
@@ -90,11 +95,11 @@ const Container = () => {
 
     // Lista de medios de pago disponibles
     const mediosDePago = [
-        { nombre: "Efectivo", shortcode: "F1" },
-        { nombre: "Nequi", shortcode: "F2" },
-        { nombre: "Daviplata", shortcode: "F3" },
-        { nombre: "Tarjeta Débito", shortcode: "F4" },
-        { nombre: "Tarjeta Crédito", shortcode: "F5" }
+        { id_medio_pago: 1, nombre: "Efectivo", shortcode: "F1" },
+        { id_medio_pago: 2, nombre: "Nequi", shortcode: "F2" },
+        { id_medio_pago: 3, nombre: "Daviplata", shortcode: "F3" },
+        { id_medio_pago: 4, nombre: "Tarjeta Débito", shortcode: "F4" },
+        { id_medio_pago: 5, nombre: "Tarjeta Crédito", shortcode: "F5" }
     ];
 
 
@@ -295,11 +300,43 @@ const Container = () => {
             return;
         }
 
-        setPagos([...pagos, { medio: medioSeleccionado, monto }]);
+        setPagos([...pagos, { id: medioSeleccionado.id_medio_pago, medio: medioSeleccionado.nombre, monto: monto, }]);
         setMontoMedio("");
         setMedioSeleccionado(null);
         inputRef.current?.focus();
     };
+
+    const handlerConfirmarVenta = () => {
+        if (faltante > 0) {
+            toast.error(`Faltante: ${currencyFormat.format(faltante)}`);
+            return;
+        }
+
+        const factura = {
+            cliente: cuentaSeleccionada?.nombre,
+            total: total,
+            id_cuenta_cliente: cuentaSeleccionada?.id_cuenta_cliente,
+            id_inst: usuarioQuery?.data.cliente.id_cliente,
+            pagos: pagos.map((p) => ({
+                id_medio_pago: p.id,
+                medio: p.medio,
+                monto: p.monto
+            })),
+        };
+        cerrarCuenta(factura, setProgress)
+            .then((response: any) => {
+                if (response.status === 200) {
+                    toast.success("Venta realizada con exito");
+                    queryClient.invalidateQueries({ queryKey: ["cuenta_cliente", usuarioQuery.data?.cliente.id_cliente] });
+                    setOpenModalCuenta(false);
+                } else {
+                    toast.error("Error al cerrar cuenta");
+                }
+            })
+            .catch((error: any) => {
+                toast.error("Error al cerrar cuenta");
+            });
+    }
 
     const opciones = [
         { label: "Lavador 1", value: "1" },
@@ -421,7 +458,7 @@ const Container = () => {
                             Cancelar Cuenta
                         </button>
                         {faltante <= 0 && total > 0 && (
-                            <button className="btn btn_primary" onClick={() => toast.success("Venta finalizada")}>
+                            <button className="btn btn_primary" onClick={() => handlerConfirmarVenta()}>
                                 Confirmar Venta
                             </button>
                         )}
@@ -502,7 +539,7 @@ const Container = () => {
                                                 key={index}
                                                 shortcode={medio.shortcode}
                                                 title={medio.nombre}
-                                                redirect={() => setMedioSeleccionado(medio.nombre)}
+                                                redirect={() => setMedioSeleccionado(medio)}
                                                 image={confirm__wallet}
                                                 to=""
                                             />
@@ -511,7 +548,7 @@ const Container = () => {
                             </>
                         ) : (
                             <div className={style.form_control}>
-                                <label>Ingresar monto en {medioSeleccionado}</label>
+                                <label>Ingresar monto en {medioSeleccionado.nombre}</label>
                                 <input
                                     ref={inputRef}
                                     type="number"
