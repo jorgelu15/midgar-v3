@@ -59,7 +59,7 @@ const Container = () => {
     const [ultimoProducto, setUltimoProducto] = useState<ProductoRepository | null>(null);
     const { form, onChangeGeneral, resetForm } = useForm({ codigo: "" });
 
-    const { cuentasQuery, cuentaByIdiDQuery, createCuenta, agregarProductoCuenta } = useCuenta(cuentaSeleccionada?.id_cuenta_cliente || null);
+    const { cuentasQuery, cuentaByIdiDQuery, createCuenta, agregarProductoCuenta, cancelarCuenta } = useCuenta(cuentaSeleccionada?.id_cuenta_cliente || null);
 
     const queryClient = useQueryClient();
     // Sincroniza productos de cuentaSeleccionada en cuentasQuery (React Query)
@@ -83,7 +83,25 @@ const Container = () => {
     const closeCuentaModal = () => setAbrirCuenta(false);
 
     const openCuentaLavadoModal = () => setOpenModalCuenta(true);
-    const closeCuentaLavadoModal = () => setOpenModalCuenta(false);
+    const closeCuentaLavadoModal = () => {
+        if (cuentaSeleccionada)
+            cancelarCuenta(cuentaSeleccionada.id_cuenta_cliente as unknown as number, usuarioQuery?.data.cliente.id_cliente)
+                .then((response: any) => {
+                    if (response.status === 200) {
+                        setProductosFactura([]);
+                        setUltimoProducto(null);
+                        setCuentaSeleccionada(null);
+                        toast.success("Cuenta cancelada");
+                        queryClient.invalidateQueries({ queryKey: ["cuenta_cliente", usuarioQuery.data?.cliente.id_cliente] });
+                        setOpenModalCuenta(false);
+                    } else {
+                        toast.error("Error al cancelar cuenta");
+                    }
+                })
+                .catch((error: any) => {
+                    toast.error("Error al cancelar cuenta");
+                });
+    }
 
     const handleAgregarProducto = async (producto: ProductoRepository) => {
         // Copia del estado actual
@@ -97,10 +115,11 @@ const Container = () => {
             cantidadFinal = updated[index].cantidad;
         } else {
             updated.push({ ...producto, cantidad: 1 });
-            setCuentaSeleccionada({
-                ...cuentaSeleccionada,
-                productos: [...cuentaSeleccionada?.productos, { ...producto, cantidad: 1 }]
-            });
+            if (cuentaSeleccionada)
+                setCuentaSeleccionada({
+                    ...cuentaSeleccionada,
+                    productos: [...cuentaSeleccionada?.productos, { ...producto, cantidad: 1 }]
+                });
         }
 
         // Llamada a la API antes de setear el estado
@@ -138,6 +157,15 @@ const Container = () => {
         };
 
         createCuenta(cuenta, usuarioQuery?.data.cliente.id_cliente, setProgress).then((response: any) => {
+            if (response.status !== 200) return;
+            setClienteNombre("");
+            setPlaca("");
+            setLavador({ label: "", value: "" });
+            setSala({ label: "", value: "" });
+            setProductosFactura([]);
+            setUltimoProducto(null);
+            setCuentaSeleccionada(response.data.cuenta);
+            queryClient.invalidateQueries({ queryKey: ["cuenta_cliente", usuarioQuery.data?.cliente.id_cliente] });
             toast.success(response.data.message);
             closeCuentaModal();
             openCuentaLavadoModal();
@@ -196,11 +224,12 @@ const Container = () => {
         // Ahora sí, actualizar en función de la respuesta
         if (res.status === 200) {
             // setProductosFactura(updated);
-            console.log(updated);
-            setCuentaSeleccionada({
-                ...cuentaSeleccionada,
-                productos: updated
-            });
+
+            if (cuentaSeleccionada)
+                setCuentaSeleccionada({
+                    ...cuentaSeleccionada,
+                    productos: updated
+                });
             resetForm();
             // Aquí podrías hacer algo con la cuenta actualizada, como mostrar un mensaje o actualizar el estado
         } else {
@@ -317,7 +346,7 @@ const Container = () => {
                     <SelectSearch
                         options={lavadoresQuery.data?.map((lavador: any) => ({ label: lavador.nombre, value: lavador.id_usuario }))}
                         value={lavador}
-                        onSelect={setLavador}
+                        onSelect={(option) => setLavador({ label: option.label, value: option.value.toString() })}
                     />
                 </div>
                 <div className={style.form_control}>
@@ -325,7 +354,7 @@ const Container = () => {
                     <SelectSearch
                         options={opciones.filter(o => o.label.includes("Sala"))}
                         value={sala}
-                        onSelect={setSala}
+                        onSelect={(option) => setSala({ label: option.label, value: option.value.toString() })}
                     />
                 </div>
             </Modal>
@@ -333,13 +362,13 @@ const Container = () => {
             {/* MODAL 2: Cuenta abierta */}
             <Modal
                 isOpen={openModalCuenta}
-                onClose={closeCuentaLavadoModal}
+                onClose={() => setOpenModalCuenta(false)}
                 title="Cuenta Lavado"
                 size="lg"
                 footer={
                     <div className={style.modal_footer_actions}>
                         <button className="btn btn_secondary" onClick={closeCuentaLavadoModal}>
-                            Cerrar
+                            Cancelar Cuenta
                         </button>
                         <button className="btn btn_primary" onClick={() => console.log("Procesar")}>
                             Procesar
@@ -372,7 +401,7 @@ const Container = () => {
                         </div>
                         <div style={{ padding: "20px", display: "flex", justifyContent: "space-between" }}>
                             <p><strong>Total:</strong></p>
-                            <p><strong>{currencyFormat.format(total)}</strong></p>
+                            <p><strong>{currencyFormat.format(total ?? 0)}</strong></p>
                         </div>
 
                     </div>

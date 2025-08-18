@@ -54,6 +54,15 @@ const CuentaProvider = ({ children }: { children: React.ReactNode }) => {
         }
     }
 
+    const cancelarCuenta = async (id_cuenta_cliente: number, id_inst: number) => {
+        try {
+            const res = await api.delete(`/ventas-y-servicios/cuenta/cancelar/${id_cuenta_cliente}/${id_inst}`);
+            return res;
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
     return (
         <AutoLavadoContext.Provider
             value={{
@@ -61,7 +70,8 @@ const CuentaProvider = ({ children }: { children: React.ReactNode }) => {
                 msg: state.msg,
                 cargando: state.cargando,
                 createCuenta,
-                agregarProductoCuenta
+                agregarProductoCuenta,
+                cancelarCuenta
             }}
         >
             {children}
