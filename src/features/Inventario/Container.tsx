@@ -30,11 +30,13 @@ const menuItems = [
 
 const Container = () => {
   const { productosQuery, valorInventarioFisicoQuery, gananciaEstimadaQuery, productosAgotadosQuery } = useInventario();
-  const productos: ProductoRepository[] = productosQuery.data?.pages[0] || [];
+  const productos: ProductoRepository[] = productosQuery.data || [];
   const valorInventarioFisico = valorInventarioFisicoQuery.data?.valor_inventario_fisico || 0;
   const gananciaEstimada = gananciaEstimadaQuery.data?.ganancia_estimada || 0;
   const productosAgotados = productosAgotadosQuery.data?.productos_agotados || 0;
 
+console.log("productos", productos);  
+  
   const navigate = useNavigate();
   const { form, onChangeGeneral } = useForm({ query: "" });
   const {
