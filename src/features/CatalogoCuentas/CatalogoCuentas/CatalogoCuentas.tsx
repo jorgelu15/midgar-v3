@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import style from "./catalogoCuentas.module.css";
+import style from "./catalogocuentas.module.css";
 import type { CuentaContable } from "../../../models/CuentaContable";
 import { useContabilidad } from "../../../hooks/useContabilidad";
 import Modal from "../../../components/modales/Modal";
