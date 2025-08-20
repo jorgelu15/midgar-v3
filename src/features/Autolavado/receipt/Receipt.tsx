@@ -1,3 +1,4 @@
+import type { ProductoRepository } from "../../../models/Producto.repository";
 import style from "./receipt.module.css";
 
 type Item = {
@@ -8,17 +9,18 @@ type Item = {
     unitPrice: number; // V/r Uni.
 };
 
-const Receipt = () => {
-    const items: Item[] = [
-        { ref: "00123", description: "Galletas Festival Vainilla 6u", qty: 2, um: "UND", unitPrice: 2500 },
-        { ref: "ABC-45", description: "Aceite de cocina 900 ml", qty: 1, um: "UND", unitPrice: 9300 },
-        { ref: "Q-001", description: "Queso campesino (por peso)", qty: 0.45, um: "KG", unitPrice: 14500 },
-    ];
+const Receipt = (items: ProductoRepository[]) => {
+    // const items: Item[] = [
+    //     { ref: "00123", description: "Galletas Festival Vainilla 6u", qty: 2, um: "UND", unitPrice: 2500 },
+    //     { ref: "ABC-45", description: "Aceite de cocina 900 ml", qty: 1, um: "UND", unitPrice: 9300 },
+    //     { ref: "Q-001", description: "Queso campesino (por peso)", qty: 0.45, um: "KG", unitPrice: 14500 },
+    // ];
     const currency = (n: number) =>
         n.toLocaleString("es-CO", { style: "currency", currency: "COP", maximumFractionDigits: 0 });
 
     const fmtQty = (q: number) => (Number.isInteger(q) ? q : q.toFixed(2));
-    const subtotal = items.reduce((acc, it) => acc + it.qty * it.unitPrice, 0);
+    const subtotal = items?.reduce((acc, it) => acc + it.cantidad * it.precio_venta, 0);
+    if(!items) return <></>;
     return (
         <div className={style.container_receipt}>
             <header>
@@ -74,16 +76,16 @@ const Receipt = () => {
                 {items.map((it, i) => (
                     <div key={i} style={{ marginBottom: 4 }}>
                         <div className={style.row_info}>
-                            <p>{it.ref}</p>
-                            <p>{it.description}</p>
+                            <p>{it.codigo}</p>
+                            <p>{it.nombre}</p>
                         </div>
                         <div className={style.row_info}>
                             <div style={{ display: "flex", gap: 10 }}>
-                                <p>{fmtQty(it.qty)}</p>
-                                <p>{it.um}</p>
+                                <p>{fmtQty(it.cantidad)}</p>
+                                <p>Und</p>
                             </div>
-                            <p style={{ textAlign: "right" }}>{currency(it.unitPrice)}</p>
-                            <p style={{ textAlign: "right" }}>{currency(it.qty * it.unitPrice)}</p>
+                            <p style={{ textAlign: "right" }}>{currency(it.precio_venta)}</p>
+                            <p style={{ textAlign: "right" }}>{currency(it.cantidad * it.precio_venta)}</p>
                         </div>
                     </div>
                 ))}
@@ -91,7 +93,7 @@ const Receipt = () => {
                 <div className={style.row_info}>
                     <p>TOTAL</p>
                     <p style={{ textAlign: "right" }}>
-                        <strong>{currency(subtotal)}</strong>
+                        <strong>{currency(subtotal || 0)}</strong>
                     </p>
                 </div>
                 <div className={style.row_info}>
@@ -104,13 +106,13 @@ const Receipt = () => {
                 <div className={style.row_info}>
                     <p>EFECTIVO</p>
                     <p style={{ textAlign: "right" }}>
-                        <strong>{currency(subtotal)}</strong>
+                        <strong>{currency(subtotal || 0)}</strong>
                     </p>
                 </div>
                 <div className={style.row_info}>
                     <p>CAMBIO</p>
                     <p style={{ textAlign: "right" }}>
-                        <strong>{currency(subtotal)}</strong>
+                        <strong>{currency(subtotal || 0)}</strong>
                     </p>
                 </div>
                 <br/>

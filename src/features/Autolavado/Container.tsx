@@ -678,7 +678,7 @@ const Container = () => {
                         </button>
                     </div>
                 }>
-                <Receipt />
+                <Receipt items={cuentaSeleccionada?.productos ?? []}/>
             </Modal>
             <ToastContainer
                 position="bottom-right"
