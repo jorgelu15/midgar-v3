@@ -5,7 +5,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { ThemeProvider } from './context/ThemeContext/ThemeContext.tsx'
 
-import AuthProvider from './context/authentication/authProvider.tsx'
+import AuthProvider from './context/Authentication/authProvider.tsx'
 import InventarioFisicoProvider from './context/InventarioFisico/InventarioFisicoProvider.tsx'
 import AutoLavadoProvider from './context/AutoLavado/AutoLavadoProvider.tsx'
 import GestionDeUsuariosProvider from './context/gestion-de-usuarios/gestion-de-usuariosProvider.tsx'
