@@ -79,6 +79,22 @@ const CuentaProvider = ({ children }: { children: React.ReactNode }) => {
         }
     }
 
+    const descargarInventario = async (id_cliente: string, producto: any, setProgress: any) => {
+        try {
+            const res = await api.post(`/ventas-y-servicios/cuenta/descargar/producto/${id_cliente}`, {producto: producto},
+            {
+                withCredentials: true,
+                onUploadProgress: (progressEvent: AxiosProgressEvent) => {
+                    const percentage = Math.round((progressEvent.loaded * 100) / (progressEvent?.total ? progressEvent?.total : 0));
+                    setProgress(percentage);
+                }
+            });
+            return res;
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
     return (
         <AutoLavadoContext.Provider
             value={{
@@ -88,7 +104,8 @@ const CuentaProvider = ({ children }: { children: React.ReactNode }) => {
                 createCuenta,
                 agregarProductoCuenta,
                 cancelarCuenta,
-                cerrarCuenta
+                cerrarCuenta,
+                descargarInventario
             }}
         >
             {children}

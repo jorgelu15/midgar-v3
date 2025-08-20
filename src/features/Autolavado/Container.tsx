@@ -80,9 +80,7 @@ const Container = () => {
     const [productosFactura, setProductosFactura] = useState<ProductoRepository[]>([]);
     const [ultimoProducto, setUltimoProducto] = useState<ProductoRepository | null>(null);
     const { form, onChangeGeneral, resetForm } = useForm({ codigo: "" });
-    const { cuentasQuery, cuentaByIdiDQuery, metodosPagoQuery, createCuenta, agregarProductoCuenta, cancelarCuenta, cerrarCuenta } = useCuenta(cuentaSeleccionada?.id_cuenta_cliente || null);
-
-    console.log(metodosPagoQuery?.data)
+    const { cuentasQuery, cuentaByIdiDQuery, metodosPagoQuery, createCuenta, agregarProductoCuenta, cancelarCuenta, cerrarCuenta, descargarInventario } = useCuenta(cuentaSeleccionada?.id_cuenta_cliente || null);
 
     const queryClient = useQueryClient();
     // Sincroniza productos de cuentaSeleccionada en cuentasQuery (React Query)
@@ -328,6 +326,14 @@ const Container = () => {
             .then((response: any) => {
                 if (response.status === 200) {
                     toast.success("Venta realizada con exito");
+                    setProductosFactura([]);
+                    setUltimoProducto(null);
+                    setCuentaSeleccionada(null);
+                    setPagos([]);
+                    setTotatilizar(false);
+                    setMedioSeleccionado(null);
+                    setMontoMedio("");
+                    // Actualizar cuentasQuery para eliminar la cuenta cerrada
                     queryClient.setQueryData(
                         ["cuenta_cliente", usuarioQuery.data?.cliente.id_cliente],
                         (oldData: any) => {
@@ -337,6 +343,9 @@ const Container = () => {
                             );
                         }
                     );
+
+                    descargarInventario(usuarioQuery.data?.cliente.id_cliente, cuentaSeleccionada?.productos, setProgress)
+                    
                     setOpenModalCuenta(false);
                 } else {
                     toast.error("Error al cerrar cuenta");
