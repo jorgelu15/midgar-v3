@@ -42,16 +42,16 @@
     position: relative;
     padding: 8px;
     display: flex;
-    background-color: var(--background);
     border-radius: 8px;
     border: none;
     outline: none;
-    color: var(--text-muted);;
     cursor: pointer;
     align-items: center;
     justify-content: center;
+    background-color: var(--background);
+    color: var(--text-muted);
     filter: invert(var(--invert));
-   
+    border: 1px solid var(--secondary);
 }
 
 .header .nav__header .nav__dropdown:hover {
@@ -60,7 +60,5 @@
 }
 
 .nav__dropdown__icon {
-    background-color: var(--background);
-    color: var(--text-muted);
-    filter: invert(var(--invert));
+    
 }
