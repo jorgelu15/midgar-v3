@@ -18,7 +18,7 @@ const Header = () => {
                     <li><Link to={routes.dashboard}>Tienda La Milanesa</Link></li>
                 </ul>
                 <button className={style.nav__dropdown} onClick={() => logOut() }>
-                    <img src={turnoff} alt="dropdown arrow" />
+                    <img src={turnoff} alt="dropdown arrow" className={style.nav__dropdown__icon} />
                 </button>
             </nav>
         </header>
