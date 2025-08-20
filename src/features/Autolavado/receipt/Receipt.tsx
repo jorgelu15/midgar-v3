@@ -114,9 +114,9 @@ const Receipt = () => {
                     </p>
                 </div>
                 <br/>
-                <center>NIT. 1143403473-0</center>
-                <center>TIENDA LA MILANESA SA</center>
-                <center><strong>GRACIAS POR PREFERIRNOS</strong></center>
+                <center><h1 className={style.title}>NIT. 1143403473-0</h1></center>
+                <center><h1 className={style.title}>TIENDA LA MILANESA SA</h1></center>
+                <center><h1 className={style.title}><strong>GRACIAS POR PREFERIRNOS</strong></h1></center>
                 <br/>
                 <div className={style.divider}></div>
                 <p className={style.small}>

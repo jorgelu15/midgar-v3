@@ -53,7 +53,9 @@ const Container = () => {
         abrirCuenta,
         setAbrirCuenta,
         openModalCuenta,
-        setOpenModalCuenta
+        setOpenModalCuenta,
+        setGenerateReceipt,
+        generateReceipt
     } = useProductModals();
 
     const { theme } = useTheme();
@@ -104,6 +106,9 @@ const Container = () => {
 
     const openCuentaModal = () => setAbrirCuenta(true);
     const closeCuentaModal = () => setAbrirCuenta(false);
+
+    const openGenerarReciboModal = () => setGenerateReceipt(true);
+    const closeGenerarReciboModal = () => setGenerateReceipt(false);
 
     const openCuentaLavadoModal = () => setOpenModalCuenta(true);
     const closeCuentaLavadoModal = () => {
@@ -660,7 +665,19 @@ const Container = () => {
 
             </Modal>
 
-            <Modal isOpen={true} onClose={() => { }} title="Recibo" size="sm">
+            <Modal isOpen={generateReceipt} onClose={closeGenerarReciboModal} title="Recibo" size="sm" footer={
+                    <div className={style.modal_footer_actions}>
+                        <button className="btn btn_secondary" onClick={closeCuentaModal}>
+                            Salir
+                        </button>
+                        <button
+                            className="btn btn_primary"
+                            
+                        >
+                            Generar factura
+                        </button>
+                    </div>
+                }>
                 <Receipt />
             </Modal>
             <ToastContainer
