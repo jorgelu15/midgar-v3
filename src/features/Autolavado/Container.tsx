@@ -19,6 +19,7 @@ import { useShortcuts } from "../../hooks/useShortcodes";
 import { routes } from "../../utils/routes";
 import { useNavigate } from "react-router-dom";
 import Receipt from "./receipt/Receipt";
+import { useReactToPrint } from "react-to-print";
 
 
 // Interfaces
@@ -83,6 +84,7 @@ const Container = () => {
     const [ultimoProducto, setUltimoProducto] = useState<ProductoRepository | null>(null);
     const { form, onChangeGeneral, resetForm } = useForm({ codigo: "" });
     const { cuentasQuery, cuentaByIdiDQuery, metodosPagoQuery, createCuenta, agregarProductoCuenta, cancelarCuenta, cerrarCuenta, descargarInventario } = useCuenta(cuentaSeleccionada?.id_cuenta_cliente || null);
+    const ticketRef = useRef<HTMLDivElement>(null);
 
     const queryClient = useQueryClient();
     // Sincroniza productos de cuentaSeleccionada en cuentasQuery (React Query)
@@ -108,7 +110,16 @@ const Container = () => {
     const closeCuentaModal = () => setAbrirCuenta(false);
 
     const openGenerarReciboModal = () => setGenerateReceipt(true);
-    const closeGenerarReciboModal = () => setGenerateReceipt(false);
+    const closeGenerarReciboModal = () => {
+        setProductosFactura([]);
+        setUltimoProducto(null);
+        setCuentaSeleccionada(null);
+        setPagos([]);
+        setTotatilizar(false);
+        setMedioSeleccionado(null);
+        setMontoMedio("");
+        setGenerateReceipt(false);
+    }
 
     const openCuentaLavadoModal = () => setOpenModalCuenta(true);
     const closeCuentaLavadoModal = () => {
@@ -331,13 +342,13 @@ const Container = () => {
             .then((response: any) => {
                 if (response.status === 200) {
                     toast.success("Venta realizada con exito");
-                    setProductosFactura([]);
-                    setUltimoProducto(null);
-                    setCuentaSeleccionada(null);
-                    setPagos([]);
-                    setTotatilizar(false);
-                    setMedioSeleccionado(null);
-                    setMontoMedio("");
+                    // setProductosFactura([]);
+                    // setUltimoProducto(null);
+                    // setCuentaSeleccionada(null);
+                    // setPagos([]);
+                    // setTotatilizar(false);
+                    // setMedioSeleccionado(null);
+                    // setMontoMedio("");
                     // Actualizar cuentasQuery para eliminar la cuenta cerrada
                     queryClient.setQueryData(
                         ["cuenta_cliente", usuarioQuery.data?.cliente.id_cliente],
@@ -349,8 +360,9 @@ const Container = () => {
                         }
                     );
 
-                    descargarInventario(usuarioQuery.data?.cliente.id_cliente, cuentaSeleccionada?.productos, setProgress)
-                    
+                    descargarInventario(usuarioQuery.data?.cliente.id_cliente, cuentaSeleccionada?.productos, setProgress);
+                    openGenerarReciboModal();
+
                     setOpenModalCuenta(false);
                 } else {
                     toast.error("Error al cerrar cuenta");
@@ -423,6 +435,10 @@ const Container = () => {
         window.addEventListener("keydown", handleKeyDown as any);
         return () => window.removeEventListener("keydown", handleKeyDown as any);
     }, [totatilizar, cuentaSeleccionada, productosFactura, medioSeleccionado]);
+
+    const handlePrint = useReactToPrint({
+        contentRef: ticketRef
+    });
 
     return (
         <div className="container" style={{ marginTop: 0 }}>
@@ -666,19 +682,21 @@ const Container = () => {
             </Modal>
 
             <Modal isOpen={generateReceipt} onClose={closeGenerarReciboModal} title="Recibo" size="sm" footer={
-                    <div className={style.modal_footer_actions}>
-                        <button className="btn btn_secondary" onClick={closeCuentaModal}>
-                            Salir
-                        </button>
-                        <button
-                            className="btn btn_primary"
-                            
-                        >
-                            Generar factura
-                        </button>
-                    </div>
-                }>
-                <Receipt items={cuentaSeleccionada?.productos ?? []}/>
+                <div className={style.modal_footer_actions}>
+                    <button className="btn btn_secondary" onClick={closeGenerarReciboModal}>
+                        Salir
+                    </button>
+                    <button
+                        className="btn btn_primary"
+                        onClick={ handlePrint }
+                    >
+                        Generar factura
+                    </button>
+                </div>
+            }>
+                <div id="factura" ref={ticketRef}>
+                    <Receipt items={cuentaSeleccionada?.productos ?? []} />
+                </div>
             </Modal>
             <ToastContainer
                 position="bottom-right"
