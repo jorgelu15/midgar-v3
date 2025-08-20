@@ -111,6 +111,8 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                 withCredentials: true
             });
 
+            
+
             dispatch({
                 type: typeState.CERRAR_SESION
             });

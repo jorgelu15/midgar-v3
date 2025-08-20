@@ -60,5 +60,7 @@
 }
 
 .nav__dropdown__icon {
-    
+    background-color: var(--background);
+    color: var(--text-muted);
+    filter: invert(var(--invert));
 }
