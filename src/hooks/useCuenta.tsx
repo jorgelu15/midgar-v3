@@ -6,6 +6,7 @@ import { useUserInfo } from "./useUserInfo";
 
 export const useCuenta = (id_cuenta_cliente?: string | null) => {
     const { usuarioQuery } = useUserInfo();
+    console.log(usuarioQuery)
     
     const { createCuenta, agregarProductoCuenta, cancelarCuenta, cerrarCuenta }: any = useContext(autoLavadoContext);
 

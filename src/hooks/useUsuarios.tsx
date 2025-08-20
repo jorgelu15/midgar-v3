@@ -6,7 +6,7 @@ import GestionDeUsuariosContext from "../context/gestion-de-usuarios/gestion-de-
 import type { UsuarioDTO } from "../models/dtos/usuario.dto";
 
 
-export const useUsuarios = (empleado?: string | null) => {
+export const useUsuarios = (empleado?: string | null, id_rol?: string | null) => {
     const { usuario } = useAuth();
     const {
         createCuentaEmpleados,
@@ -25,6 +25,21 @@ export const useUsuarios = (empleado?: string | null) => {
         return res.data;
     };
 
+    const fetchRolesByCliente = async () => {
+        const res = await api.get(`/gestion-de-usuarios/cliente/${usuario?.id_cliente}/roles`);
+        return res.data;
+    };
+
+     const fetchGetAllPermisosByCliente = async () => {
+        const res = await api.get(`/gestion-de-usuarios/cliente/${usuario?.id_cliente}/permisos`);
+        return res.data;
+    }
+
+    const fetchPermisosByRol = async () => {
+        const res = await api.get(`/gestion-de-usuarios/cliente/${usuario?.id_cliente}/rol/${id_rol}`);
+        return res.data;
+    };
+
     const usuariosByClienteQuery = useQuery({
         queryKey: ["usuarios", usuario?.id_cliente],
         queryFn: fetchUsuariosByCliente,
@@ -32,22 +47,12 @@ export const useUsuarios = (empleado?: string | null) => {
         enabled: usuario?.id_cliente != null
     });
 
-    const fetchRolesByCliente = async () => {
-        const res = await api.get(`/gestion-de-usuarios/cliente/${usuario?.id_cliente}/roles`);
-        return res.data;
-    };
-
     const rolesByClienteQuery = useQuery({
         queryKey: ["roles", usuario?.id_cliente],
         queryFn: fetchRolesByCliente,
         refetchOnWindowFocus: true,
         enabled: usuario?.id_cliente != null
     });
-
-    const fetchGetAllPermisosByCliente = async () => {
-        const res = await api.get(`/gestion-de-usuarios/cliente/${usuario?.id_cliente}/permisos`);
-        return res.data;
-    }
 
     const permisosByClienteQuery = useQuery({
         queryKey: ["permisos", usuario?.id_cliente],
@@ -63,7 +68,12 @@ export const useUsuarios = (empleado?: string | null) => {
         enabled: empleado != null
     });
 
-
+    const permisosByRolQuery = useQuery({
+        queryKey: ["permisos", empleado],
+        queryFn: () => fetchPermisosByRol(),
+        refetchOnWindowFocus: true,
+        enabled: id_rol != null
+    });
 
 
     // esto sirve para crear un empleado y se actualiza el cache en "tiempo real"
@@ -102,6 +112,7 @@ export const useUsuarios = (empleado?: string | null) => {
         usuariosByClienteQuery,
         rolesByClienteQuery,
         permisosByClienteQuery,
+        permisosByRolQuery,
         usuarioInfoQuery,
         createEmpleadoMutation,
         updateEmpleadoMutation,

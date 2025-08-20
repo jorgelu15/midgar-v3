@@ -81,6 +81,8 @@ const Container = () => {
     const { form, onChangeGeneral, resetForm } = useForm({ codigo: "" });
     const { cuentasQuery, cuentaByIdiDQuery, metodosPagoQuery, createCuenta, agregarProductoCuenta, cancelarCuenta, cerrarCuenta } = useCuenta(cuentaSeleccionada?.id_cuenta_cliente || null);
 
+    console.log(metodosPagoQuery?.data)
+
     const queryClient = useQueryClient();
     // Sincroniza productos de cuentaSeleccionada en cuentasQuery (React Query)
     // Se ejecuta cada vez que cambia cuentaSeleccionada
