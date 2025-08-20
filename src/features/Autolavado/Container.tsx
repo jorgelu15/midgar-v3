@@ -18,6 +18,7 @@ import confirm__wallet from "../../assets/confirm_wallet.svg";
 import { useShortcuts } from "../../hooks/useShortcodes";
 import { routes } from "../../utils/routes";
 import { useNavigate } from "react-router-dom";
+import Receipt from "./receipt/Receipt";
 
 
 // Interfaces
@@ -650,6 +651,9 @@ const Container = () => {
 
             </Modal>
 
+            <Modal isOpen={true} onClose={() => { }} title="Recibo" size="sm">
+                <Receipt />
+            </Modal>
             <ToastContainer
                 position="bottom-right"
                 autoClose={5000}

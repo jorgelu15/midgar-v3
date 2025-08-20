@@ -1,0 +1,47 @@
+/* Ancho por defecto 58mm; cámbialo a 80mm si tu impresora es más ancha */
+.container_receipt {
+  --ticket-width: 100%;
+  width: var(--ticket-width);
+  padding: 6px 8px;
+  font-family: ui-monospace, "Courier New", monospace;
+  font-size: 12px;
+  line-height: 1.25;
+  color: var(--text-muted);
+}
+
+.center { text-align: center; }
+.title { margin: 0; font-size: 14px; font-weight: 700; }
+.small { font-size: 11px; }
+
+.info_receipt { margin-top: 6px; }
+
+.row_info {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 2px 0;
+}
+
+/* Divider consistente en pantalla e impresión térmica */
+.divider {
+  width: 100%;
+  height: 1px;
+  margin: 8px 0;
+  /* fallback “sólido” básico */
+  background-color: var(--text-muted);
+  /* patrón punteado mediante gradient, más fiel al estilo de ticket */
+  background-image: repeating-linear-gradient(
+    to right,
+    var(--background) 0,
+    var(--background) 3px,
+    transparent 3px,
+    transparent 6px
+  );
+}
+
+/* Afinar para impresión */
+@media print {
+  @page { size: auto; margin: 0; }
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .container_receipt { margin: 0; }
+}
