@@ -14,6 +14,7 @@ import CardMenu from "../../components/cards/CardMenu";
 import { useForm } from "../../hooks/useForm";
 import { useRef, useState, useEffect } from "react";
 import type { KeyboardEvent } from "react";
+import { useUserInfo } from "../../hooks/useUserInfo";
 
 interface Producto {
   codigo: string;
@@ -70,6 +71,8 @@ const currencyFormat = new Intl.NumberFormat("es-CO", {
 
 const Container = () => {
   const navigate = useNavigate();
+   const { usuarioQuery } = useUserInfo()
+    const user = usuarioQuery.data;
   const { form, onChangeGeneral, resetForm } = useForm({ codigo: "", valor: "" });
 
   const [productosFactura, setProductosFactura] = useState<Producto[]>([]);
@@ -267,6 +270,8 @@ const Container = () => {
                     }}
                     to={item.destiny}
                     image={item.image}
+                    codigo_permiso=""
+                    permisos={user?.permisos}
                   />
                 ))}
               </div>
@@ -327,6 +332,8 @@ const Container = () => {
                           redirect={() => setMedioSeleccionado(medio.nombre)}
                           image={confirm__wallet}
                           to=""
+                          codigo_permiso=""
+                          permisos={user?.permisos}
                         />
                       ))}
                   </div>
@@ -364,7 +371,7 @@ const Container = () => {
                 </p>
               )}
 
-              <CardMenu title="Vender" shortcode="F9" to="" redirect={() => { }} />
+              <CardMenu title="Vender" shortcode="F9" to="" redirect={() => { }} codigo_permiso="" permisos={user?.permisos} />
             </div>
           )}
         </div>

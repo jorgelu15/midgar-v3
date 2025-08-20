@@ -36,7 +36,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             email,
             password
         }, {
-            withCredentials: true
+            withCredentials: true,
         });
 
         dispatch({

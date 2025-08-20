@@ -22,6 +22,7 @@ const AbastecerInventarioModal = ({
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+        setProgress(0)
     }
 
     const opciones = [

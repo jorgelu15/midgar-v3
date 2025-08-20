@@ -7,6 +7,7 @@ import volver from "../../assets/volver.svg";
 import confirm__wallet from "../../assets/confirm_wallet.svg";
 import { useForm } from "../../hooks/useForm";
 import { useShortcuts } from "../../hooks/useShortcodes";
+import { useUserInfo } from "../../hooks/useUserInfo";
 
 const items = [
     { label: "Dashboard", href: routes.dashboard },
@@ -22,6 +23,8 @@ const menuItems = [
 
 const Container = () => {
     const navigate = useNavigate();
+    const { usuarioQuery } = useUserInfo();
+    const user = usuarioQuery.data;
 
     const { form, onChangeGeneral } = useForm({
         moneda: "Pesos",
@@ -55,6 +58,8 @@ const Container = () => {
                         title={item.title}
                         redirect={() => navigate(item.destiny)}
                         to={item.destiny}
+                        codigo_permiso=""
+                        permisos={user?.permisos}
                     />
                 ))}
             </div>

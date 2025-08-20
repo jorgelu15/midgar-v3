@@ -1,5 +1,4 @@
 import style from "./cardcuentalavado.module.css";
-import wash from "../../assets/wash.svg"
 interface Producto {
     nombre: string;
     precio_venta: number;

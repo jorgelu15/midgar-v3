@@ -12,6 +12,7 @@ const OffcanvasCliente: React.FC<Props> = ({ onClose, isOpen }) => {
   useEffect(() => {
     if (isOpen) {
       setVisible(true);
+      console.log(visible)
     }
   }, [isOpen]);
 

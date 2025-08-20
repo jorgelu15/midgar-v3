@@ -1,4 +1,4 @@
-import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import api from "../config/axios";
 import { useAuth } from "./useAuth";
 import { useContext } from "react";

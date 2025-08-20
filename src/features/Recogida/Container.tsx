@@ -15,6 +15,7 @@ import { usePaymentMethods } from "../../hooks/usePaymentMethods";
 import { generatePaymentShortcuts } from "../../utils/paymentShortcuts";
 import { useForm } from "../../hooks/useForm";
 import { useEffect, useRef, useState } from "react";
+import { useUserInfo } from "../../hooks/useUserInfo";
 
 const menuItems = [
   { shortcode: "Escape", image: volver, title: "Volver", destiny: routes.caja },
@@ -23,7 +24,8 @@ const menuItems = [
 
 const Container = () => {
   const navigate = useNavigate();
-
+  const { usuarioQuery } = useUserInfo()
+  const user = usuarioQuery.data;
   const { medioPagos } = usePaymentMethods();
   const { form, onChangeGeneral, resetForm } = useForm({
     method: "",
@@ -104,6 +106,8 @@ const Container = () => {
                 redirect={() => navigate(item.destiny)}
                 to={item.destiny}
                 image={item.image}
+                codigo_permiso=""
+                permisos={user?.permisos}
               />
             ))}
           </div>

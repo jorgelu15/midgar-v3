@@ -72,7 +72,7 @@ const Container = () => {
     permisosByRolQuery,
     usuarioInfoQuery,
     createEmpleadoMutation,
-    updateEmpleadoMutation,
+    // updateEmpleadoMutation,
     asignarPermisosMutation,
     quitarPermisosMutation,
     crearRol,
