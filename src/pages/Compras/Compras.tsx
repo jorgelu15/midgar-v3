@@ -1,9 +1,12 @@
+import { useTitle } from "../../hooks/useTitle";
+
 const Compras = () => {
-    return ( 
+    useTitle();
+    return (
         <>
-            
+
         </>
-     );
+    );
 }
- 
+
 export default Compras;

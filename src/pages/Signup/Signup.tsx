@@ -1,4 +1,8 @@
+import { useTitle } from "../../hooks/useTitle";
+
 const Signup = () => {
+        useTitle();
+    
     return ( 
         <div>
             <h1>Registrarse</h1>

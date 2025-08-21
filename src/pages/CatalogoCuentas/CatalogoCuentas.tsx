@@ -1,13 +1,16 @@
 import Container from "../../features/CatalogoCuentas/Container";
+import { useTitle } from "../../hooks/useTitle";
 import Header from "../../layout/Menus/Header";
 
 const CatalogoCuentas = () => {
-    return ( 
+    useTitle();
+
+    return (
         <>
             <Header />
             <Container />
         </>
-     );
+    );
 }
- 
+
 export default CatalogoCuentas;

@@ -9,7 +9,10 @@ import { useForm } from '../../hooks/useForm';
 import { useEffect, useState } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import { useTheme } from '../../context/ThemeContext/ThemeContext';
+import { useTitle } from '../../hooks/useTitle';
 const Signin = () => {
+        useTitle();
+    
     const { isAuthenticated, signIn, usuarioAutenticado } = useAuth();
     const { theme } = useTheme();
 
