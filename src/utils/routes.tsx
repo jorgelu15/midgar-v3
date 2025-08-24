@@ -35,7 +35,7 @@ export const routes = {
     usuariosPermisos: "/ajustes/usuarios-y-permisos",
     cuentaAcceso: "/ajustes/cuenta-y-acceso",
     negocio: "/ajustes/negocio",
-    InventarioFisicos: "/ajustes/InventarioFisicos",
+    config_inventario: "/ajustes/InventarioFisicos",
     ventasConfig: "/ajustes/ventas",
     clientesCreditos: "/ajustes/clientes-y-creditos",
     configuracionReportes: "/ajustes/reportes-y-estadisticas",

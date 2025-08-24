@@ -33,7 +33,7 @@ export const routeTitles: Record<string, string> = {
   [routes.usuariosPermisos]: "Usuarios y Permisos | Midgar ERP",
   [routes.cuentaAcceso]: "Cuenta y Acceso | Midgar ERP",
   [routes.negocio]: "Datos del Negocio | Midgar ERP",
-  [routes.InventarioFisicos]: "Inventarios | Midgar ERP",
+  [routes.config_inventario]: "Configuración de Inventario | Midgar ERP",
   [routes.ventasConfig]: "Configuración de Ventas | Midgar ERP",
   [routes.clientesCreditos]: "Clientes y Créditos | Midgar ERP",
   [routes.configuracionReportes]: "Reportes y Estadísticas | Midgar ERP",

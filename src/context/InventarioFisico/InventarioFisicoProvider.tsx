@@ -7,6 +7,7 @@ import type { AxiosProgressEvent } from 'axios';
 import type { ProductoRepository } from '../../models/Producto.repository';
 import { typeState } from '../../models/types/producto.state';
 import type { MovimientoInventarioRepository } from '../../models/MovimientoInventario.repository';
+import type { CategoriaDTO } from '../../models/dtos/categoria.dto';
 
 
 
@@ -40,16 +41,16 @@ const ProductoProvider = ({ children }: { children: React.ReactNode }) => {
     const createProducto = async (formData: FormData, setProgress: any) => {
         try {
             const res = await api.post(`/inventario-fisico/productos`, formData,
-            {
-                withCredentials: true,
-                headers: {
-                "Content-Type": "multipart/form-data",
-            },
-                onUploadProgress: (progressEvent: AxiosProgressEvent) => {
-                    const percentage = Math.round((progressEvent.loaded * 100) / (progressEvent?.total ? progressEvent?.total : 0));
-                    setProgress(percentage);
-                }
-            });
+                {
+                    withCredentials: true,
+                    headers: {
+                        "Content-Type": "multipart/form-data",
+                    },
+                    onUploadProgress: (progressEvent: AxiosProgressEvent) => {
+                        const percentage = Math.round((progressEvent.loaded * 100) / (progressEvent?.total ? progressEvent?.total : 0));
+                        setProgress(percentage);
+                    }
+                });
 
             return res;
         } catch (error) {
@@ -74,6 +75,26 @@ const ProductoProvider = ({ children }: { children: React.ReactNode }) => {
         }
     }
 
+    const createCategoria = async (categoria: CategoriaDTO, setProgress: any) => {
+        try {
+            const res = await api.post(`/inventario-fisico/cliente/${categoria.id_cliente}/categorias`, categoria,
+                {
+                    withCredentials: true,
+                    headers: {
+                        "Content-Type": "Application/json",
+                    },
+                    onUploadProgress: (progressEvent: AxiosProgressEvent) => {
+                        const percentage = Math.round((progressEvent.loaded * 100) / (progressEvent?.total ? progressEvent?.total : 0));
+                        setProgress(percentage);
+                    }
+                });
+
+            return res;
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
     return (
         <InventarioFisicoContext.Provider
             value={{
@@ -82,7 +103,8 @@ const ProductoProvider = ({ children }: { children: React.ReactNode }) => {
                 cargando: state.cargando,
                 updateProducto,
                 createProducto,
-                createMovimientoInventarioFisico
+                createMovimientoInventarioFisico,
+                createCategoria
             }}
         >
             {children}

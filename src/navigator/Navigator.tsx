@@ -21,6 +21,7 @@ import ProtectedRoute from "../utils/ProtectedRoute";
 import Contabilidad from "../pages/Contabilidad/Contabilidad";
 import CatalogoCuentas from "../pages/CatalogoCuentas/CatalogoCuentas";
 import Autolavado from "../pages/Autolavado/Autolavado";
+import ConfigInventario from "../pages/ConfigInventario/ConfigInventario";
 
 
 
@@ -200,6 +201,16 @@ const router = createBrowserRouter([
             {
                 path: routes.autolavado,
                 element: <Autolavado />
+            }
+        ]
+    },
+    {
+        path: routes.signin,
+        element: <ProtectedRoute />,
+        children: [
+            {
+                path: routes.config_inventario,
+                element: <ConfigInventario />
             }
         ]
     }

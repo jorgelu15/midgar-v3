@@ -1,13 +1,14 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import api from "../config/axios";
 import { useAuth } from "./useAuth";
 import { useContext } from "react";
 import InventarioFisicoContext from "../context/InventarioFisico/InventarioFisicoContext";
+import type { CategoriaDTO } from "../models/dtos/categoria.dto";
 
 export const useInventario = (id_producto?: string | undefined) => {
     const { usuario } = useAuth();
-    const { updateProducto, createProducto, createMovimientoInventarioFisico }: any = useContext(InventarioFisicoContext);
-
+    const { updateProducto, createProducto, createMovimientoInventarioFisico, createCategoria }: any = useContext(InventarioFisicoContext);
+    const queryClient = useQueryClient();
     const fetchProductos = async (id_inst: string) => {
         const res = await api.get(`/inventario-fisico/productos/${id_inst}`);
         return res.data;
@@ -35,16 +36,17 @@ export const useInventario = (id_producto?: string | undefined) => {
         return res.data;
     }
 
-    // const productosQuery = useInfiniteQuery({
-    //     queryKey: ['productos', usuario?.id_inst],
-    //     queryFn: ({ pageParam = 0 }) => fetchProductos(pageParam),
-    //     initialPageParam: 0,
-    //     getNextPageParam: (lastPage, allPages) => {
-    //         // Ajusta esto según la estructura real de tu API
-    //         return lastPage?.length > 0 ? allPages.length : undefined;
-    //     },
-    //     refetchOnWindowFocus: true
-    // });
+    const fetchGetAllCategoriasByCliente = async (id_cliente?: string) => {
+        const res = await api.get(`/inventario-fisico/cliente/${id_cliente}/categorias`);
+        return res.data;
+    }
+
+    const categoriasQuery = useQuery({
+        queryKey: ["categorias", usuario?.id_cliente],
+        queryFn: () => fetchGetAllCategoriasByCliente(usuario?.id_cliente), // Ya no recibe page
+        enabled: usuario?.id_cliente != null,
+        refetchOnWindowFocus: true
+    });
 
     const productosQuery = useQuery({
         queryKey: ["productos", usuario?.id_cliente],
@@ -85,6 +87,14 @@ export const useInventario = (id_producto?: string | undefined) => {
 
     })
 
+    //mutarions
+    const createCategoriaMutation = useMutation({
+        mutationFn: (categoria: CategoriaDTO) => createCategoria(categoria),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["categorias", usuario?.id_cliente] });
+        }
+    });
+
 
     return {
         productosQuery,
@@ -92,8 +102,10 @@ export const useInventario = (id_producto?: string | undefined) => {
         gananciaEstimadaQuery,
         productosAgotadosQuery,
         movimientosInventarioQuery,
+        categoriasQuery,
         updateProducto,
         createProducto,
-        createMovimientoInventarioFisico
+        createMovimientoInventarioFisico,
+        createCategoriaMutation
     };
 };
