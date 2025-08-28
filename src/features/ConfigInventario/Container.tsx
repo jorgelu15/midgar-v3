@@ -3,6 +3,7 @@ import { routes } from "../../utils/routes";
 import style from "./container.module.css";
 
 import GestionCategorias from "./GestionCategorias/GestionCategorias";
+import GestionProveedores from "./GestionProveedores/GestionProveedores";
 
 const items = [
     { label: "Dashboard", href: routes.dashboard },
@@ -19,6 +20,7 @@ const Container = () => {
             </div>
             <div className={style.cards}>
                 <GestionCategorias />
+                <GestionProveedores />
             </div>
 
         </div>

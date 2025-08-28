@@ -22,7 +22,7 @@ const SelectSearch: React.FC<SelectSearchProps> = ({ options, placeholder = "Sel
   useEffect(() => {
     setFilteredOptions(
       options.filter((opt) =>
-        opt.label.toLowerCase().includes(query.toLowerCase())
+        opt.label?.toLowerCase().includes(query.toLowerCase())
       )
     );
   }, [query, options]);

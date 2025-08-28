@@ -6,6 +6,8 @@ import style from "../container.module.css";
 import { useRef, useState } from "react";
 import { useAuth } from "../../../hooks/useAuth";
 import uploadIcon from "../../../assets/upload.svg";
+import SelectSearch from "../../../components/selects/SelectSearch";
+import type { CategoriaRepository } from "../../../models/Categoria.repository";
 
 interface CreateProductoModalProps {
     isCreateProductModalOpen: boolean;
@@ -31,9 +33,15 @@ const CreateProductoModal = ({
     setIsCreateProductModalOpen,
 }: CreateProductoModalProps) => {
     const { usuario } = useAuth()
-    const { createProducto } = useInventario();
+    const { createProducto, categoriasQuery } = useInventario();
+
+
+    const categorias = categoriasQuery.data || [];
+    console.log(categorias);
+
     const formRef = useRef<HTMLFormElement>(null);
     const { form, onChangeGeneral, setState } = useForm(initialFormState);
+    const [categoriaSelected, setCategoriaSelected] = useState({ label: "", value: "" });
     const [progress, setProgress] = useState<number | null>(null);
 
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -170,7 +178,7 @@ const CreateProductoModal = ({
                                 <img src={imagePreview} alt="Preview" className={style.image_preview} />
                             ) : (
                                 <div className={style.upload_content}>
-                                    <span className={style.upload_icon}><img src={uploadIcon}/></span>
+                                    <span className={style.upload_icon}><img src={uploadIcon} /></span>
                                     <p>Presione aquí para subir una imagen</p>
                                 </div>
                             )}
@@ -181,8 +189,12 @@ const CreateProductoModal = ({
                         {renderInput("Nombre", "nombre", "text", "Ej: Producto 1")}
                     </div>
                 </div>
+                <SelectSearch
+                    options={categorias?.map((categoria: CategoriaRepository) => ({ label: categoria.nombre_categoria, value: categoria.nombre_categoria })) ?? []}
+                    value={categoriaSelected}
+                    onSelect={(option) => setCategoriaSelected({ label: option.label, value: option.value.toString() })}
 
-                {renderSelect("Categoría", "categoria", ["Categoría 1", "Categoría 2", "Categoría 3"])}
+                />
                 {renderInput("Costo unitario", "costoUnitario", "number", "Ej: 5000")}
                 {renderInput("Precio de venta", "precioVenta", "number", "Ej: 10000")}
                 {renderInput("Cantidad actual", "cantidadActual", "number", "Ej: 50")}
@@ -256,9 +268,9 @@ const CreateProductoModal = ({
                     required
                 >
                     <option value="" disabled>
-                        Seleccionar {label.toLowerCase()}
+                        Seleccionar {label?.toLowerCase()}
                     </option>
-                    {options.map((opt, idx) => (
+                    {options?.map((opt, idx) => (
                         <option key={idx} value={idx + 1}>
                             {opt}
                         </option>

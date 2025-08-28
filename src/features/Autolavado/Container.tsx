@@ -681,7 +681,7 @@ const Container = () => {
                 )}
 
             </Modal>
-
+                {/* Modal de facturacion */}
             <Modal isOpen={generateReceipt} onClose={closeGenerarReciboModal} title="Recibo" size="sm" footer={
                 <div className={style.modal_footer_actions}>
                     <button className="btn btn_secondary" onClick={closeGenerarReciboModal}>

@@ -20,7 +20,6 @@ export const useInventario = (id_producto?: string | undefined) => {
         return res.data;
     };
 
-
     const fetchGananciaEstimada = async (id_inst: string) => {
         const res = await api.get(`/inventario-fisico/ganancia-estimada/${id_inst}`);
         return res.data;
