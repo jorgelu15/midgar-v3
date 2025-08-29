@@ -21,12 +21,16 @@ const ProductoProvider = ({ children }: { children: React.ReactNode }) => {
 
     const [state, dispatch] = useReducer(InventarioFisicoReducer, initialState);
 
-    const updateProducto = async (id_producto: number, producto: ProductoRepository, id_inst: string) => {
+    const updateProducto = async (id_producto: number, producto: ProductoRepository, id_inst: string, setProgress: any) => {
         try {
             const res = await api.put(`/inventario-fisico/productos/${id_producto}/${id_inst}`, {cantidad: producto.cantidad}, {
                 withCredentials: true,
                 headers: {
                     "Content-Type": "Application/json",
+                },
+                onUploadProgress: (progressEvent: AxiosProgressEvent) => {
+                    const percentage = Math.round((progressEvent.loaded * 100) / (progressEvent?.total ? progressEvent?.total : 0));
+                    setProgress(percentage);
                 }
             });
             console.log(res)

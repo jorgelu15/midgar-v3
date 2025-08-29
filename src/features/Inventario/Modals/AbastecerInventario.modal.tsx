@@ -1,4 +1,4 @@
-import React, { use, useState } from "react";
+import React, { useState } from "react";
 import Modal from "../../../components/modales/Modal";
 import style from "../container.module.css";
 import { useForm } from "../../../hooks/useForm";
@@ -41,7 +41,7 @@ const AbastecerInventarioModal = ({
             const productoUpdate = {
                 cantidad: producto.cantidad,
             };
-            updateProducto(producto.id, productoUpdate, usuarioQuery.data?.cliente.id_cliente);
+            updateProducto(producto.id, productoUpdate, usuarioQuery.data?.cliente.id_cliente, setProgress);
         })
     }
 

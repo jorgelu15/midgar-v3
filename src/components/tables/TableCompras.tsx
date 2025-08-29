@@ -13,31 +13,31 @@ interface Producto {
   observaciones: string;
 }
 
-const productosDisponibles: Producto[] = [
-  {
-    id: 1,
-    nombre: "Arroz Diana 1Kg",
-    precio: 4500,
-    descuento: 0,
-    impuesto: 0,
-    cantidad: 1,
-    observaciones: "",
-  },
-  {
-    id: 2,
-    nombre: "Aceite Girasol 900ml",
-    precio: 9800,
-    descuento: 0,
-    impuesto: 0,
-    cantidad: 1,
-    observaciones: "",
-  },
-];
+// const productosDisponibles: Producto[] = [
+//   {
+//     id: 1,
+//     nombre: "Arroz Diana 1Kg",
+//     precio: 4500,
+//     descuento: 0,
+//     impuesto: 0,
+//     cantidad: 1,
+//     observaciones: "",
+//   },
+//   {
+//     id: 2,
+//     nombre: "Aceite Girasol 900ml",
+//     precio: 9800,
+//     descuento: 0,
+//     impuesto: 0,
+//     cantidad: 1,
+//     observaciones: "",
+//   },
+// ];
 
-const codigosBarras: Record<string, number> = {
-  "7701234567890": 1,
-  "7709876543210": 2,
-};
+// const codigosBarras: Record<string, number> = {
+//   "7701234567890": 1,
+//   "7709876543210": 2,
+// };
 
 const TableCompras: React.FC<any> = ( { productos, setProductos } ) => {
   // const [productos, setProductos] = useState<Producto[]>([]);
