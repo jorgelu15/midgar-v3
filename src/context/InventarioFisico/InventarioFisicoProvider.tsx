@@ -21,11 +21,15 @@ const ProductoProvider = ({ children }: { children: React.ReactNode }) => {
 
     const [state, dispatch] = useReducer(InventarioFisicoReducer, initialState);
 
-    const updateProducto = async (id_producto: number, producto: ProductoRepository) => {
+    const updateProducto = async (id_producto: number, producto: ProductoRepository, id_inst: string) => {
         try {
-            const res = await api.put(`/inventario-fisico/productos/${id_producto}`, producto, {
-                withCredentials: true
+            const res = await api.put(`/inventario-fisico/productos/${id_producto}/${id_inst}`, {cantidad: producto.cantidad}, {
+                withCredentials: true,
+                headers: {
+                    "Content-Type": "Application/json",
+                }
             });
+            console.log(res)
 
             return res;
         } catch (error) {

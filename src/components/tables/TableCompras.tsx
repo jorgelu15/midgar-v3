@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import Table from "./Table";
 import style from "./table.module.css";
+import { useInventario } from "../../hooks/useInventario";
 
 interface Producto {
   id: number;
@@ -38,26 +39,55 @@ const codigosBarras: Record<string, number> = {
   "7709876543210": 2,
 };
 
-const TableCompras: React.FC = () => {
-  const [productos, setProductos] = useState<Producto[]>([]);
+const TableCompras: React.FC<any> = ( { productos, setProductos } ) => {
+  // const [productos, setProductos] = useState<Producto[]>([]);
   const [codigoBusqueda, setCodigoBusqueda] = useState("");
+
+  const { productosQuery } = useInventario();
+
 
   const handleBuscarPorCodigo = (e: React.ChangeEvent<HTMLInputElement>) => {
     const codigo = e.target.value;
     setCodigoBusqueda(codigo);
 
-    if (codigo.length >= 6 && codigosBarras[codigo]) {
-      const id = codigosBarras[codigo];
-      const productoEncontrado = productosDisponibles.find((p) => p.id === id);
+    // if (codigo.length >= 6 && codigosBarras[codigo]) {
+    //   const id = codigosBarras[codigo];
+    //   const productoEncontrado = productosDisponibles.find((p) => p.id === id);
 
+    //   if (productoEncontrado) {
+    //     const yaExiste = productos.some((p) => p.nombre === productoEncontrado.nombre);
+    //     if (!yaExiste) {
+    //       setProductos((prev) => [
+    //         ...prev,
+    //         {
+    //           ...productoEncontrado,
+    //           id: Date.now(),
+    //         },
+    //       ]);
+    //       setCodigoBusqueda("");
+    //     }
+    //   }
+    // }
+    if (codigo.length >= 3) {
+      const productoEncontrado = productosQuery.data?.find((p: any) => p.codigo === codigo);
+      const resultado = productoEncontrado
+        ? [{
+          id: productoEncontrado.id_producto,
+          nombre: productoEncontrado.nombre,
+          precio: productoEncontrado.costo,
+          descuento: 0,
+          impuesto: 0,
+          cantidad: productoEncontrado.cantidad,
+          observaciones: "",
+        }]
+        : [];
       if (productoEncontrado) {
-        const yaExiste = productos.some((p) => p.nombre === productoEncontrado.nombre);
+        const yaExiste = productos.some((p: any) => p.nombre === productoEncontrado.nombre);
         if (!yaExiste) {
-          setProductos((prev) => [
+          setProductos((prev: any) => [
             ...prev,
             {
-              ...productoEncontrado,
-              id: Date.now(),
+              ...resultado[0],
             },
           ]);
           setCodigoBusqueda("");
@@ -71,16 +101,16 @@ const TableCompras: React.FC = () => {
     campo: keyof Producto,
     valor: string | number
   ) => {
-    setProductos((prev) =>
-      prev.map((prod) =>
+    setProductos((prev: any) =>
+      prev.map((prod: any) =>
         prod.id === id
           ? {
-              ...prod,
-              [campo]:
-                campo === "nombre" || campo === "observaciones"
-                  ? valor
-                  : parseFloat(valor as string),
-            }
+            ...prod,
+            [campo]:
+              campo === "nombre" || campo === "observaciones"
+                ? valor
+                : parseFloat(valor as string),
+          }
           : prod
       )
     );

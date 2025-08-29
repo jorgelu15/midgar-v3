@@ -361,7 +361,7 @@ const Container = () => {
                         }
                     );
 
-                    descargarInventario(usuarioQuery.data?.cliente.id_cliente, cuentaSeleccionada?.productos, setProgress);
+                    descargarInventario(usuarioQuery.data?.cliente.id_cliente, usuarioQuery.data?.id_usuario, cuentaSeleccionada?.productos, setProgress);
                     openGenerarReciboModal();
 
                     setOpenModalCuenta(false);

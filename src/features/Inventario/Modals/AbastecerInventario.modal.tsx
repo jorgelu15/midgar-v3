@@ -1,9 +1,11 @@
-import React, { useState } from "react";
+import React, { use, useState } from "react";
 import Modal from "../../../components/modales/Modal";
 import style from "../container.module.css";
 import { useForm } from "../../../hooks/useForm";
 import SelectSearch from "../../../components/selects/SelectSearch";
 import TableCompras from "../../../components/tables/TableCompras";
+import { useInventario } from "../../../hooks/useInventario";
+import { useUserInfo } from "../../../hooks/useUserInfo";
 interface AbastecerInventarioModalProps {
     isAbastecerInventarioModalOpen: boolean;
     setIsAbastecerInventarioModalOpen: (isOpen: boolean) => void;
@@ -17,12 +19,30 @@ const AbastecerInventarioModal = ({
     const [selected, setSelected] = useState<{ label: string; value: string } | null>(null);
 
     const { form, onChangeGeneral } = useForm({
-
+        nfactura: "",
+        fechaVencimiento: "",
+        proveedor: "",
+        identificacion: "",
+        telefono: "",
+        moneda: "COP",
+        bodega: "",
     });
+
+    const [productos, setProductos] = useState<any[]>([]);
+
+    const { updateProducto } = useInventario();
+    const { usuarioQuery } = useUserInfo();
+
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        setProgress(0)
+        // setProgress(0)
+        productos.map((producto) => {
+            const productoUpdate = {
+                cantidad: producto.cantidad,
+            };
+            updateProducto(producto.id, productoUpdate, usuarioQuery.data?.cliente.id_cliente);
+        })
     }
 
     const opciones = [
@@ -86,20 +106,20 @@ const AbastecerInventarioModal = ({
                         <label>Identificación *</label>
                         <input
                             type="text"
-                            value={"1143403465"}
+                            value={ form.identificacion}
+                            onChange={(e) => onChangeGeneral(e, "identificacion")}
                             placeholder="Ingrese identificación del proveedor"
                             required
-                            disabled
                         />
                     </div>
                     <div className={style.form_control}>
                         <label>Teléfono *</label>
                         <input
                             type="text"
-                            value={"316357895"}
+                            value={form.telefono}
+                            onChange={(e) => onChangeGeneral(e, "telefono")}
                             placeholder="Ingrese el teléfono del proveedor"
                             required
-                            disabled
                         />
                     </div>
                 </div>
@@ -136,7 +156,7 @@ const AbastecerInventarioModal = ({
 
                 <div className={style.form_control} style={{maxWidth: "100%"}}>
                     <label>Productos comprados *</label>
-                    <TableCompras />
+                    <TableCompras productos={productos} setProductos={setProductos}/>
                 </div>
             </form>
         </Modal>

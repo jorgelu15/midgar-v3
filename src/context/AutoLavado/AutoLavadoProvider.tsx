@@ -70,9 +70,9 @@ const CuentaProvider = ({ children }: { children: React.ReactNode }) => {
         }
     }
 
-    const descargarInventario = async (id_cliente: string, producto: any, setProgress: any) => {
+    const descargarInventario = async (id_cliente: string, id_usuario: number, producto: any, setProgress: any) => {
         try {
-            const res = await api.post(`/ventas-y-servicios/cuenta/descargar/producto/${id_cliente}`, {producto: producto},
+            const res = await api.post(`/ventas-y-servicios/cuenta/descargar/producto/${id_cliente}/${id_usuario}`, {producto: producto},
             {
                 withCredentials: true,
                 onUploadProgress: (progressEvent: AxiosProgressEvent) => {
@@ -80,6 +80,7 @@ const CuentaProvider = ({ children }: { children: React.ReactNode }) => {
                     setProgress(percentage);
                 }
             });
+            console.log(res)
             return res;
         } catch (error) {
             console.log(error)
