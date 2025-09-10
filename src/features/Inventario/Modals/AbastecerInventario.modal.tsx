@@ -6,6 +6,7 @@ import SelectSearch from "../../../components/selects/SelectSearch";
 import TableCompras from "../../../components/tables/TableCompras";
 import { useInventario } from "../../../hooks/useInventario";
 import { useUserInfo } from "../../../hooks/useUserInfo";
+import type { UsuarioRepository } from "../../../models/Usuario.repository";
 interface AbastecerInventarioModalProps {
     isAbastecerInventarioModalOpen: boolean;
     setIsAbastecerInventarioModalOpen: (isOpen: boolean) => void;
@@ -30,19 +31,15 @@ const AbastecerInventarioModal = ({
 
     const [productos, setProductos] = useState<any[]>([]);
 
-    const { updateProducto } = useInventario();
+    const { abastecerInventario } = useInventario();
     const { usuarioQuery } = useUserInfo();
-
-
+    
+    const user: UsuarioRepository = usuarioQuery.data;
+    
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         // setProgress(0)
-        productos.map((producto) => {
-            const productoUpdate = {
-                cantidad: producto.cantidad,
-            };
-            updateProducto(producto.id, productoUpdate, usuarioQuery.data?.cliente.id_cliente, setProgress);
-        })
+        abastecerInventario(productos, user.id_usuario, user.cliente.id_cliente, setProgress);
     }
 
     const opciones = [
@@ -106,7 +103,7 @@ const AbastecerInventarioModal = ({
                         <label>Identificación *</label>
                         <input
                             type="text"
-                            value={ form.identificacion}
+                            value={form.identificacion}
                             onChange={(e) => onChangeGeneral(e, "identificacion")}
                             placeholder="Ingrese identificación del proveedor"
                             required
@@ -154,9 +151,9 @@ const AbastecerInventarioModal = ({
                     </div>
                 </div>
 
-                <div className={style.form_control} style={{maxWidth: "100%"}}>
+                <div className={style.form_control} style={{ maxWidth: "100%" }}>
                     <label>Productos comprados *</label>
-                    <TableCompras productos={productos} setProductos={setProductos}/>
+                    <TableCompras productos={productos} setProductos={setProductos} />
                 </div>
             </form>
         </Modal>

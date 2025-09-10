@@ -45,6 +45,30 @@ const ProductoProvider = ({ children }: { children: React.ReactNode }) => {
         }
     }
 
+    const abastecerInventario = async (id_producto: number, producto: ProductoRepository, id_inst: string, id_usuario: string, setProgress: any) => {
+        try {
+            const res = await api.put(`/inventario-fisico/abastecer-inventario/${id_producto}/${id_inst}`, {producto, id_usuario: id_usuario}, {
+                withCredentials: true,
+                headers: {
+                    "Content-Type": "Application/json",
+                },
+                onUploadProgress: (progressEvent: AxiosProgressEvent) => {
+                    const percentage = Math.round((progressEvent.loaded * 100) / (progressEvent?.total ? progressEvent?.total : 0));
+                    setProgress(percentage);
+                }
+            });
+            console.log(res)
+
+            return res;
+        } catch (error) {
+            console.log(error)
+            dispatch({
+                type: typeState.EDITAR_PRODUCT_ERROR,
+                payload: error
+            })
+        }
+    }
+
 
     const createProducto = async (formData: FormData, setProgress: any) => {
         try {
@@ -112,7 +136,8 @@ const ProductoProvider = ({ children }: { children: React.ReactNode }) => {
                 updateProducto,
                 createProducto,
                 createMovimientoInventarioFisico,
-                createCategoria
+                createCategoria,
+                abastecerInventario
             }}
         >
             {children}

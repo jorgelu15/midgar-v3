@@ -1,7 +1,7 @@
 import style from "./container.module.css";
 import { routes } from "../../utils/routes";
 import Breadcrumb from "../../components/breadcrumbs/Breadcrumb";
-import { useMemo } from "react";
+import {  useMemo } from "react";
 import stringSimilarity from "string-similarity";
 import { useForm } from "../../hooks/useForm";
 import borrar from "../../assets/borrar.svg";
@@ -18,6 +18,7 @@ import CreateProductoModal from "./Modals/CrearProducto.modal";
 import AjustarStockModal from "./Modals/AjustarStock.modal";
 import KardexModal from "./Modals/Kardex.modal";
 import AbastecerInventarioModal from "./Modals/AbastecerInventario.modal";
+import SkeletonTable from "../../components/skeleton/SkeletonTable";
 
 const items = [
   { label: "Dashboard", href: routes.dashboard },
@@ -34,7 +35,7 @@ const Container = () => {
   const valorInventarioFisico = valorInventarioFisicoQuery.data?.valor_inventario_fisico || 0;
   const gananciaEstimada = gananciaEstimadaQuery.data?.ganancia_estimada || 0;
   const productosAgotados = productosAgotadosQuery.data?.productos_agotados || 0;
-  
+
   const navigate = useNavigate();
   const { form, onChangeGeneral } = useForm({ query: "" });
   const {
@@ -58,7 +59,7 @@ const Container = () => {
   }, {} as Record<string, () => void>);
 
   useShortcuts(shortcuts);
-  
+
 
   const openKardexModal = (product: ProductoRepository) => {
     setSelectedProduct(product);
@@ -138,35 +139,45 @@ const Container = () => {
         </div>
 
         <div className={style.table_container}>
-          <Table
-            headers={headers}
-            data={filteredRows}
-            defaultRowsPerPage={5}
-            rowsPerPageOptions={[5, 10, 20]}
-            renderRow={(row) => {
-              const rowValues = [
-                row.codigo,
-                row.nombre,
-                row.categoria_id,
-                row.costo,
-                row.precio_venta,
-                row.cantidad,
-                row.cantidad_minima,
-                row.estado
-              ];
-              return (
-                <>
-                  {rowValues.map((cell, i) => (
-                    <td key={i}>{cell}</td>
-                  ))}
-                  <td>
-                    <img src={status} onClick={() => openKardexModal(row)} />
-                    <img src={borrar} />
-                  </td>
-                </>
-              );
-            }}
-          />
+
+          {
+            productosQuery.isLoading ? (
+              <SkeletonTable cols={3} rows={5} />
+            )
+              : (
+                <Table
+                  headers={headers}
+                  data={filteredRows}
+                  defaultRowsPerPage={5}
+                  rowsPerPageOptions={[5, 10, 20]}
+                  renderRow={(row) => {
+                    const rowValues = [
+                      row.codigo,
+                      row.nombre,
+                      row.categoria_id,
+                      row.costo,
+                      row.precio_venta,
+                      row.cantidad,
+                      row.cantidad_minima,
+                      row.estado
+                    ];
+                    return (
+                      <>
+                        {rowValues.map((cell, i) => (
+                          <td key={i}>{cell}</td>
+                        ))}
+                        <td>
+                          <img src={status} onClick={() => openKardexModal(row)} />
+                          <img src={borrar} />
+                        </td>
+                      </>
+                    );
+                  }}
+                />
+              )
+          }
+
+
         </div>
 
         {/* Modal Kardex */}

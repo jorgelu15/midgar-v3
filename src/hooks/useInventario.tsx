@@ -7,7 +7,7 @@ import type { CategoriaDTO } from "../models/dtos/categoria.dto";
 
 export const useInventario = (id_producto?: string | undefined) => {
     const { usuario } = useAuth();
-    const { updateProducto, createProducto, createMovimientoInventarioFisico, createCategoria }: any = useContext(InventarioFisicoContext);
+    const { updateProducto,abastecerInventario, createProducto, createMovimientoInventarioFisico, createCategoria }: any = useContext(InventarioFisicoContext);
     const queryClient = useQueryClient();
     const fetchProductos = async (id_inst: string) => {
         const res = await api.get(`/inventario-fisico/productos/${id_inst}`);
@@ -105,6 +105,7 @@ export const useInventario = (id_producto?: string | undefined) => {
         updateProducto,
         createProducto,
         createMovimientoInventarioFisico,
-        createCategoriaMutation
+        createCategoriaMutation,
+        abastecerInventario
     };
 };

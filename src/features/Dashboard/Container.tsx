@@ -1,3 +1,4 @@
+import { lazy } from "react";
 import { useNavigate } from "react-router-dom";
 import { useShortcuts } from "../../hooks/useShortcodes"; // ajusta la ruta según tu estructura
 import style from "./container.module.css";
@@ -9,10 +10,12 @@ import contabilidadIcon from "../../assets/contabilidad.svg";
 import fiados from "../../assets/fiado.png";
 import stats from "../../assets/stats.png";
 import settings from "../../assets/settings.png";
-import CardMenu from "../../components/cards/CardMenu";
 import { routes } from "../../utils/routes";
 import Breadcrumb from "../../components/breadcrumbs/Breadcrumb";
 import { useUserInfo } from "../../hooks/useUserInfo";
+import SkeletonCard from "../../components/skeleton/SkeletonCard";
+import SkeletonWelcome from "../../components/skeleton/SkeletonWelcome";
+const CardMenu = lazy(() => import("../../components/cards/CardMenu"));
 
 const menuItems = [
     { shortcode: "1", image: vender, title: "Vender", codigo_permiso: "VENTAS", destiny: routes.vender },
@@ -60,23 +63,37 @@ const Container = () => {
     return (
         <div className={"container"}>
             <Breadcrumb items={items} />
-            <div className={style.msg__welcome}>
-                <h1>¡Hola Don {user?.nombre}!</h1>
-                <p>{obtenerFechaEstilo()}</p>
-            </div>
+
+
+            {usuarioQuery.isLoading ? (
+                <SkeletonWelcome />
+            ) : (
+                <div className={style.msg__welcome}>
+                    <h1>¡Hola Don {user?.nombre}!</h1>
+                    <p>{obtenerFechaEstilo()}</p>
+                </div>
+            )}
             <div className={style.cards}>
-                {menuItems.map((item, index) => (
-                    <CardMenu
-                        key={index}
-                        shortcode={item.shortcode}
-                        image={item.image}
-                        title={item.title}
-                        redirect={() => navigate(item.destiny)}
-                        to={item.destiny}
-                        codigo_permiso={item.codigo_permiso}
-                        permisos={user?.permisos}
-                    />
-                ))}
+                {usuarioQuery.isLoading ? (
+                    Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)
+                ) : (
+                    <>
+                        {
+                            menuItems.map((item, index) => (
+                                <CardMenu
+                                    key={index}
+                                    shortcode={item.shortcode}
+                                    image={item.image}
+                                    title={item.title}
+                                    redirect={() => navigate(item.destiny)}
+                                    to={item.destiny}
+                                    codigo_permiso={item.codigo_permiso}
+                                    permisos={user?.permisos}
+                                />
+                            ))
+                        }
+                    </>
+                )}
             </div>
         </div>
     );
