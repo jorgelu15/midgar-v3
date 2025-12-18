@@ -11,9 +11,10 @@ const CuentaProvider = ({ children }: { children: React.ReactNode }) => {
 
 
 
-    const createCuenta = async (cuenta: CuentaLavado, id_inst: number, setProgress: any) => {
+    const createCuenta = async (cuenta: CuentaLavado, id_empresa: number, setProgress: any) => {
+        console.log(cuenta, id_empresa)
         try {
-            const res = await api.post(`/ventas-y-servicios/cuenta`, {cuenta: cuenta, id_inst: id_inst},
+            const res = await api.post(`/ventas-y-servicios/cuenta`, {cuenta: cuenta, id_empresa: id_empresa},
             {
                 withCredentials: true,
                 onUploadProgress: (progressEvent: AxiosProgressEvent) => {
@@ -28,9 +29,9 @@ const CuentaProvider = ({ children }: { children: React.ReactNode }) => {
         }
     }
 
-    const agregarProductoCuenta = async (id_producto: number, cantidad: number, id_inst: number, id_cuenta_cliente: number, setProgress: any) => {
+    const agregarProductoCuenta = async (id_producto: number, cantidad: number, id_empresa: number, id_cuenta_cliente: number, setProgress: any) => {
         try {
-            const res = await api.post(`/ventas-y-servicios/cuenta/agregar-producto`, {producto: { id_producto: id_producto, cantidad: cantidad}, id_inst: id_inst, id_cuenta_cliente: id_cuenta_cliente},
+            const res = await api.post(`/ventas-y-servicios/cuenta/agregar-producto`, {producto: { id_producto: id_producto, cantidad: cantidad}, id_empresa: id_empresa, id_cuenta_cliente: id_cuenta_cliente},
             {
                 withCredentials: true,
                 onUploadProgress: (progressEvent: AxiosProgressEvent) => {
@@ -46,6 +47,7 @@ const CuentaProvider = ({ children }: { children: React.ReactNode }) => {
     }
 
     const cerrarCuenta = async (factura: any, setProgress: any) => {
+        console.log(factura)
         try {
             const res = await api.post(`/ventas-y-servicios/cuenta/cerrar`, {factura: factura},
             {

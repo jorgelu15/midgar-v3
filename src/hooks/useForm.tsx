@@ -5,9 +5,12 @@ export const useForm = (initialState: any) => {
 
     const onChangeGeneral = (event: any, field: any) => {
         if (event?.target) {
+            const { type, checked, value } = event.target;
+
+            const newValue = type === "checkbox" ? checked : value;
             setState({
                 ...state,
-                [field]: event.target.value
+                [field]: newValue
             });
             return;
         }

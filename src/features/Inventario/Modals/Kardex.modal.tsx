@@ -1,4 +1,5 @@
 import Modal from "../../../components/modales/Modal";
+import SkeletonTable from "../../../components/skeleton/SkeletonTable";
 import Table from "../../../components/tables/Table";
 import { useInventario } from "../../../hooks/useInventario";
 import type { MovimientoInventarioRepository } from "../../../models/MovimientoInventario.repository";
@@ -18,7 +19,7 @@ const KardexModal = ({
     selectedProduct,
     openAdjustStockModal
 }: KardexModalProps) => {
-    const { movimientosInventarioQuery } = useInventario(selectedProduct?.id_producto);
+    const { movimientosInventarioQuery } = useInventario(String(selectedProduct?.id_producto));
     const movimientos: MovimientoInventarioRepository[] = movimientosInventarioQuery?.data?.movimientos || [];
 
 
@@ -43,7 +44,7 @@ const KardexModal = ({
                 <p><b>Última entrada: </b>
                     {
                         (() => {
-                            const entrada = movimientos?.find((mov: MovimientoInventarioRepository) => mov.movimiento === "ENTRADA");
+                            const entrada = movimientos?.find((mov: MovimientoInventarioRepository) => mov.tipo_movimiento === "ENTRADA");
                             return entrada && entrada.createdAt
                                 ? `${new Date(entrada.createdAt).toLocaleDateString()} (+${entrada.cantidad})`
                                 : "N/A";
@@ -53,7 +54,7 @@ const KardexModal = ({
                 <p><b>Última salida: </b>
                     {
                         (() => {
-                            const salida = movimientos?.find((mov: MovimientoInventarioRepository) => mov.movimiento === "SALIDA");
+                            const salida = movimientos?.find((mov: MovimientoInventarioRepository) => mov.tipo_movimiento === "SALIDA");
                             return salida && salida.createdAt
                                 ? `${new Date(salida.createdAt).toLocaleDateString()} (-${salida.cantidad})`
                                 : "N/A";
@@ -80,30 +81,35 @@ const KardexModal = ({
                     </select>
                 </div>
             </div>
+            {
+                movimientosInventarioQuery.isLoading ? (
+                    <SkeletonTable cols={5} rows={5} />
+                ) : (
+                    <Table
+                        headers={["Movimiento", "Motivo", "Cantidad", "Costo", "Usuario"]}
+                        data={movimientos}
+                        defaultRowsPerPage={5}
+                        rowsPerPageOptions={[5, 10, 20]}
+                        renderRow={(row) => {
+                            const rowValues = [
+                                row.tipo_movimiento,
+                                row.motivo,
+                                row.cantidad,
+                                row.costo_unitario,
+                                row.usuario,
+                            ];
+                            return (
+                                <>
+                                    {rowValues.map((cell, i) => (
+                                        <td key={i}>{cell}</td>
+                                    ))}
+                                </>
+                            );
+                        }}
+                    />
+                )
+            }
 
-            <Table
-                headers={["Movimiento", "Motivo", "Cantidad", "Saldo", "Costo", "Usuario"]}
-                data={movimientos}
-                defaultRowsPerPage={5}
-                rowsPerPageOptions={[5, 10, 20]}
-                renderRow={(row) => {
-                    const rowValues = [
-                        row.movimiento,
-                        row.motivo,
-                        row.cantidad,
-                        row.saldo,
-                        row.costo,
-                        row.id_usuario,
-                    ];
-                    return (
-                        <>
-                            {rowValues.map((cell, i) => (
-                                <td key={i}>{cell}</td>
-                            ))}
-                        </>
-                    );
-                }}
-            />
         </Modal>
     );
 }

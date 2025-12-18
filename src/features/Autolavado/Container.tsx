@@ -65,7 +65,6 @@ const Container = () => {
     // const { usuario } = useAuth();
     const { usuarioQuery, lavadoresQuery } = useUserInfo();
     const { productosQuery } = useInventario();
-
     const [progress, setProgress] = useState<number | null>(null);
 
     const [clienteNombre, setClienteNombre] = useState("");
@@ -85,14 +84,13 @@ const Container = () => {
     const { form, onChangeGeneral, resetForm } = useForm({ codigo: "" });
     const { cuentasQuery, metodosPagoQuery, createCuenta, agregarProductoCuenta, cancelarCuenta, cerrarCuenta, descargarInventario } = useCuenta(cuentaSeleccionada?.id_cuenta_cliente || null);
     const ticketRef = useRef<HTMLDivElement>(null);
-    console.log(progress, ultimoProducto)
     const queryClient = useQueryClient();
     // Sincroniza productos de cuentaSeleccionada en cuentasQuery (React Query)
     // Se ejecuta cada vez que cambia cuentaSeleccionada
     useEffect(() => {
         if (!cuentaSeleccionada) return;
         queryClient.setQueryData(
-            ["cuenta_cliente", usuarioQuery.data?.cliente.id_cliente],
+            ["cuenta_cliente", usuarioQuery.data?.empresa.id_empresa],
             (oldData: any) => {
                 if (!oldData) return oldData;
                 return oldData.map((cuenta: any) =>
@@ -102,7 +100,7 @@ const Container = () => {
                 );
             }
         );
-    }, [cuentaSeleccionada, queryClient, usuarioQuery.data?.cliente.id_cliente]);
+    }, [cuentaSeleccionada, queryClient, usuarioQuery.data?.empresa.id_empresa]);
 
     const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -131,14 +129,14 @@ const Container = () => {
     }
     const handlerCancelarCuenta = () => {
         if (cuentaSeleccionada)
-            cancelarCuenta(cuentaSeleccionada.id_cuenta_cliente as unknown as number, usuarioQuery?.data.cliente.id_cliente)
+            cancelarCuenta(cuentaSeleccionada.id_cuenta_cliente as unknown as number, usuarioQuery?.data.empresa?.id_empresa)
                 .then((response: any) => {
                     if (response.status === 200) {
                         setProductosFactura([]);
                         setUltimoProducto(null);
                         setCuentaSeleccionada(null);
                         toast.success("Cuenta cancelada");
-                        queryClient.invalidateQueries({ queryKey: ["cuenta_cliente", usuarioQuery.data?.cliente.id_cliente] });
+                        queryClient.invalidateQueries({ queryKey: ["cuenta_cliente", usuarioQuery.data?.empresa.id_empresa] });
                         setOpenModalCuenta(false);
                     } else {
                         toast.error("Error al cancelar cuenta");
@@ -173,7 +171,7 @@ const Container = () => {
         const res = await agregarProductoCuenta(
             producto.id_producto,
             cantidadFinal,
-            usuarioQuery?.data.cliente.id_cliente,
+            usuarioQuery?.data.empresa.id_empresa,
             cuentaSeleccionada?.id_cuenta_cliente,
             setProgress
         );
@@ -198,12 +196,12 @@ const Container = () => {
         const cuenta = {
             nombre: clienteNombre,
             placa: placa,
-            lavador: lavador.value,
+            id_usuario: lavador.value,
             sala: sala.value,
             productos: productosFactura
         };
 
-        createCuenta(cuenta, usuarioQuery?.data.cliente.id_cliente, setProgress).then((response: any) => {
+        createCuenta(cuenta, usuarioQuery?.data?.empresa.id_empresa, setProgress).then((response: any) => {
             if (response.status !== 200) return;
             setClienteNombre("");
             setPlaca("");
@@ -212,7 +210,7 @@ const Container = () => {
             setProductosFactura([]);
             setUltimoProducto(null);
             setCuentaSeleccionada(response.data.cuenta);
-            queryClient.invalidateQueries({ queryKey: ["cuenta_cliente", usuarioQuery.data?.cliente.id_cliente] });
+            queryClient.invalidateQueries({ queryKey: ["cuenta_cliente", usuarioQuery.data?.empresa.id_empresa] });
             toast.success(response.data.message);
             closeCuentaModal();
             openCuentaLavadoModal();
@@ -237,7 +235,7 @@ const Container = () => {
 
         const codigo = match[1];
         const cantidadIngresada = parseFloat(match[3]) || 1;
-        const producto = productosQuery.data?.find((p: any) => p.codigo === codigo);
+        const producto = productosQuery.data?.existencias.find((p: any) => p.codigo === codigo);
         if (!producto) {
             alert("Producto no encontrado");
             resetForm();
@@ -261,7 +259,7 @@ const Container = () => {
         const res = await agregarProductoCuenta(
             producto.id_producto,
             cantidadFinal,
-            usuarioQuery?.data.cliente.id_cliente,
+            usuarioQuery?.data?.empresa?.id_empresa,
             cuentaSeleccionada?.id_cuenta_cliente,
             setProgress
         );
@@ -301,7 +299,11 @@ const Container = () => {
         currency: "COP"
     });
 
-    const total = cuentaSeleccionada?.productos.reduce((acc, p) => acc + (p.precio_venta * (p.cantidad || 1)), 0) || 0;
+    const productosCuenta = cuentaSeleccionada?.productos ?? [];
+    const total = productosCuenta.reduce(
+        (acc, p) => acc + (Number(p.precio_venta) * Number(p.cantidad ?? 1)),
+        0
+    );
 
     const totalPagado = pagos.reduce((acc, p) => acc + p.monto, 0);
     const faltante = total - totalPagado;
@@ -322,6 +324,8 @@ const Container = () => {
         inputRef.current?.focus();
     };
 
+    console.log(medioSeleccionado)
+
     const handlerConfirmarVenta = () => {
         if (faltante > 0) {
             toast.error(`Faltante: ${currencyFormat.format(faltante)}`);
@@ -332,7 +336,7 @@ const Container = () => {
             cliente: cuentaSeleccionada?.nombre,
             total: total,
             id_cuenta_cliente: cuentaSeleccionada?.id_cuenta_cliente,
-            id_inst: usuarioQuery?.data.cliente.id_cliente,
+            id_empresa: usuarioQuery?.data.empresa.id_empresa,
             pagos: pagos.map((p) => ({
                 id_medio_pago: p.id,
                 medio: p.medio,
@@ -352,7 +356,7 @@ const Container = () => {
                     // setMontoMedio("");
                     // Actualizar cuentasQuery para eliminar la cuenta cerrada
                     queryClient.setQueryData(
-                        ["cuenta_cliente", usuarioQuery.data?.cliente.id_cliente],
+                        ["cuenta_cliente", usuarioQuery.data?.empresa.id_empresa],
                         (oldData: any) => {
                             if (!oldData) return oldData;
                             return oldData.filter(
@@ -361,7 +365,7 @@ const Container = () => {
                         }
                     );
 
-                    descargarInventario(usuarioQuery.data?.cliente.id_cliente, usuarioQuery.data?.id_usuario, cuentaSeleccionada?.productos, setProgress);
+                    descargarInventario(usuarioQuery.data?.empresa.id_empresa, usuarioQuery.data?.id_usuario, cuentaSeleccionada?.productos, setProgress);
                     openGenerarReciboModal();
 
                     setOpenModalCuenta(false);
@@ -453,7 +457,7 @@ const Container = () => {
             <div className={style.gridContainer}>
                 {cuentasQuery.isLoading && <p>Cargando cuentas...</p>}
                 {cuentasQuery.isError && <p>Error al cargar las cuentas</p>}
-                {cuentasQuery?.data && cuentasQuery.data.map((cuenta: any) => (
+                {(cuentasQuery?.data ?? []).map((cuenta: any) => (
                     <CardCuentaLavado
                         key={cuenta.id_cuenta_cliente}
                         nombreCliente={cuenta.nombre}
@@ -581,15 +585,6 @@ const Container = () => {
                                 </div>
 
                             </div>
-                            <div className={style.cards} style={{ display: "flex", flexDirection: "row", flexWrap: "wrap", gap: 20, maxHeight: 220, overflowY: "auto" }}>
-                                {productosQuery.data?.map((producto: any) => (
-                                    <CardProductotienda
-                                        key={producto.codigo}
-                                        {...producto}
-                                        onClick={() => handleAgregarProducto(producto)}
-                                    />
-                                ))}
-                            </div>
                             <div style={{ padding: "20px", display: "flex", justifyContent: "space-between" }}>
                                 <p><strong>Total:</strong></p>
                                 <p><strong>{currencyFormat.format(total ?? 0)}</strong></p>
@@ -597,18 +592,17 @@ const Container = () => {
 
                         </div>
                         <div className={style.facture}>
-
-                            {
-                                cuentaSeleccionada?.productos.map((p: any, i: any) => (
-                                    p.cantidad > 0 && <div key={i} className={style.facture__content__item}>
+                            {(cuentaSeleccionada?.productos ?? []).map((p: any, i: any) => (
+                                p.cantidad > 0 && (
+                                    <div key={i} className={style.facture__content__item}>
                                         <p className={style.title__item}>{p.nombre}</p>
                                         <div className={style.facture__content__item__info}>
                                             <p>{p.cantidad} UND x {p.precio_venta}</p>
                                             <p>{currencyFormat.format(p.precio_venta * p.cantidad)}</p>
                                         </div>
                                     </div>
-                                ))
-                            }
+                                )
+                            ))}
                         </div>
                     </div>
                 )}
@@ -628,8 +622,10 @@ const Container = () => {
                                 </div>
 
                                 <div className={style.cards}>
-                                    {metodosPagoQuery?.data
-                                        .filter((mp: { nombre: string }) => mp.nombre.toLowerCase().includes(filtroMedio.toLowerCase()))
+                                    {(metodosPagoQuery?.data ?? [])
+                                        .filter((mp: { nombre: string }) =>
+                                            mp.nombre.toLowerCase().includes(filtroMedio.toLowerCase())
+                                        )
                                         .map((medio: any, index: number) => (
                                             <CardPOS
                                                 key={index}
@@ -681,7 +677,7 @@ const Container = () => {
                 )}
 
             </Modal>
-                {/* Modal de facturacion */}
+            {/* Modal de facturacion */}
             <Modal isOpen={generateReceipt} onClose={closeGenerarReciboModal} title="Recibo" size="sm" footer={
                 <div className={style.modal_footer_actions}>
                     <button className="btn btn_secondary" onClick={closeGenerarReciboModal}>
@@ -689,7 +685,7 @@ const Container = () => {
                     </button>
                     <button
                         className="btn btn_primary"
-                        onClick={ handlePrint }
+                        onClick={handlePrint}
                     >
                         Generar factura
                     </button>

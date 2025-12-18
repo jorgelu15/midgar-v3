@@ -1,16 +1,20 @@
 import { useMemo, useState } from "react";
+import stringSimilarity from "string-similarity";
 import { useNavigate } from "react-router-dom";
 import Breadcrumb from "../../components/breadcrumbs/Breadcrumb";
 import Table from "../../components/tables/Table";
 import { useForm } from "../../hooks/useForm";
 import { routes } from "../../utils/routes";
 import style from "./container.module.css";
-import OffcanvasCliente from "../../components/offcanvas/OffcanvasCliente";
 import Modal from "../../components/modales/Modal";
-import preview from "../../assets/status.svg";
+import borrar from "../../assets/borrar.svg";
+import edit from "../../assets/edit.svg";
 import volver from "../../assets/volver.svg";
-import add_money from "../../assets/add_money.svg";
 import { useShortcuts } from "../../hooks/useShortcodes";
+import { useClientes } from "../../hooks/useClientes";
+import type { ClienteRepository } from "../../models/Cliente.repository";
+import { Bounce, toast, ToastContainer } from "react-toastify";
+import { useUserInfo } from "../../hooks/useUserInfo";
 
 const items = [
   { label: "Dashboard", href: routes.dashboard },
@@ -23,19 +27,45 @@ const menuItems = [
 
 const Container = () => {
   const navigate = useNavigate();
-  const { form, onChangeGeneral } = useForm({ query: "" });
+  const { usuarioQuery } = useUserInfo();
+  const { clientesQuery, createClienteMutation, updateClienteMutation, deleteClienteMutation } = useClientes();
+  const user = usuarioQuery.data;
+  const clientes: ClienteRepository[] = clientesQuery.data || [];
 
-  const [showPanel, setShowPanel] = useState(false);
-  const [showCreateModal, setShowCreateModal] = useState(false);
-  const [showCupoModal, setShowCupoModal] = useState(false);
 
-  const [selectedClient, setSelectedClient] = useState<{ nombre: string; cedula: string } | null>(null);
-  const [clientForm, setClientForm] = useState({
-    nombre: "",
+  const { form, onChangeGeneral, setState } = useForm({
+    query: "",
     cedula: "",
+    nombre: "",
     telefono: "",
-    cupo: "",
+    direccion: "",
+    email: ""
   });
+
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+
+  const [selectedClient, setSelectedClient] = useState<ClienteRepository | null>(null);
+
+  const onOpenEditCliente = (cliente: ClienteRepository) => {
+    setSelectedClient(cliente);
+    setState((prev: any) => ({
+      ...prev,
+      cedula: cliente.cedula || "",
+      nombre: cliente.nombre || "",
+      telefono: cliente.telefono || "",
+      direccion: cliente.direccion || "",
+      email: cliente.email || "",
+    }));
+    setShowEditModal(true);
+  };
+
+  const onOpenDeleteCliente = (cliente: ClienteRepository) => {
+    setSelectedClient(cliente);
+
+    setShowDeleteModal(true);
+  }
 
   const [cupoForm, setCupoForm] = useState({
     cupo: "",
@@ -46,18 +76,10 @@ const Container = () => {
     aplicaInteres: true,
   });
 
-  const onChangeClientForm = (e: React.ChangeEvent<HTMLInputElement>, field: string) => {
-    setClientForm({ ...clientForm, [field]: e.target.value });
-  };
 
   const onChangeCupoForm = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>, field: string) => {
     const value = field === "aplicaInteres" ? (e.target as HTMLInputElement).checked : e.target.value;
     setCupoForm((prev) => ({ ...prev, [field]: value }));
-  };
-
-  const handleAsignarCupo = (cedula: string, nombre: string) => {
-    setSelectedClient({ cedula, nombre });
-    setShowCupoModal(true);
   };
 
   // Atajos
@@ -71,27 +93,112 @@ const Container = () => {
     "Cédula",
     "Nombre",
     "Teléfono",
-    "Deuda Actual",
-    "Cupo disponible",
-    "Última compra",
-    "Estado de crédito",
+    "Dirección",
     "Acciones",
   ];
 
-  const originalRows: string[][] = [
-    ["1012345678", "Pedro Gómez", "3001234567", "$80.000", "$0", "13/07/2025", "Activo", "Acciones"],
-    ["1023456789", "Ana María Torres", "3014567890", "$0", "$150.000", "10/07/2025", "Activo", "Acciones"],
-    ["1034567890", "Carlos Ruiz", "3129876543", "$180.000", "$0", "01/07/2025", "En mora", "Acciones"],
-  ];
-
   const filteredRows = useMemo(() => {
-    const query = form.query.toLowerCase();
-    if (!query) return originalRows;
-    return originalRows.filter((row) =>
-      row.some((cell) => String(cell).toLowerCase().includes(query))
-    );
-  }, [form.query]);
+    const query = form?.query.toLowerCase();
+    if (!query) return clientes;
 
+    return clientes.filter((row: ClienteRepository) => {
+      return Object.values(row).some(value => {
+        const text = String(value).toLowerCase();
+
+        if (text.includes(query)) return true;
+
+        const similarity = stringSimilarity.compareTwoStrings(text, query);
+        return similarity > 0.8;
+      });
+    });
+  }, [form.query, clientes]);
+
+
+  const onCreateCliente = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!form.cedula || !form.nombre || user?.empresa.id_empresa == null) {
+      toast.error("Por favor, completa todos los campos.");
+      return;
+    }
+
+    createClienteMutation.mutate(
+      {
+        cedula: form.cedula,
+        nombre: form.nombre,
+        telefono: form.telefono,
+        direccion: form.direccion,
+        email: form.email,
+        id_inst: `${user?.empresa.id_empresa}`,
+      },
+      {
+        onSuccess: () => {
+          toast.success("Cliente creado exitosamente");
+          setShowCreateModal(false);
+        },
+        onError: (error: any) => {
+          toast.error(error.message);
+        },
+      }
+    );
+
+    setShowCreateModal(false);
+  };
+
+  const onUpdateCliente = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!selectedClient) {
+      toast.error("Por favor, selecciona un cliente.");
+      return;
+    }
+
+    if (!form.cedula || !form.nombre || user?.empresa.id_empresa == null) {
+      toast.error("Por favor, completa todos los campos.");
+      return;
+    }
+
+    updateClienteMutation.mutate(
+      {
+        cedula: form.cedula,
+        nombre: form.nombre,
+        telefono: form.telefono,
+        direccion: form.direccion,
+        email: form.email,
+        id_inst: `${user?.empresa.id_empresa}`,
+      },
+      {
+        onSuccess: () => {
+          toast.success("Cliente actualizado exitosamente");
+          setShowEditModal(false);
+        },
+        onError: (error: any) => {
+          toast.error(error.message);
+        },
+      }
+    );
+    setShowEditModal(false);
+  }
+
+  const onDeleteCliente = () => {
+    if (!selectedClient) {
+      toast.error("Por favor, selecciona un cliente.");
+      return;
+    }
+
+    deleteClienteMutation.mutate(
+      selectedClient.cedula,
+      {
+        onSuccess: () => {
+          toast.success("Cliente eliminado exitosamente");
+          setShowDeleteModal(false);
+        },
+        onError: (error: any) => {
+          toast.error(error.message);
+        },
+      }
+    );
+    setShowDeleteModal(false);
+
+  }
   return (
     <div className="container">
       <Breadcrumb items={items} />
@@ -114,39 +221,32 @@ const Container = () => {
         </div>
 
         <div className={style.table_container}>
-          <Table<string[]>
+          <Table
             headers={header_items}
             data={filteredRows}
             rowsPerPageOptions={[5, 10, 20]}
             defaultRowsPerPage={5}
-            renderRow={(row) => (
-              <>
-                {row.map((cell, i) => (
-                  <td key={i}>
-                    {i !== row.length - 1 ? cell : (
-                      <>
-
-                        {row[4] === "$0" ? (
-                          <button style={{ background: "transparent", marginRight: 6 }} onClick={() => handleAsignarCupo(row[1], row[0])}>
-                            <img src={add_money} />
-                          </button>
-                        ) : (
-                          <button
-                            style={{ background: "transparent", marginRight: 6 }}
-                            onClick={() => setShowPanel(true)}
-                          >
-                            <img src={preview} alt="Ver" />
-                          </button>
-                        )}
-                      </>
-                    )}
+            renderRow={(row) => {
+              const rowValues = [
+                row.cedula,
+                row.nombre,
+                row.telefono,
+                row.direccion
+              ];
+              return (
+                <>
+                  {rowValues.map((cell, i) => (
+                    <td key={i}>{cell}</td>
+                  ))}
+                  <td>
+                    <img src={edit} onClick={() => onOpenEditCliente(row)} />
+                    <img src={borrar} onClick={() => onOpenDeleteCliente(row)} />
                   </td>
-                ))}
-              </>
-            )}
+                </>
+              );
+            }}
           />
         </div>
-        <OffcanvasCliente isOpen={showPanel} onClose={() => setShowPanel(false)} />
 
         {/* Atajos */}
         <div className={style.shortcut_guide}>
@@ -166,111 +266,102 @@ const Container = () => {
       </div>
 
       {/* Modal Crear Cliente */}
-      {showCreateModal && (
-        <Modal
-          title="Crear nuevo cliente"
-          isOpen={showCreateModal}
-          onClose={() => setShowCreateModal(false)}
-          size="md"
-          footer={
-            <div className={style.modal_footer_actions}>
-              <button className="btn btn_secondary" onClick={() => setShowCreateModal(false)}>
-                Cancelar
-              </button>
-              <button className="btn btn_primary" onClick={() => console.log(clientForm)}>
-                Crear cliente
-              </button>
-            </div>
-          }
-        >
-          <form className={style.form_cliente}>
-            <div className={style.form_control}>
-              <label>Cédula *</label>
-              <input type="text" required value={clientForm.cedula} onChange={(e) => onChangeClientForm(e, "cedula")} />
-            </div>
-            <div className={style.form_control}>
-              <label>Nombre completo *</label>
-              <input type="text" required value={clientForm.nombre} onChange={(e) => onChangeClientForm(e, "nombre")} />
-            </div>
-            <div className={style.form_control}>
-              <label>Teléfono *</label>
-              <input type="text" required value={clientForm.telefono} onChange={(e) => onChangeClientForm(e, "telefono")} />
-            </div>
-          </form>
-        </Modal>
-      )}
-
-      {/* Modal Asignar Cupo */}
-      {showCupoModal && selectedClient && (
-        <Modal
-          title={`Asignar tarjeta a: ${selectedClient.nombre}`}
-          isOpen={showCupoModal}
-          onClose={() => setShowCupoModal(false)}
-          size="md"
-          footer={
-            <div className={style.modal_footer_actions}>
-              <button className="btn" onClick={() => setShowCupoModal(false)}>Cancelar</button>
-              <button className="btn" onClick={() => console.log(cupoForm)}>Asignar cupo</button>
-            </div>
-          }
-        >
-          <div className={style.form_cliente}>
-            <p><b>Nombre:</b> {selectedClient.cedula}</p>
-
-            <div className={style.form_control}>
-              <label>Cupo total a asignar</label>
-              <input type="text" placeholder="$200.000" value={cupoForm.cupo} onChange={(e) => onChangeCupoForm(e, "cupo")} />
-            </div>
-
-            <div className={style.form_control}>
-              <label>Fecha de corte</label>
-              <select value={cupoForm.corte} onChange={(e) => onChangeCupoForm(e, "corte")}>
-                {[...Array(28)].map((_, i) => (
-                  <option key={i} value={i + 1}>{i + 1}</option>
-                ))}
-              </select>
-            </div>
-
-            <div className={style.form_control}>
-              <label>🧮 Cuotas predeterminadas</label>
-              <select value={cupoForm.cuotas} onChange={(e) => onChangeCupoForm(e, "cuotas")}>
-                <option value="1">1 cuota</option>
-                <option value="2">2 cuotas</option>
-                <option value="3">3 cuotas</option>
-                <option value="6">6 cuotas</option>
-              </select>
-            </div>
-
-            <div className={style.form_control}>
-              <label>📈 Aplica interés mensual</label>
-              <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-                <input
-                  type="checkbox"
-                  checked={cupoForm.aplicaInteres}
-                  onChange={(e) => onChangeCupoForm(e, "aplicaInteres")}
-                />
-                <span>Sí</span>
-                <input
-                  type="text"
-                  style={{ width: "80px" }}
-                  value={cupoForm.interes}
-                  onChange={(e) => onChangeCupoForm(e, "interes")}
-                />
-                <span>%</span>
-              </div>
-            </div>
-
-            <div className={style.form_control}>
-              <label>📝 Observación</label>
-              <input
-                type="text"
-                value={cupoForm.observacion}
-                onChange={(e) => onChangeCupoForm(e, "observacion")}
-              />
-            </div>
+      <Modal
+        title="Crear nuevo cliente"
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        size="md"
+      >
+        <form className={style.form_cliente} onSubmit={onCreateCliente}>
+          <div className={style.form_control}>
+            <label>Cédula *</label>
+            <input type="text" required value={form.cedula} onChange={(e) => onChangeGeneral(e, "cedula")} />
           </div>
-        </Modal>
-      )}
+          <div className={style.form_control}>
+            <label>Nombre completo *</label>
+            <input type="text" required value={form.nombre} onChange={(e) => onChangeGeneral(e, "nombre")} />
+          </div>
+          <div className={style.form_control}>
+            <label>Teléfono</label>
+            <input type="text" required value={form.telefono} onChange={(e) => onChangeGeneral(e, "telefono")} />
+          </div>
+          <div className={style.form_control}>
+            <label>Direccion</label>
+            <input type="text" required value={form.direccion} onChange={(e) => onChangeGeneral(e, "direccion")} />
+          </div>
+          <div className={style.form_control}>
+            <label>Email</label>
+            <input type="text" required value={form.email} onChange={(e) => onChangeGeneral(e, "email")} />
+          </div>
+          <div className={style.modal_footer_actions}>
+            <button className="btn btn_secondary" onClick={() => setShowCreateModal(false)}>
+              Cancelar
+            </button>
+            <button className="btn btn_primary">
+              Crear cliente
+            </button>
+          </div>
+        </form>
+      </Modal>
+      {/* Modal Editar Cliente */}
+      <Modal
+        title={`Editar cliente: ${selectedClient?.nombre}`}
+        isOpen={showEditModal}
+        onClose={() => setShowEditModal(false)}
+        size="md"
+      >
+        <form className={style.form_cliente} onSubmit={onUpdateCliente}>
+          <div className={style.form_control}>
+            <label>Cédula *</label>
+            <input type="text" disabled value={form.cedula} onChange={(e) => onChangeGeneral(e, "cedula")} />
+          </div>
+          <div className={style.form_control}>
+            <label>Nombre completo *</label>
+            <input type="text" disabled value={form.nombre} onChange={(e) => onChangeGeneral(e, "nombre")} />
+          </div>
+          <div className={style.form_control}>
+            <label>Telefono </label>
+            <input type="text" required value={form.telefono} onChange={(e) => onChangeGeneral(e, "telefono")} />
+          </div>
+          <div className={style.form_control}>
+            <label>Direccion </label>
+            <input type="text" required value={form.direccion} onChange={(e) => onChangeGeneral(e, "direccion")} />
+          </div>
+          <div className={style.form_control}>
+            <label>Email *</label>
+            <input type="text" required value={form.email} onChange={(e) => onChangeGeneral(e, "email")} />
+          </div>
+          <div className={style.modal_footer_actions}>
+            <button className="btn btn_secondary" onClick={() => setShowEditModal(false)}>
+              Cancelar
+            </button>
+            <button className="btn btn_primary">
+              Actualizar cliente
+            </button>
+          </div>
+        </form>
+      </Modal>
+      {/* Modal Eliminar Cliente */}
+      <Modal
+        title={`Eliminar cliente: ${selectedClient?.nombre}`}
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+      >
+        <form className={style.form_cliente} onSubmit={onDeleteCliente}>
+          <div className={style.modal_footer_actions}>
+            <button className="btn btn_secondary" onClick={() => setShowEditModal(false)}>
+              Cancelar
+            </button>
+            <button className="btn btn_primary">
+              Eliminar cliente
+            </button>
+          </div>
+        </form>
+      </Modal>
+
+    
+      <ToastContainer position="bottom-right" autoClose={5000} transition={Bounce} />
+
     </div>
   );
 };

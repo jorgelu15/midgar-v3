@@ -1,29 +1,29 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import api from "../config/axios";
-import { useAuth } from "./useAuth";
 import { useEffect } from "react";
+import { useUserInfo } from "./useUserInfo";
 
 export const useContabilidad = () => {
-    const { usuario } = useAuth();
+    const { usuarioQuery } = useUserInfo();
     const queryClient = useQueryClient();
 
     const fetchPUC = async (pageParam: number = 0) => {
-        const res = await api.get(`/contabilidad/cuentas-contables/arbol/${usuario?.id_inst}`, {
+        const res = await api.get(`/contabilidad/cuentas-contables/arbol/${usuarioQuery?.data?.empresa.id_empresa}`, {
             params: { page: pageParam }
         });
         return res.data;
     };
 
     useEffect(() => {
-        if (usuario?.id_inst) {
-            queryClient.invalidateQueries({ queryKey: ['puc', usuario.id_inst] });
+        if (usuarioQuery?.data?.empresa.id_empresa) {
+            queryClient.invalidateQueries({ queryKey: ['puc', usuarioQuery?.data?.empresa.id_empresa] });
         }
-    }, [usuario?.id_inst]);
+    }, [usuarioQuery?.data?.empresa.id_empresa]);
 
     const pucQuery = useQuery({
-        queryKey: ['puc', usuario?.id_inst],
+        queryKey: ['puc', usuarioQuery?.data?.empresa.id_empresa],
         queryFn: () => fetchPUC(),
-        enabled: usuario?.id_inst != null,
+        enabled: usuarioQuery?.data?.empresa.id_empresa != null,
         refetchOnWindowFocus: true,
     });
 

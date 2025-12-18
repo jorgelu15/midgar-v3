@@ -10,39 +10,39 @@ export const useCuenta = (id_cuenta_cliente?: string | null) => {
     const { createCuenta, agregarProductoCuenta, cancelarCuenta, cerrarCuenta, descargarInventario }: any = useContext(autoLavadoContext);
 
     const fetchCuentas = async () => {
-        const res = await api.get(`/ventas-y-servicios/cuenta/${usuarioQuery.data?.cliente.id_cliente}`);
+        const res = await api.get(`/ventas-y-servicios/cuenta/${usuarioQuery.data?.empresa.id_empresa}`);
         return res.data;
     };
 
     const fetchCuentaById = async () => {
-        const res = await api.get(`/ventas-y-servicios/cuenta/${id_cuenta_cliente}/${usuarioQuery.data?.cliente.id_cliente}`);
+        const res = await api.get(`/ventas-y-servicios/cuenta/${id_cuenta_cliente}/${usuarioQuery.data?.empresa.id_empresa}`);
         return res.data;
     };
 
     const fetchMetodosPago = async () => {
-        const res = await api.get(`/ventas-y-servicios/metodos-de-pago/${usuarioQuery.data?.cliente.id_cliente}`);
+        const res = await api.get(`/ventas-y-servicios/metodos-de-pago/${usuarioQuery.data?.empresa.id_empresa}`);
         return res.data;
     }
 
     const cuentasQuery = useQuery({
-        queryKey: ["cuenta_cliente", usuarioQuery.data?.cliente.id_cliente],
+        queryKey: ["cuenta_cliente", usuarioQuery.data?.empresa.id_empresa],
         queryFn: fetchCuentas,
         refetchOnWindowFocus: true,
-        enabled: usuarioQuery.data?.cliente.id_cliente != null
+        enabled: usuarioQuery.data?.empresa.id_empresa != null
     });
 
     const cuentaByIdiDQuery = useQuery({
-        queryKey: ["cuenta_cliente", usuarioQuery.data?.cliente.id_cliente, id_cuenta_cliente],
+        queryKey: ["cuenta_cliente", usuarioQuery.data?.empresa.id_empresa, id_cuenta_cliente],
         queryFn: fetchCuentaById,
         refetchOnWindowFocus: true,
-        enabled: usuarioQuery.data?.cliente.id_cliente != null && id_cuenta_cliente != null
+        enabled: usuarioQuery.data?.empresa.id_empresa != null && id_cuenta_cliente != null
     });
 
     const metodosPagoQuery = useQuery({
-        queryKey: ["metodos-pago", usuarioQuery.data?.cliente.id_cliente],
+        queryKey: ["metodos-pago", usuarioQuery.data?.empresa.id_empresa],
         queryFn: fetchMetodosPago,
         refetchOnWindowFocus: false,
-        enabled: usuarioQuery.data?.cliente.id_cliente != null
+        enabled: usuarioQuery.data?.empresa.id_empresa != null
     });
 
     return {

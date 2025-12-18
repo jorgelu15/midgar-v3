@@ -1,37 +1,40 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import api from "../config/axios";
-import { useAuth } from "./useAuth";
 import { useContext } from "react";
 import InventarioFisicoContext from "../context/InventarioFisico/InventarioFisicoContext";
 import type { CategoriaDTO } from "../models/dtos/categoria.dto";
+import { useUserInfo } from "./useUserInfo";
 
 export const useInventario = (id_producto?: string | undefined) => {
-    const { usuario } = useAuth();
-    const { updateProducto,abastecerInventario, createProducto, createMovimientoInventarioFisico, createCategoria }: any = useContext(InventarioFisicoContext);
+    const { usuarioQuery } = useUserInfo();
+    const { updateProducto, abastecerInventario, createProducto, createMovimientoInventarioFisico, createCategoria }: any = useContext(InventarioFisicoContext);
     const queryClient = useQueryClient();
+
+    const user = usuarioQuery.data;
+
     const fetchProductos = async (id_inst: string) => {
-        const res = await api.get(`/inventario-fisico/productos/${id_inst}`);
+        const res = await api.get(`/inventario-fisico/existencias/${id_inst}`);
         return res.data;
     };
 
 
     const fetchValorInventarioFisico = async (id_inst: string) => {
-        const res = await api.get(`/inventario-fisico/valor-inventario/${id_inst}`);
+        const res = await api.get(`/inventario-fisico/existencias/valor/${id_inst}`);
         return res.data;
     };
 
     const fetchGananciaEstimada = async (id_inst: string) => {
-        const res = await api.get(`/inventario-fisico/ganancia-estimada/${id_inst}`);
+        const res = await api.get(`/inventario-fisico/existencias/ganancia-estimada/${id_inst}`);
         return res.data;
     }
 
     const fetchProductosAgotados = async (id_inst: string) => {
-        const res = await api.get(`/inventario-fisico/productos-agotados/${id_inst}`);
+        const res = await api.get(`/inventario-fisico/existencias/productos-agotados/${id_inst}`);
         return res.data;
     }
 
     const fetchGetAllMovimientosInventario = async (id_producto?: string, id_inst?: string) => {
-        const res = await api.get(`/inventario-fisico/movimientos-producto/${id_producto}/${id_inst}`);
+        const res = await api.get(`/inventario-fisico/kardex/movimientos-producto/${id_producto}/${id_inst}`);
         return res.data;
     }
 
@@ -41,47 +44,47 @@ export const useInventario = (id_producto?: string | undefined) => {
     }
 
     const categoriasQuery = useQuery({
-        queryKey: ["categorias", usuario?.id_cliente],
-        queryFn: () => fetchGetAllCategoriasByCliente(usuario?.id_cliente), // Ya no recibe page
-        enabled: usuario?.id_cliente != null,
+        queryKey: ["categorias", user?.empresa?.id_empresa],
+        queryFn: () => fetchGetAllCategoriasByCliente(user?.empresa?.id_empresa), // Ya no recibe page
+        enabled: user?.empresa?.id_empresa != null,
         refetchOnWindowFocus: true
     });
 
     const productosQuery = useQuery({
-        queryKey: ["productos", usuario?.id_cliente],
-        queryFn: () => fetchProductos(usuario?.id_cliente), // Ya no recibe page
-        enabled: usuario?.id_cliente != null,
+        queryKey: ["productos", user?.empresa?.id_empresa],
+        queryFn: () => fetchProductos(user?.empresa?.id_empresa), // Ya no recibe page
+        enabled: user?.empresa?.id_empresa != null,
         refetchOnWindowFocus: true
     });
 
     const valorInventarioFisicoQuery = useQuery({
-        queryKey: ['valor_inventario_fisico', usuario?.id_cliente],
-        queryFn: () => fetchValorInventarioFisico(usuario?.id_cliente),
-        enabled: usuario?.id_cliente != null,
+        queryKey: ['valor_inventario_fisico', user?.empresa?.id_empresa],
+        queryFn: () => fetchValorInventarioFisico(user?.empresa?.id_empresa),
+        enabled: user?.empresa?.id_empresa != null,
         refetchOnWindowFocus: true
 
     });
 
     const gananciaEstimadaQuery = useQuery({
-        queryKey: ['ganancia_estimada', usuario?.id_cliente],
-        queryFn: () => fetchGananciaEstimada(usuario?.id_cliente),
-        enabled: usuario?.id_cliente != null,
+        queryKey: ['ganancia_estimada', user?.empresa?.id_empresa],
+        queryFn: () => fetchGananciaEstimada(user?.empresa?.id_empresa),
+        enabled: user?.empresa?.id_empresa != null,
         refetchOnWindowFocus: true
 
     });
 
     const productosAgotadosQuery = useQuery({
-        queryKey: ['productos_agotados', usuario?.id_cliente],
-        queryFn: () => fetchProductosAgotados(usuario?.id_cliente),
-        enabled: usuario?.id_cliente != null,
+        queryKey: ['productos_agotados', user?.empresa?.id_empresa],
+        queryFn: () => fetchProductosAgotados(user?.empresa?.id_empresa),
+        enabled: user?.empresa?.id_empresa != null,
         refetchOnWindowFocus: true
 
     });
 
     const movimientosInventarioQuery = useQuery({
         queryKey: ['movimientos_inventario', id_producto],
-        queryFn: () => fetchGetAllMovimientosInventario(id_producto, usuario?.id_cliente),
-        enabled: usuario?.id_cliente != null && !!id_producto,
+        queryFn: () => fetchGetAllMovimientosInventario(id_producto, user?.empresa?.id_empresa),
+        enabled: user?.empresa?.id_empresa != null && !!id_producto,
         refetchOnWindowFocus: true
 
     })
@@ -90,7 +93,7 @@ export const useInventario = (id_producto?: string | undefined) => {
     const createCategoriaMutation = useMutation({
         mutationFn: (categoria: CategoriaDTO) => createCategoria(categoria),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["categorias", usuario?.id_cliente] });
+            queryClient.invalidateQueries({ queryKey: ["categorias", user?.empresa?.id_empresa] });
         }
     });
 

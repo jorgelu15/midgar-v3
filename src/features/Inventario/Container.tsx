@@ -31,11 +31,10 @@ const menuItems = [
 
 const Container = () => {
   const { productosQuery, valorInventarioFisicoQuery, gananciaEstimadaQuery, productosAgotadosQuery } = useInventario();
-  const productos: ProductoRepository[] = productosQuery.data || [];
+  const productos: ProductoRepository[] = productosQuery?.data?.existencias || [];
   const valorInventarioFisico = valorInventarioFisicoQuery.data?.valor_inventario_fisico || 0;
   const gananciaEstimada = gananciaEstimadaQuery.data?.ganancia_estimada || 0;
   const productosAgotados = productosAgotadosQuery.data?.productos_agotados || 0;
-
   const navigate = useNavigate();
   const { form, onChangeGeneral } = useForm({ query: "" });
   const {
@@ -50,7 +49,6 @@ const Container = () => {
     isAbastecerModalOpen,
     setIsAbastecerModalOpen
   } = useProductModals();
-
 
   // Construir los atajos a partir de menuItems
   const shortcuts = menuItems.reduce((map, item) => {
@@ -142,7 +140,7 @@ const Container = () => {
 
           {
             productosQuery.isLoading ? (
-              <SkeletonTable cols={3} rows={5} />
+              <SkeletonTable cols={9} rows={5} />
             )
               : (
                 <Table

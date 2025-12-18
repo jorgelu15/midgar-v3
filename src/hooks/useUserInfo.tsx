@@ -4,14 +4,13 @@ import { useAuth } from "./useAuth";
 
 export const useUserInfo = () => {
     const { usuario } = useAuth();
-
     const fetchUsuario = async () => {
         const res = await api.get(`/gestion-de-usuarios/usuarios/${usuario?.id_usuario}`);
         return res.data;
     };
 
     const fetchLavadores = async () => {
-        const res = await api.get(`/gestion-de-usuarios/usuarios/rol/${4}`);
+        const res = await api.get(`/gestion-de-usuarios/usuarios/rol/${3}`);
         return res.data;
     };
 

@@ -1,15 +1,20 @@
 import Breadcrumb from "../../components/breadcrumbs/Breadcrumb";
+import stringSimilarity from "string-similarity";
 import { routes } from "../../utils/routes";
 import style from "./container.module.css";
 import borrar from "../../assets/borrar.svg";
 import volver from "../../assets/volver.svg";
-import status from "../../assets/status.svg";
+import add_card from "../../assets/add_card.svg";
 import { useMemo, useState } from "react";
 import { useForm } from "../../hooks/useForm";
 import Table from "../../components/tables/Table";
 import Modal from "../../components/modales/Modal";
 import { useShortcuts } from "../../hooks/useShortcodes";
 import { useNavigate } from "react-router-dom";
+import { useGestionDeCreditos } from "../../hooks/useGestionDeCreditos";
+import type { CuentaCreditoDTO } from "../../models/dtos/cuenta-credito.dto";
+import SkeletonTable from "../../components/skeleton/SkeletonTable";
+import { Bounce, toast, ToastContainer } from "react-toastify";
 
 const items = [
     { label: "Dashboard", href: routes.dashboard },
@@ -21,10 +26,37 @@ const menuItems = [
 ];
 
 const Container = () => {
+    
+    const { cuentaCreditoQuery, createCreditoMutation } = useGestionDeCreditos();
+
+
+
+    const cuentasCredito: CuentaCreditoDTO[] = cuentaCreditoQuery.data || [];
+
     const navigate = useNavigate();
-    const { form, onChangeGeneral } = useForm({ query: "" });
+    const { form, onChangeGeneral, setState } = useForm({
+        query: "",
+        cupo_maximo: "",
+        deuda_actual: "",
+        dia_corte: "15",
+        cuotas_predeterminadas: "3",
+        tasa_interes_mensual: "2",
+        cobra_intereses: false,
+    });
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedClient, setSelectedClient] = useState<string | null>(null);
+    const [selectedClient, setSelectedClient] = useState<CuentaCreditoDTO | null>(null);
+    const [showCupoModal, setShowCupoModal] = useState(false);
+
+    const onOpenAsignarCupo = (cliente: CuentaCreditoDTO) => {
+        setSelectedClient(cliente);
+        setState((prev: any) => ({
+            ...prev,
+            cedula: cliente?.clientes?.cedula || "",
+            nombre: cliente?.clientes?.nombre || ""
+        }));
+        setShowCupoModal(true);
+    };
+
     // Construir los atajos a partir de menuItems
     const shortcuts = menuItems.reduce((map, item) => {
         map[item.shortcode] = () => navigate(item.destiny);
@@ -42,30 +74,44 @@ const Container = () => {
         "Acciones",
     ];
 
-    const originalRows = [
-        ["Pedro Gómez", "1012345678", "$200.000", "$60.000", "Activo"],
-        ["Ana María Torres", "1023456789", "$150.000", "$0", "Activo"],
-        ["Carlos Ruiz", "1034567890", "$180.000", "$180.000", "En mora"],
-        ["Laura Romero", "1045678901", "$100.000", "$40.000", "Bloqueado"],
-        ["Andrés Mejía", "1056789012", "$120.000", "$20.000", "Activo"],
-        ["Camila García", "1067890123", "$100.000", "$0", "Activo"],
-        ["Jorge Castillo", "1078901234", "$400.000", "$350.000", "En mora"],
-        ["Tatiana López", "1089012345", "$35.000", "$15.000", "Activo"],
-        ["Luis Herrera", "1090123456", "$50.000", "$0", "Activo"],
-        ["Sofía Martínez", "1101234567", "$250.000", "$220.000", "Bloqueado"],
-    ];
-
     const filteredRows = useMemo(() => {
-        const query = form.query.toLowerCase();
-        if (!query) return originalRows;
-        return originalRows.filter((row) =>
-            row.some((cell) => String(cell).toLowerCase().includes(query))
-        );
-    }, [form.query]);
+        const query = form?.query.toLowerCase();
+        if (!query) return cuentasCredito;
 
-    const openModal = (clientName: string) => {
-        setSelectedClient(clientName);
-        setIsModalOpen(true);
+        return cuentasCredito.filter((row: CuentaCreditoDTO) => {
+            return Object.values(row).some(value => {
+                const text = String(value).toLowerCase();
+
+                if (text.includes(query)) return true;
+
+                const similarity = stringSimilarity.compareTwoStrings(text, query);
+                return similarity > 0.8;
+            });
+        });
+    }, [form.query, cuentasCredito]);
+
+    const onAsignarCupo = (e: React.MouseEvent<HTMLButtonElement>) => {
+        e.preventDefault();
+        console.log(selectedClient);
+        if(selectedClient === null || selectedClient?.clientes?.id_cliente === null) {
+            toast.error("Debe seleleccionar un cliente para realizar esta acción");
+            return;
+        }
+        createCreditoMutation.mutate({
+            id_cliente: selectedClient?.clientes?.id_cliente,
+            id_inst: selectedClient?.clientes?.id_inst,
+            cupo_maximo: form.cupo_maximo,
+            deuda_actual: form.deuda_actual,
+            dia_corte: form.dia_corte,
+            cuotas_predeterminadas: form.cuotas_predeterminadas,
+            tasa_interes_mensual: form.tasa_interes_mensual,
+            cobra_intereses: form.cobra_intereses,
+        }, {
+            onSuccess: () => {
+                setShowCupoModal(false);
+            }
+        });
+
     };
 
     return (
@@ -117,28 +163,43 @@ const Container = () => {
                 </div>
 
                 <div className={style.table_container}>
-                    <Table
-                        headers={headers}
-                        data={filteredRows}
-                        defaultRowsPerPage={5}
-                        rowsPerPageOptions={[5, 10, 20]}
-                        renderRow={(row) => (
-                            <>
-                                {row.map((cell, i) => (
-                                    <td key={i}>{cell}</td>
-                                ))}
-                                <td>
-                                    <img
-                                        src={status}
-                                        onClick={() => openModal(row[0])}
-                                        style={{ cursor: "pointer" }}
-                                        alt="Estado de cuenta"
-                                    />
-                                    <img src={borrar} />
-                                </td>
-                            </>
-                        )}
-                    />
+                    {
+                        cuentaCreditoQuery.isLoading ? (
+                            <SkeletonTable cols={9} rows={5} />
+                        ) :
+                            <Table
+                                headers={headers}
+                                data={filteredRows}
+                                defaultRowsPerPage={5}
+                                rowsPerPageOptions={[5, 10, 20]}
+                                renderRow={(row: CuentaCreditoDTO) => {
+                                    const rowValues = [
+                                        row.clientes?.nombre,
+                                        row.clientes?.cedula,
+                                        new Intl.NumberFormat("es-CO", {
+                                            style: "currency",
+                                            currency: "COP",
+                                        }).format(row?.cupo_maximo || 0),
+                                        new Intl.NumberFormat("es-CO", {
+                                            style: "currency",
+                                            currency: "COP",
+                                        }).format((row?.cupo_maximo || 0) - (row?.cupo_disponible || 0) ),
+                                        row.clientes?.estado ? "Inactivo" : "Activo",
+                                    ];
+                                    return (
+                                        <>
+                                            {rowValues.map((cell, i) => (
+                                                <td key={i}>{cell}</td>
+                                            ))}
+                                            <td>
+                                                <img src={add_card} onClick={() => onOpenAsignarCupo(row)} />
+                                                <img src={borrar} />
+                                            </td>
+                                        </>
+                                    );
+                                }}
+                            />
+                    }
                 </div>
             </div>
 
@@ -182,6 +243,83 @@ const Container = () => {
                 </Modal>
 
             )}
+            {/* Modal Asignar Cupo */}
+            {showCupoModal && selectedClient && (
+                <Modal
+                    title={`Asignar tarjeta a: ${selectedClient?.clientes?.nombre}`}
+                    isOpen={showCupoModal}
+                    onClose={() => setShowCupoModal(false)}
+                    size="md"
+                    footer={
+                        <div className={style.modal_footer_actions}>
+                            <button className="btn" onClick={() => setShowCupoModal(false)}>Cancelar</button>
+                            <button className="btn btn_primary" onClick={onAsignarCupo}>Asignar cupo</button>
+                        </div>
+                    }
+                >
+                    <div className={style.form_cliente}>
+                        <div className={style.form_control}>
+                            <p><b>Número de tarjeta:</b> {selectedClient?.clientes?.cedula}</p>
+                        </div>
+
+                        <div className={style.form_control}>
+                            <label>Cupo total a asignar</label>
+                            <input type="text" placeholder="$200.000" value={form.cupo_maximo} onChange={(e) => onChangeGeneral(e, "cupo_maximo")} />
+                        </div>
+                        <div className={style.form_control}>
+                            <label>Deuda actual:</label>
+                            <input type="text" placeholder="$60.000" value={form.deuda_actual} onChange={(e) => onChangeGeneral(e, "deuda_actual")} />
+                        </div>
+
+                        <div className={style.form_control}>
+                            <label>Fecha de corte</label>
+                            <select value={form.dia_corte} onChange={(e) => onChangeGeneral(e, "dia_corte")}>
+                                {[...Array(28)].map((_, i) => (
+                                    <option key={i} value={i + 1}>{i + 1}</option>
+                                ))}
+                            </select>
+                        </div>
+
+                        <div className={style.form_control}>
+                            <label>Cuotas predeterminadas</label>
+                            <select value={form.cuotas_predeterminadas} onChange={(e) => onChangeGeneral(e, "cuotas_predeterminadas")}>
+                                <option value="1">1 cuota</option>
+                                <option value="2">2 cuotas</option>
+                                <option value="3">3 cuotas</option>
+                                <option value="6">6 cuotas</option>
+                            </select>
+                        </div>
+
+                        <div className={style.form_control}>
+                            <label>Aplica interés mensual</label>
+                            <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+                                <input
+                                    type="checkbox"
+                                    checked={form.cobra_intereses}
+                                    onChange={(e) => onChangeGeneral(e, "cobra_intereses")}
+                                />
+                                <span>Sí</span>
+                                <input
+                                    type="text"
+                                    style={{ width: "80px" }}
+                                    value={form.tasa_interes_mensual}
+                                    onChange={(e) => onChangeGeneral(e, "tasa_interes_mensual")}
+                                />
+                                <span>%</span>
+                            </div>
+                        </div>
+                    </div>
+                </Modal>
+            )}
+            <ToastContainer
+                position="bottom-right"
+                autoClose={5000}
+                hideProgressBar={false}
+                closeOnClick={false}
+                pauseOnHover
+                theme="light"
+                transition={Bounce}
+            />
         </div>
     );
 };

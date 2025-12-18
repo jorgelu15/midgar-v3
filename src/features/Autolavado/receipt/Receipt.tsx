@@ -1,8 +1,13 @@
+import type { ClienteDTO } from "../../../models/dtos/cliente.dto";
+import type { UsuarioDTO } from "../../../models/dtos/usuario.dto";
 import type { ProductoRepository } from "../../../models/Producto.repository";
 import style from "./receipt.module.css";
 
 type Props = {
   items: ProductoRepository[];
+  cliente?: ClienteDTO;
+  medioPago?: any;
+  cajero?: UsuarioDTO;
 };
 
 const Receipt: React.FC<Props> = ({ items = [] }) => {

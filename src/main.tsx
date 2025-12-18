@@ -9,6 +9,8 @@ import AuthProvider from './context/authentication/authProvider.tsx'
 import InventarioFisicoProvider from './context/InventarioFisico/InventarioFisicoProvider.tsx'
 import AutoLavadoProvider from './context/AutoLavado/AutoLavadoProvider.tsx'
 import GestionDeUsuariosProvider from './context/gestion-de-usuarios/gestion-de-usuariosProvider.tsx'
+import GestionDeClientesProvider from './context/gestion-de-clientes/gestion-de-clientesProvider.tsx'
+import GestionDeCreditosProvider from './context/gestion-de-creditos/gestion-de-creditosProvider.tsx'
 
 const queryClient = new QueryClient()
 
@@ -16,13 +18,17 @@ createRoot(document.getElementById('root')!).render(
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
       <GestionDeUsuariosProvider>
-        <InventarioFisicoProvider>
-          <AutoLavadoProvider>
-            <ThemeProvider>
-              <App />
-            </ThemeProvider>
-          </AutoLavadoProvider>
-        </InventarioFisicoProvider>
+        <GestionDeClientesProvider>
+          <GestionDeCreditosProvider>
+            <InventarioFisicoProvider>
+              <AutoLavadoProvider>
+                <ThemeProvider>
+                  <App />
+                </ThemeProvider>
+              </AutoLavadoProvider>
+            </InventarioFisicoProvider>
+          </GestionDeCreditosProvider>
+        </GestionDeClientesProvider>
       </GestionDeUsuariosProvider>
     </AuthProvider>
     <ReactQueryDevtools />

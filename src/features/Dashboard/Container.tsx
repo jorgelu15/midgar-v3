@@ -35,6 +35,7 @@ const items = [
 const Container = () => {
     const navigate = useNavigate();
     const { usuarioQuery } = useUserInfo();
+    console.log(usuarioQuery.data);
     const user = usuarioQuery.data;
     function obtenerFechaEstilo(): string {
         const fecha = new Date();

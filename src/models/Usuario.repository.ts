@@ -1,4 +1,4 @@
-import type { ClienteRepository } from "./Cliente.repository";
+import type { EmpresaRepository } from "./Empresa.repository";
 import type { PermisoRepository } from "./Permiso.repository";
 import type { RolRepository } from "./Rol.repository";
 
@@ -9,7 +9,7 @@ export interface UsuarioRepository {
     roles: RolRepository[];
     permisos: PermisoRepository[];
     estado: string;
-    cliente: ClienteRepository;
+    empresa: EmpresaRepository;
     ultimo_acceso: Date;
     createdAt: Date;
     updatedAt: Date;
