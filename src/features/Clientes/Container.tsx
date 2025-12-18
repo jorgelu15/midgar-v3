@@ -67,20 +67,20 @@ const Container = () => {
     setShowDeleteModal(true);
   }
 
-  const [cupoForm, setCupoForm] = useState({
-    cupo: "",
-    corte: "15",
-    cuotas: "3",
-    interes: "2",
-    observacion: "",
-    aplicaInteres: true,
-  });
+  // const [cupoForm, setCupoForm] = useState({
+  //   cupo: "",
+  //   corte: "15",
+  //   cuotas: "3",
+  //   interes: "2",
+  //   observacion: "",
+  //   aplicaInteres: true,
+  // });
 
 
-  const onChangeCupoForm = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>, field: string) => {
-    const value = field === "aplicaInteres" ? (e.target as HTMLInputElement).checked : e.target.value;
-    setCupoForm((prev) => ({ ...prev, [field]: value }));
-  };
+  // const onChangeCupoForm = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>, field: string) => {
+  //   const value = field === "aplicaInteres" ? (e.target as HTMLInputElement).checked : e.target.value;
+  //   setCupoForm((prev) => ({ ...prev, [field]: value }));
+  // };
 
   // Atajos
   const shortcuts = menuItems.reduce((map, item) => {
@@ -128,7 +128,7 @@ const Container = () => {
         telefono: form.telefono,
         direccion: form.direccion,
         email: form.email,
-        id_inst: `${user?.empresa.id_empresa}`,
+        id_empresa: `${user?.empresa.id_empresa}`,
       },
       {
         onSuccess: () => {
@@ -163,7 +163,7 @@ const Container = () => {
         telefono: form.telefono,
         direccion: form.direccion,
         email: form.email,
-        id_inst: `${user?.empresa.id_empresa}`,
+        id_empresa: `${user?.empresa.id_empresa}`,
       },
       {
         onSuccess: () => {

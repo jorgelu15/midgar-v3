@@ -2,6 +2,7 @@ import Modal from "../../../components/modales/Modal";
 import SkeletonTable from "../../../components/skeleton/SkeletonTable";
 import Table from "../../../components/tables/Table";
 import { useInventario } from "../../../hooks/useInventario";
+import { useUserInfo } from "../../../hooks/useUserInfo";
 import type { MovimientoInventarioRepository } from "../../../models/MovimientoInventario.repository";
 import type { ProductoRepository } from "../../../models/Producto.repository";
 import style from "../container.module.css"
@@ -19,6 +20,8 @@ const KardexModal = ({
     selectedProduct,
     openAdjustStockModal
 }: KardexModalProps) => {
+    const { usuarioQuery } = useUserInfo();
+    const usuario = usuarioQuery?.data || "Desconocido";
     const { movimientosInventarioQuery } = useInventario(String(selectedProduct?.id_producto));
     const movimientos: MovimientoInventarioRepository[] = movimientosInventarioQuery?.data?.movimientos || [];
 
@@ -96,7 +99,7 @@ const KardexModal = ({
                                 row.motivo,
                                 row.cantidad,
                                 row.costo_unitario,
-                                row.usuario,
+                                usuario?.nombre === row.id_usuario ? "Tú" : row.id_usuario,
                             ];
                             return (
                                 <>

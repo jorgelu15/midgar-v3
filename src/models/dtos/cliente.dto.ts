@@ -4,7 +4,7 @@ export interface ClienteDTO {
     telefono: string;
     direccion: string;
     email: string;
-    estado: boolean;
     id_empresa: string;
+    estado?: boolean;
     id_cliente?: string;
 }

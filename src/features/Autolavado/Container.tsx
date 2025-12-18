@@ -4,7 +4,6 @@ import SelectSearch from "../../components/selects/SelectSearch";
 import { useProductModals } from "../../hooks/useProductModals";
 import CardCuentaLavado from "../../components/cards/CardCuentaLavado";
 import style from "./container.module.css";
-import CardProductotienda from "../../components/cards/CardProductoTiendas";
 import { useCuenta } from "../../hooks/useCuenta";
 import { Bounce, toast, ToastContainer } from "react-toastify";
 import { useTheme } from "../../context/ThemeContext/ThemeContext";
@@ -66,7 +65,7 @@ const Container = () => {
     const { usuarioQuery, lavadoresQuery } = useUserInfo();
     const { productosQuery } = useInventario();
     const [progress, setProgress] = useState<number | null>(null);
-
+    console.log(progress)
     const [clienteNombre, setClienteNombre] = useState("");
     const [placa, setPlaca] = useState("");
     const [lavador, setLavador] = useState({ label: "", value: "" });
@@ -85,6 +84,7 @@ const Container = () => {
     const { cuentasQuery, metodosPagoQuery, createCuenta, agregarProductoCuenta, cancelarCuenta, cerrarCuenta, descargarInventario } = useCuenta(cuentaSeleccionada?.id_cuenta_cliente || null);
     const ticketRef = useRef<HTMLDivElement>(null);
     const queryClient = useQueryClient();
+    console.log(ultimoProducto)
     // Sincroniza productos de cuentaSeleccionada en cuentasQuery (React Query)
     // Se ejecuta cada vez que cambia cuentaSeleccionada
     useEffect(() => {
@@ -148,41 +148,41 @@ const Container = () => {
                 });
     }
 
-    const handleAgregarProducto = async (producto: ProductoRepository) => {
-        // Copia del estado actual
-        let updated = [...cuentaSeleccionada?.productos || []];
+    // const handleAgregarProducto = async (producto: ProductoRepository) => {
+    //     // Copia del estado actual
+    //     let updated = [...cuentaSeleccionada?.productos || []];
 
-        const index = updated.findIndex((p) => p.codigo === producto.codigo);
-        let cantidadFinal = 1;
+    //     const index = updated.findIndex((p) => p.codigo === producto.codigo);
+    //     let cantidadFinal = 1;
 
-        if (index !== -1) {
-            updated[index].cantidad = (updated[index].cantidad || 0) + 1;
-            cantidadFinal = updated[index].cantidad;
-        } else {
-            updated.push({ ...producto, cantidad: 1 });
-            if (cuentaSeleccionada)
-                setCuentaSeleccionada({
-                    ...cuentaSeleccionada,
-                    productos: [...cuentaSeleccionada?.productos, { ...producto, cantidad: 1 }]
-                });
-        }
+    //     if (index !== -1) {
+    //         updated[index].cantidad = (updated[index].cantidad || 0) + 1;
+    //         cantidadFinal = updated[index].cantidad;
+    //     } else {
+    //         updated.push({ ...producto, cantidad: 1 });
+    //         if (cuentaSeleccionada)
+    //             setCuentaSeleccionada({
+    //                 ...cuentaSeleccionada,
+    //                 productos: [...cuentaSeleccionada?.productos, { ...producto, cantidad: 1 }]
+    //             });
+    //     }
 
-        // Llamada a la API antes de setear el estado
-        const res = await agregarProductoCuenta(
-            producto.id_producto,
-            cantidadFinal,
-            usuarioQuery?.data.empresa.id_empresa,
-            cuentaSeleccionada?.id_cuenta_cliente,
-            setProgress
-        );
+    //     // Llamada a la API antes de setear el estado
+    //     const res = await agregarProductoCuenta(
+    //         producto.id_producto,
+    //         cantidadFinal,
+    //         usuarioQuery?.data.empresa.id_empresa,
+    //         cuentaSeleccionada?.id_cuenta_cliente,
+    //         setProgress
+    //     );
 
-        if (res.status === 200) {
-            setProductosFactura(updated);
-            setUltimoProducto({ ...producto, cantidad: cantidadFinal });
-        } else {
-            console.log("Error al agregar producto");
-        }
-    };
+    //     if (res.status === 200) {
+    //         setProductosFactura(updated);
+    //         setUltimoProducto({ ...producto, cantidad: cantidadFinal });
+    //     } else {
+    //         console.log("Error al agregar producto");
+    //     }
+    // };
 
     const handleAgregarCuenta = (event: React.FormEvent) => {
         event.preventDefault();

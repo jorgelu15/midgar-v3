@@ -99,7 +99,7 @@ const Container = () => {
         }
         createCreditoMutation.mutate({
             id_cliente: selectedClient?.clientes?.id_cliente,
-            id_inst: selectedClient?.clientes?.id_inst,
+            id_inst: selectedClient?.clientes?.id_empresa,
             cupo_maximo: form.cupo_maximo,
             deuda_actual: form.deuda_actual,
             dia_corte: form.dia_corte,

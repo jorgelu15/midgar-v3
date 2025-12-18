@@ -39,7 +39,7 @@ const AbastecerInventarioModal = ({
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         // setProgress(0)
-        abastecerInventario(productos, user.id_usuario, user.cliente.id_cliente, setProgress);
+        abastecerInventario(productos, user.id_usuario, user.empresa.id_empresa, setProgress);
     }
 
     const opciones = [

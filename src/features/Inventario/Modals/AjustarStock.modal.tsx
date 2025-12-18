@@ -3,7 +3,6 @@ import Modal from "../../../components/modales/Modal";
 import { useInventario } from "../../../hooks/useInventario";
 import style from "../container.module.css";
 import { useAuth } from "../../../hooks/useAuth";
-import type { MovimientoInventarioRepository } from "../../../models/MovimientoInventario.repository";
 import { useForm } from "../../../hooks/useForm";
 import { Bounce, toast, ToastContainer } from "react-toastify";
 import type { ProductoRepository } from "../../../models/Producto.repository";
@@ -48,9 +47,9 @@ const AjustarStockModal = ({
         }
 
 
-        const movimiento: MovimientoInventarioRepository = {
-            id_producto: String(selectedProduct?.id_producto),
-            movimiento: form.movimiento,
+        const movimiento: any = {
+            id_producto: Number(selectedProduct?.id_producto),
+            tipo_movimiento: form.movimiento,
             motivo: form.motivo,
             cantidad: form.cantidad,
             saldo: form.saldo,

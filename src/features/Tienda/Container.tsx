@@ -39,9 +39,9 @@ const menuItems = [
   { shortcode: "F12", image: confirm__wallet, title: "Totalizar", destiny: "" },
 ];
 
-const mockProductos: ProductoRepository[] = [
+const mockProductos: any = [
   {
-    id_producto: "1",
+    id_producto: 1,
     codigo: "123",
     nombre: "Coca-Cola 400ml",
     precio_venta: 3500,
@@ -49,7 +49,7 @@ const mockProductos: ProductoRepository[] = [
     cantidad_minima: 0,
     categoria_id: 1,
     costo: 2500,
-    estado: true,
+    estado: 0,
     foto_url: "https://licoresmedellin.com/cdn/shop/files/GASEOSA_COCA_COLA_ORIGINAL_MEDIANA_1_5L.jpg",
     id_inst: 1,
     impuesto_id: 1,
@@ -182,7 +182,7 @@ const Container = () => {
 
       const codigo = match[1];
       const cantidad = parseFloat(match[3]) || 1;
-      const producto = mockProductos.find((p) => p.codigo === codigo);
+      const producto = mockProductos.find((p: any) => p.codigo === codigo);
       if (!producto) {
         alert("Producto no encontrado");
         resetForm();
