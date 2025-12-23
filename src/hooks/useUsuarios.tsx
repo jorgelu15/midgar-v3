@@ -19,46 +19,46 @@ export const useUsuarios = (empleado?: string | null, id_rol?: string | null) =>
         const res = await api.get(`/gestion-de-usuarios/usuarios/${empleado}`);
         return res.data;
     };
-
+    
     const fetchUsuariosByCliente = async () => {
-        const res = await api.get(`/gestion-de-usuarios/cliente/${usuario?.id_cliente}/usuarios`);
+        const res = await api.get(`/gestion-de-usuarios/empresa/${usuario?.id_empresa}/usuarios`);
         return res.data;
     };
 
     const fetchRolesByCliente = async () => {
-        const res = await api.get(`/gestion-de-usuarios/cliente/${usuario?.id_cliente}/roles`);
+        const res = await api.get(`/gestion-de-usuarios/empresa/${usuario?.id_empresa}/roles`);
         return res.data;
     };
 
      const fetchGetAllPermisosByCliente = async () => {
-        const res = await api.get(`/gestion-de-usuarios/cliente/${usuario?.id_cliente}/permisos`);
+        const res = await api.get(`/gestion-de-usuarios/empresa/${usuario?.id_empresa}/permisos`);
         return res.data;
     }
 
     const fetchPermisosByRol = async () => {
-        const res = await api.get(`/gestion-de-usuarios/cliente/${usuario?.id_cliente}/rol/${id_rol}`);
+        const res = await api.get(`/gestion-de-usuarios/empresa/${usuario?.id_empresa}/rol/${id_rol}`);
         return res.data;
     };
 
     const usuariosByClienteQuery = useQuery({
-        queryKey: ["usuarios", usuario?.id_cliente],
+        queryKey: ["usuarios", usuario?.id_empresa],
         queryFn: fetchUsuariosByCliente,
         refetchOnWindowFocus: true,
-        enabled: usuario?.id_cliente != null
+        enabled: usuario?.id_empresa != null
     });
 
     const rolesByClienteQuery = useQuery({
-        queryKey: ["roles", usuario?.id_cliente],
+        queryKey: ["roles", usuario?.id_empresa],
         queryFn: fetchRolesByCliente,
         refetchOnWindowFocus: true,
-        enabled: usuario?.id_cliente != null
+        enabled: usuario?.id_empresa != null
     });
 
     const permisosByClienteQuery = useQuery({
-        queryKey: ["permisos", usuario?.id_cliente],
+        queryKey: ["permisos", usuario?.id_empresa],
         queryFn: fetchGetAllPermisosByCliente,
         refetchOnWindowFocus: true,
-        enabled: usuario?.id_cliente != null
+        enabled: usuario?.id_empresa != null
     });
 
     const usuarioInfoQuery = useQuery({
@@ -80,28 +80,28 @@ export const useUsuarios = (empleado?: string | null, id_rol?: string | null) =>
     const createEmpleadoMutation = useMutation({
         mutationFn: (usuario: UsuarioDTO) => createCuentaEmpleados(usuario),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["usuarios", usuario?.id_cliente] });
+            queryClient.invalidateQueries({ queryKey: ["usuarios", usuario?.id_empresa] });
         }
     });
 
     const updateEmpleadoMutation = useMutation({
-        mutationFn: (usuario: UsuarioDTO) => updateCuentaEmpleados(usuario.id_cliente, usuario),
+        mutationFn: (usuario: UsuarioDTO) => updateCuentaEmpleados(usuario?.id_empresa, usuario),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["usuarios", usuario?.id_cliente] });
+            queryClient.invalidateQueries({ queryKey: ["usuarios", usuario?.id_empresa] });
         }
     });
 
     const asignarPermisosMutation = useMutation({
         mutationFn: (permiso: any) => asignarPermisos(permiso),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["permisos", usuario?.id_cliente] });
+            queryClient.invalidateQueries({ queryKey: ["permisos", usuario?.id_empresa] });
         }
     });
 
     const quitarPermisosMutation = useMutation({
         mutationFn: (permiso: any) => quitarPermisos(permiso),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["permisos", usuario?.id_cliente] });
+            queryClient.invalidateQueries({ queryKey: ["permisos", usuario?.id_empresa] });
         }
     });
 

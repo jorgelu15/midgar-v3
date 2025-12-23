@@ -6,8 +6,6 @@ import style from "../container.module.css";
 import { useRef, useState } from "react";
 import { useAuth } from "../../../hooks/useAuth";
 import uploadIcon from "../../../assets/upload.svg";
-import SelectSearch from "../../../components/selects/SelectSearch";
-import type { CategoriaRepository } from "../../../models/Categoria.repository";
 
 interface CreateProductoModalProps {
     isCreateProductModalOpen: boolean;
@@ -36,12 +34,11 @@ const CreateProductoModal = ({
     const { createProducto, categoriasQuery } = useInventario();
 
 
-    const categorias = categoriasQuery.data || [];
+    const categorias = categoriasQuery?.data || [];
     console.log(categorias);
 
     const formRef = useRef<HTMLFormElement>(null);
     const { form, onChangeGeneral, setState } = useForm(initialFormState);
-    const [categoriaSelected, setCategoriaSelected] = useState({ label: "", value: "" });
     const [progress, setProgress] = useState<number | null>(null);
 
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -100,11 +97,6 @@ const CreateProductoModal = ({
             }
         }
 
-        // if (!imageFile) {
-        //     toast.error("Debes seleccionar una imagen del producto.");
-        //     return;
-        // }
-
         // Crear objeto producto
         const producto = {
             codigo: form.codigo,
@@ -122,14 +114,13 @@ const CreateProductoModal = ({
 
         const formData = new FormData();
         formData.append("producto", JSON.stringify(producto));  // producto serializado
-        formData.append("id_inst", usuario?.id_inst);           // id_inst
+        formData.append("id_empresa", String(usuario?.id_empresa ?? ""));
         formData.append("img_producto", imageFile ? imageFile : "");             // archivo
-
         createProducto(formData, setProgress).then((response: any) => {
             toast.success(response.data.message);
             setIsCreateProductModalOpen(false);
         }).catch((error: any) => {
-            toast.error(error.error);
+            toast.error(error.response?.data?.details);
             setProgress(null);
         });
 
@@ -189,12 +180,7 @@ const CreateProductoModal = ({
                         {renderInput("Nombre", "nombre", "text", "Ej: Producto 1")}
                     </div>
                 </div>
-                <SelectSearch
-                    options={categorias?.map((categoria: CategoriaRepository) => ({ label: categoria.nombre_categoria, value: categoria.nombre_categoria })) ?? []}
-                    value={categoriaSelected}
-                    onSelect={(option) => setCategoriaSelected({ label: option.label, value: option.value.toString() })}
-
-                />
+                {renderSelect("Categoria", "categoria", (categorias ?? []).map((c: any) => c.nombre))}
                 {renderInput("Costo unitario", "costoUnitario", "number", "Ej: 5000")}
                 {renderInput("Precio de venta", "precioVenta", "number", "Ej: 10000")}
                 {renderInput("Cantidad actual", "cantidadActual", "number", "Ej: 50")}

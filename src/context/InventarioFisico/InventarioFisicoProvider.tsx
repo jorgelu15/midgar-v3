@@ -72,7 +72,7 @@ const ProductoProvider = ({ children }: { children: React.ReactNode }) => {
 
     const createProducto = async (formData: FormData, setProgress: any) => {
         try {
-            const res = await api.post(`/inventario-fisico/productos`, formData,
+            const res = await api.post(`/productos`, formData,
                 {
                     withCredentials: true,
                     headers: {
@@ -86,7 +86,7 @@ const ProductoProvider = ({ children }: { children: React.ReactNode }) => {
 
             return res;
         } catch (error) {
-            console.log(error)
+            throw error;
         }
     }
 

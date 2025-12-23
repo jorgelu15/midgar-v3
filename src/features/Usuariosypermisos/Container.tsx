@@ -39,6 +39,8 @@ const menuItems = [
 const Container = () => {
   const navigate = useNavigate();
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const { usuarioQuery } = useUserInfo();
+  const user = usuarioQuery.data;
 
   const PERMISSION_ACCESS = "USUARIOS_PERMISOS";
 
@@ -62,8 +64,7 @@ const Container = () => {
     id_rol: null,
   });
 
-  const { usuarioQuery } = useUserInfo();
-  const user = usuarioQuery.data;
+
 
   const {
     usuariosByClienteQuery,
@@ -79,6 +80,7 @@ const Container = () => {
     usuario,
   } = useUsuarios(openModalPermissions?.userId, openModalRol?.id_rol);
 
+  
   const usuarios = usuariosByClienteQuery.data;
   const empleado = usuarioInfoQuery.data;
 
@@ -149,7 +151,7 @@ const Container = () => {
 
   const onCreateEmpleado = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!form.nombre || !form.email || !form.password || rol === "" || user?.cliente.id_cliente == null) {
+    if (!form.nombre || !form.email || !form.password || rol === "" || user?.empresa.id_empresa == null) {
       toast.error("Por favor, completa todos los campos.");
       return;
     }
@@ -160,7 +162,7 @@ const Container = () => {
         email: form.email,
         password_hash: form.password,
         id_rol: rol,
-        id_cliente: user?.cliente.id_cliente,
+        id_empresa: user?.empresa.id_empresa,
       },
       {
         onSuccess: () => {
@@ -178,14 +180,14 @@ const Container = () => {
 
   const onCreateRol = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    if (!form.nombre_rol || !form.descripcion_rol || user?.cliente.id_cliente == null) {
+    if (!form.nombre_rol || !form.descripcion_rol || user?.empresa.id_empresa == null) {
       toast.error("Por favor, completa todos los campos.");
       return;
     }
     crearRol({
       nombre_rol: form.nombre_rol,
       descripcion_rol: form.descripcion_rol,
-      id_cliente: user?.cliente.id_cliente,
+      id_empresa: user?.empresa.id_empresa,
       id_usuario: user?.id_usuario,
     })
       .then(() => {
@@ -206,6 +208,8 @@ const Container = () => {
       toast.error("Por favor, selecciona un usuario");
       return;
     }
+
+    
   };
 
   /**
@@ -230,8 +234,8 @@ const Container = () => {
     const payload = {
       id_rol: rol,
       id_permiso,
-      // usa el cliente del usuario autenticado (más estable en este contexto)
-      id_cliente: user?.cliente.id_cliente ?? empleado?.cliente?.id_cliente,
+      // usa la empresa del usuario autenticado (más estable en este contexto)
+      id_empresa: user?.empresa.id_empresa ?? empleado?.empresa?.id_empresa,
       id_usuario: user?.id_usuario ?? usuario?.id_usuario,
     };
 
@@ -440,9 +444,8 @@ const Container = () => {
       {/* gestionar permisos de un rol */}
       {
         <Modal
-          title={`Gestionar permisos de un ${
-            roles?.find((r: RolRepository) => String(r.id) === String(openModalRol.id_rol))?.nombre_rol ?? ""
-          }`}
+          title={`Gestionar permisos de un ${roles?.find((r: RolRepository) => String(r.id) === String(openModalRol.id_rol))?.nombre_rol ?? ""
+            }`}
           onClose={() => {
             setOpenModalRol({ isOpen: false, id_rol: null });
           }}
@@ -535,7 +538,7 @@ const Container = () => {
       {/* gestionar datos del usuario modal */}
       {
         <Modal
-          title="Gestionar datos del usuario"
+          title={`Gestionar datos del usuario ${empleado?.nombre ?? ""}`}
           onClose={() => {
             setOpenModalPermissions({ isOpen: !openModalPermissions.isOpen, userId: null });
             setRol("");
@@ -549,7 +552,7 @@ const Container = () => {
               <label>Nombre de usuario</label>
               <input
                 required
-                value={form.nombre ?? ""}
+                value={empleado?.nombre ?? form.nombre }
                 onChange={(e) => onChangeGeneral(e, "nombre")}
                 type="nombre"
                 placeholder="Ingresa el nombre de usuario"
@@ -559,7 +562,7 @@ const Container = () => {
               <label>Correo electrónico</label>
               <input
                 required
-                value={form.email ?? ""}
+                value={empleado?.email ?? form.email}
                 onChange={(e) => onChangeGeneral(e, "email")}
                 type="email"
                 placeholder="Ingresa el correo electrónico"
@@ -567,7 +570,7 @@ const Container = () => {
             </div>
             <div className={style.form_control}>
               <label>Rol de usuario</label>
-              <select value={rol ?? ""} onChange={onChangeRol}>
+              <select value={empleado?.id_rol ?? rol} onChange={onChangeRol}>
                 <option value="">Selecciona un rol</option>
                 {roles.map((rol: RolRepository, index: number) => (
                   <option key={index} value={rol.id}>

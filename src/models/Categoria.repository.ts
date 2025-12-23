@@ -1,5 +1,5 @@
 export interface CategoriaRepository {
     id: string;
-    nombre_categoria: string;
+    nombre: string;
     descripcion: string;
 }

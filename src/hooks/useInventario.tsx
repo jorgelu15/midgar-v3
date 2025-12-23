@@ -38,8 +38,8 @@ export const useInventario = (id_producto?: string | undefined) => {
         return res.data;
     }
 
-    const fetchGetAllCategoriasByCliente = async (id_cliente?: string) => {
-        const res = await api.get(`/inventario-fisico/cliente/${id_cliente}/categorias`);
+    const fetchGetAllCategoriasByCliente = async (id_empresa?: string) => {
+        const res = await api.get(`/productos/cliente/${id_empresa}/categorias`);
         return res.data;
     }
 
