@@ -99,7 +99,7 @@ const GestionCategorias = () => {
                     rowsPerPageOptions={[5, 10, 20]}
                     renderRow={(row: CategoriaRepository) => {
                         const rowValues = [
-                            row.nombre_categoria,
+                            row.nombre,
                             row.descripcion || "N/A",
                         ];
                         return (
