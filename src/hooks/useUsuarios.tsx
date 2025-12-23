@@ -12,7 +12,8 @@ export const useUsuarios = (empleado?: string | null, id_rol?: string | null) =>
         createCuentaEmpleados,
         updateCuentaEmpleados,
         asignarPermisos,
-        quitarPermisos, crearRol }: any = useContext(GestionDeUsuariosContext);
+        quitarPermisos, crearRol, asignarRol
+     }: any = useContext(GestionDeUsuariosContext);
     const queryClient = useQueryClient();
 
     const fetchUsuario = async () => {
@@ -98,6 +99,13 @@ export const useUsuarios = (empleado?: string | null, id_rol?: string | null) =>
         }
     });
 
+    const asignarRolMutation = useMutation({
+        mutationFn: (rol: any) => asignarRol(rol),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["roles", usuario?.empresa?.id_empresa] });
+        }
+    });
+
     const quitarPermisosMutation = useMutation({
         mutationFn: (permiso: any) => quitarPermisos(permiso),
         onSuccess: () => {
@@ -119,6 +127,7 @@ export const useUsuarios = (empleado?: string | null, id_rol?: string | null) =>
         asignarPermisosMutation,
         quitarPermisosMutation,
         crearRol,
-        usuario
+        usuario,
+        asignarRolMutation
     };
 };

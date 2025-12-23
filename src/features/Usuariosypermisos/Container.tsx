@@ -78,6 +78,7 @@ const Container = () => {
     quitarPermisosMutation,
     crearRol,
     usuario,
+    asignarRolMutation
   } = useUsuarios(openModalPermissions?.userId, openModalRol?.id_rol);
 
   
@@ -208,6 +209,23 @@ const Container = () => {
       toast.error("Por favor, selecciona un usuario");
       return;
     }
+
+    asignarRolMutation.mutate(
+      {
+        id_rol: rol,
+        id_usuario: openModalPermissions.userId,
+        id_empresa: user?.empresa.id_empresa,
+      },
+      {
+        onSuccess: () => {
+          toast.success("Rol asignado exitosamente");
+          setOpenModalPermissions({ isOpen: false, userId: null });
+        },
+        onError: (error: any) => {
+          toast.error(error.message);
+        },
+      }
+    );
 
     
   };
@@ -551,21 +569,20 @@ const Container = () => {
             <div className={style.form_control}>
               <label>Nombre de usuario</label>
               <input
-                required
                 value={empleado?.nombre ?? form.nombre }
-                onChange={(e) => onChangeGeneral(e, "nombre")}
                 type="nombre"
-                placeholder="Ingresa el nombre de usuario"
+                disabled
+                style={{color: "gray"}}
               />
             </div>
             <div className={style.form_control}>
               <label>Correo electrónico</label>
               <input
-                required
+                disabled
                 value={empleado?.email ?? form.email}
-                onChange={(e) => onChangeGeneral(e, "email")}
                 type="email"
-                placeholder="Ingresa el correo electrónico"
+                style={{color: "gray"}}
+
               />
             </div>
             <div className={style.form_control}>
