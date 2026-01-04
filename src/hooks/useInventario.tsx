@@ -7,7 +7,7 @@ import { useUserInfo } from "./useUserInfo";
 
 export const useInventario = (id_producto?: string | undefined) => {
     const { usuarioQuery } = useUserInfo();
-    const { updateProducto, abastecerInventario, createProducto, createMovimientoInventarioFisico, createCategoria }: any = useContext(InventarioFisicoContext);
+    const { updateProducto, abastecerInventario, createProducto, createMovimientoInventarioFisico, createCategoria, createExistencias }: any = useContext(InventarioFisicoContext);
     const queryClient = useQueryClient();
 
     const user = usuarioQuery.data;
@@ -109,6 +109,7 @@ export const useInventario = (id_producto?: string | undefined) => {
         createProducto,
         createMovimientoInventarioFisico,
         createCategoriaMutation,
-        abastecerInventario
+        abastecerInventario,
+        createExistencias
     };
 };

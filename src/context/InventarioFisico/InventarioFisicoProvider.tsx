@@ -90,6 +90,21 @@ const ProductoProvider = ({ children }: { children: React.ReactNode }) => {
         }
     }
 
+    const createExistencias = async (producto: any, id_empresa: any) => {
+        try {
+            const res = await api.post(`/inventario-fisico/inicializar-producto/${id_empresa}`, {producto}, {
+                withCredentials: true,
+                headers: {
+                    "Content-Type": "Application/json",
+                }
+            });
+
+            return res;
+        } catch (error) {
+            throw error;
+        }
+    }
+
     const createMovimientoInventarioFisico = async (movimientoInventario: MovimientoInventarioRepository, id_inst: string) => {
         try {
             const res = await api.post(`/inventario-fisico/movimiento-producto/${id_inst}`, {
@@ -137,7 +152,8 @@ const ProductoProvider = ({ children }: { children: React.ReactNode }) => {
                 createProducto,
                 createMovimientoInventarioFisico,
                 createCategoria,
-                abastecerInventario
+                abastecerInventario,
+                createExistencias
             }}
         >
             {children}

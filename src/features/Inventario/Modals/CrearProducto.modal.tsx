@@ -31,11 +31,10 @@ const CreateProductoModal = ({
     setIsCreateProductModalOpen,
 }: CreateProductoModalProps) => {
     const { usuario } = useAuth()
-    const { createProducto, categoriasQuery } = useInventario();
+    const { createProducto, categoriasQuery, createExistencias } = useInventario();
 
 
     const categorias = categoriasQuery?.data || [];
-    console.log(categorias);
 
     const formRef = useRef<HTMLFormElement>(null);
     const { form, onChangeGeneral, setState } = useForm(initialFormState);
@@ -117,12 +116,14 @@ const CreateProductoModal = ({
         formData.append("id_empresa", String(usuario?.id_empresa ?? ""));
         formData.append("img_producto", imageFile ? imageFile : "");             // archivo
         createProducto(formData, setProgress).then((response: any) => {
-            toast.success(response.data.message);
+            toast.success("Producto creado exitosamente");
             setIsCreateProductModalOpen(false);
         }).catch((error: any) => {
             toast.error(error.response?.data?.details);
             setProgress(null);
         });
+
+
 
     };
 
