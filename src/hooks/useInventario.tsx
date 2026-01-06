@@ -54,7 +54,9 @@ export const useInventario = (id_producto?: string | undefined) => {
         queryKey: ["productos", user?.empresa?.id_empresa],
         queryFn: () => fetchProductos(user?.empresa?.id_empresa), // Ya no recibe page
         enabled: user?.empresa?.id_empresa != null,
-        refetchOnWindowFocus: true
+        refetchOnWindowFocus: true,
+        staleTime: 1000 * 60 * 10,     // 10 min
+        gcTime: 1000 * 60 * 60,
     });
 
     const valorInventarioFisicoQuery = useQuery({

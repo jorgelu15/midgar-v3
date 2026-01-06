@@ -27,7 +27,8 @@ export const routes = {
 
     catalogo: "/contabilidad/catalogo-cuentas",
 
-
+    //rutas de la nomina
+    nomina: "/nomina",
 
     // Ajustes
     ajustes: "/ajustes",

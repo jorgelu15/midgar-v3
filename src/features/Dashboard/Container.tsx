@@ -7,6 +7,7 @@ import caja from "../../assets/caja.svg";
 import clientes from "../../assets/clientes.png";
 import InventarioFisico from "../../assets/inventario.png";
 import contabilidadIcon from "../../assets/contabilidad.svg";
+import nominaIcon from "../../assets/nomina.svg";
 import fiados from "../../assets/fiado.png";
 import stats from "../../assets/stats.png";
 import settings from "../../assets/settings.png";
@@ -25,7 +26,8 @@ const menuItems = [
     { shortcode: "5", image: fiados, title: "Fiados", codigo_permiso: "GESTION_FIADOS", destiny: routes.fiados },
     { shortcode: "6", image: stats, title: "Estadísticas", codigo_permiso: "GESTION_ESTADISTICAS", destiny: routes.estadisticas },
     { shortcode: "7", image: contabilidadIcon, title: "Contabilidad", codigo_permiso: "GESTION_CONTABILIDAD", destiny: routes.contabilidad },
-    { shortcode: "8", image: settings, title: "Ajustes", codigo_permiso: "GESTION_AJUSTES", destiny: routes.ajustes },
+    { shortcode: "8", image: nominaIcon, title: "Nomina", codigo_permiso: "GESTION_NOMINA", destiny: routes.nomina },
+    { shortcode: "9", image: settings, title: "Ajustes", codigo_permiso: "GESTION_AJUSTES", destiny: routes.ajustes },
 ];
 
 const items = [

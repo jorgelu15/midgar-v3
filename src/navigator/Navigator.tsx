@@ -22,7 +22,7 @@ import Contabilidad from "../pages/Contabilidad/Contabilidad";
 import CatalogoCuentas from "../pages/CatalogoCuentas/CatalogoCuentas";
 import Autolavado from "../pages/Autolavado/Autolavado";
 import ConfigInventario from "../pages/ConfigInventario/ConfigInventario";
-
+import Nomina from "../pages/Nomina/Nomina";
 
 
 const router = createBrowserRouter([
@@ -211,6 +211,16 @@ const router = createBrowserRouter([
             {
                 path: routes.config_inventario,
                 element: <ConfigInventario />
+            }
+        ]
+    },
+    {
+        path: routes.signin,
+        element: <ProtectedRoute />,
+        children: [
+            {
+                path: routes.nomina,
+                element: <Nomina />
             }
         ]
     }

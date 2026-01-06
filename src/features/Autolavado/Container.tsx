@@ -21,14 +21,6 @@ import Receipt from "./receipt/Receipt";
 import { useReactToPrint } from "react-to-print";
 
 
-// Interfaces
-// interface ProductoRepository {
-//     codigo: string;
-//     nombre: string;
-//     precio_venta: number;
-//     cantidad?: number;
-// }
-
 interface CuentaLavado {
     id_cuenta_cliente: string;
     nombre: string;
@@ -65,10 +57,10 @@ const Container = () => {
     const { usuarioQuery, lavadoresQuery } = useUserInfo();
     const { productosQuery } = useInventario();
     const [progress, setProgress] = useState<number | null>(null);
-    console.log(progress)
     const [clienteNombre, setClienteNombre] = useState("");
     const [placa, setPlaca] = useState("");
     const [lavador, setLavador] = useState({ label: "", value: "" });
+    const [servicio, setServicio] = useState({ label: "", value: "" });
     const [sala, setSala] = useState({ label: "", value: "" });
     const [totatilizar, setTotatilizar] = useState(false);
 
@@ -84,7 +76,6 @@ const Container = () => {
     const { cuentasQuery, metodosPagoQuery, createCuenta, agregarProductoCuenta, cancelarCuenta, cerrarCuenta, descargarInventario } = useCuenta(cuentaSeleccionada?.id_cuenta_cliente || null);
     const ticketRef = useRef<HTMLDivElement>(null);
     const queryClient = useQueryClient();
-    console.log(ultimoProducto)
     // Sincroniza productos de cuentaSeleccionada en cuentasQuery (React Query)
     // Se ejecuta cada vez que cambia cuentaSeleccionada
     useEffect(() => {
@@ -324,7 +315,6 @@ const Container = () => {
         inputRef.current?.focus();
     };
 
-    console.log(medioSeleccionado)
 
     const handlerConfirmarVenta = () => {
         if (faltante > 0) {
@@ -444,6 +434,7 @@ const Container = () => {
     const handlePrint = useReactToPrint({
         contentRef: ticketRef
     });
+    console.log(productosQuery.data?.existencias)
 
     return (
         <div className="container" style={{ marginTop: 0 }}>
@@ -522,6 +513,19 @@ const Container = () => {
                         onChange={(e) => setPlaca(e.target.value)}
                         required
                     />
+                </div>
+                <div className={style.form_control}>
+                    <label>Servicio*</label>
+                    <SelectSearch
+                        options={
+                            (productosQuery.data?.existencias ?? [])
+                                .filter((p: any) => (p.nombre ?? "").toLowerCase().includes("servicio"))
+                                .map((p: any) => ({ label: p.nombre, value: String(p.id_producto) }))
+                        }
+                        value={servicio}
+                        onSelect={(option) => setServicio({ label: option.label, value: String(option.value) })}
+                    />
+
                 </div>
                 <div className={style.form_control}>
                     <label>Lavador*</label>
