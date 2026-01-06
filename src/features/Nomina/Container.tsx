@@ -7,7 +7,6 @@ import { useForm } from "../../hooks/useForm";
 import { routes } from "../../utils/routes";
 import style from "./container.module.css";
 import Modal from "../../components/modales/Modal";
-import borrar from "../../assets/borrar.svg";
 import payEmployee from "../../assets/nomina.svg";
 import volver from "../../assets/volver.svg";
 import { useShortcuts } from "../../hooks/useShortcodes";
@@ -61,11 +60,6 @@ const Container = () => {
     setShowEditModal(true);
   };
 
-  const onOpenDeleteCliente = (cliente: ClienteRepository) => {
-    setSelectedClient(cliente);
-
-    setShowDeleteModal(true);
-  }
 
 
   // Atajos

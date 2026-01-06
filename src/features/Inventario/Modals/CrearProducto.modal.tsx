@@ -31,7 +31,7 @@ const CreateProductoModal = ({
     setIsCreateProductModalOpen,
 }: CreateProductoModalProps) => {
     const { usuario } = useAuth()
-    const { createProducto, categoriasQuery, createExistencias } = useInventario();
+    const { createProducto, categoriasQuery } = useInventario();
 
 
     const categorias = categoriasQuery?.data || [];
@@ -116,6 +116,7 @@ const CreateProductoModal = ({
         formData.append("id_empresa", String(usuario?.id_empresa ?? ""));
         formData.append("img_producto", imageFile ? imageFile : "");             // archivo
         createProducto(formData, setProgress).then((response: any) => {
+            console.log(response);
             toast.success("Producto creado exitosamente");
             setIsCreateProductModalOpen(false);
         }).catch((error: any) => {

@@ -57,6 +57,7 @@ const Container = () => {
     const { usuarioQuery, lavadoresQuery } = useUserInfo();
     const { productosQuery } = useInventario();
     const [progress, setProgress] = useState<number | null>(null);
+    console.log(progress)
     const [clienteNombre, setClienteNombre] = useState("");
     const [placa, setPlaca] = useState("");
     const [lavador, setLavador] = useState({ label: "", value: "" });
@@ -72,6 +73,7 @@ const Container = () => {
     const [cuentaSeleccionada, setCuentaSeleccionada] = useState<CuentaLavado | null>(null);
     const [productosFactura, setProductosFactura] = useState<ProductoRepository[]>([]);
     const [ultimoProducto, setUltimoProducto] = useState<ProductoRepository | null>(null);
+    console.log(ultimoProducto)
     const { form, onChangeGeneral, resetForm } = useForm({ codigo: "" });
     const { cuentasQuery, metodosPagoQuery, createCuenta, agregarProductoCuenta, cancelarCuenta, cerrarCuenta, descargarInventario } = useCuenta(cuentaSeleccionada?.id_cuenta_cliente || null);
     const ticketRef = useRef<HTMLDivElement>(null);
