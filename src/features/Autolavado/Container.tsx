@@ -78,6 +78,7 @@ const Container = () => {
     const queryClient = useQueryClient();
     // Sincroniza productos de cuentaSeleccionada en cuentasQuery (React Query)
     // Se ejecuta cada vez que cambia cuentaSeleccionada
+
     useEffect(() => {
         if (!cuentaSeleccionada) return;
         queryClient.setQueryData(
@@ -178,7 +179,7 @@ const Container = () => {
     const handleAgregarCuenta = (event: React.FormEvent) => {
         event.preventDefault();
 
-        if (clienteNombre.trim() === "" || placa.trim() === "" || lavador.value === "" || sala.value === "") {
+        if (clienteNombre.trim() === "" || placa.trim() === "" || lavador.value === "" || sala.value === "" || servicio.value === ""    ) {
             toast.error(`Faltan campos obligatorios.`);
             return;
         }
@@ -189,7 +190,8 @@ const Container = () => {
             placa: placa,
             id_usuario: lavador.value,
             sala: sala.value,
-            productos: productosFactura
+            productos: productosFactura,
+            servicio: servicio.value
         };
 
         createCuenta(cuenta, usuarioQuery?.data?.empresa.id_empresa, setProgress).then((response: any) => {
@@ -434,7 +436,6 @@ const Container = () => {
     const handlePrint = useReactToPrint({
         contentRef: ticketRef
     });
-    console.log(productosQuery.data?.existencias)
 
     return (
         <div className="container" style={{ marginTop: 0 }}>
@@ -515,7 +516,7 @@ const Container = () => {
                     />
                 </div>
                 <div className={style.form_control}>
-                    <label>Servicio*</label>
+                    <label>Servicio de lavado*</label>
                     <SelectSearch
                         options={
                             (productosQuery.data?.existencias ?? [])
