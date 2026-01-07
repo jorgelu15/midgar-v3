@@ -12,7 +12,6 @@ const CuentaProvider = ({ children }: { children: React.ReactNode }) => {
 
 
     const createCuenta = async (cuenta: CuentaLavado, id_empresa: number, setProgress: any) => {
-        console.log(cuenta, id_empresa)
         try {
             const res = await api.post(`/ventas-y-servicios/cuenta`, {cuenta: cuenta, id_empresa: id_empresa},
             {

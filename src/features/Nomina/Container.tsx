@@ -14,6 +14,7 @@ import { useClientes } from "../../hooks/useClientes";
 import type { ClienteRepository } from "../../models/Cliente.repository";
 import { Bounce, toast, ToastContainer } from "react-toastify";
 import { useUserInfo } from "../../hooks/useUserInfo";
+import { useNomina } from "../../hooks/useNomina";
 
 const items = [
   { label: "Dashboard", href: routes.dashboard },
@@ -27,10 +28,10 @@ const menuItems = [
 const Container = () => {
   const navigate = useNavigate();
   const { usuarioQuery } = useUserInfo();
+  const { nominaQuery } = useNomina();
   const { clientesQuery, createClienteMutation, updateClienteMutation, deleteClienteMutation } = useClientes();
   const user = usuarioQuery.data;
   const clientes: ClienteRepository[] = clientesQuery.data || [];
-
 
   const { form, onChangeGeneral, setState } = useForm({
     query: "",
@@ -335,7 +336,7 @@ const Container = () => {
         </form>
       </Modal>
 
-    
+
       <ToastContainer position="bottom-right" autoClose={5000} transition={Bounce} />
 
     </div>
