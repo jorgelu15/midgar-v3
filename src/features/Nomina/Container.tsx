@@ -11,10 +11,11 @@ import payEmployee from "../../assets/nomina.svg";
 import volver from "../../assets/volver.svg";
 import { useShortcuts } from "../../hooks/useShortcodes";
 import { useClientes } from "../../hooks/useClientes";
-import type { ClienteRepository } from "../../models/Cliente.repository";
 import { Bounce, toast, ToastContainer } from "react-toastify";
 import { useUserInfo } from "../../hooks/useUserInfo";
 import { useNomina } from "../../hooks/useNomina";
+import type { NominaDTO } from "../../models/dtos/nomina.dto";
+import SkeletonTable from "../../components/skeleton/SkeletonTable";
 
 const items = [
   { label: "Dashboard", href: routes.dashboard },
@@ -29,9 +30,9 @@ const Container = () => {
   const navigate = useNavigate();
   const { usuarioQuery } = useUserInfo();
   const { nominaQuery } = useNomina();
-  const { clientesQuery, createClienteMutation, updateClienteMutation, deleteClienteMutation } = useClientes();
+  const { createClienteMutation, updateClienteMutation } = useClientes();
   const user = usuarioQuery.data;
-  const clientes: ClienteRepository[] = clientesQuery.data || [];
+  const nomina: NominaDTO[] = nominaQuery.data?.payrolls || [];
 
   const { form, onChangeGeneral, setState } = useForm({
     query: "",
@@ -46,17 +47,14 @@ const Container = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showCreateModal, setShowCreateModal] = useState(false);
 
-  const [selectedClient, setSelectedClient] = useState<ClienteRepository | null>(null);
+  const [selectedClient, setSelectedClient] = useState<NominaDTO | null>(null);
 
-  const onOpenEditCliente = (cliente: ClienteRepository) => {
-    setSelectedClient(cliente);
+  const onOpenEditCliente = (empleado: NominaDTO) => {
+    setSelectedClient(empleado);
     setState((prev: any) => ({
       ...prev,
-      cedula: cliente.cedula || "",
-      nombre: cliente.nombre || "",
-      telefono: cliente.telefono || "",
-      direccion: cliente.direccion || "",
-      email: cliente.email || "",
+      nombre: empleado.empleado?.nombre || "",
+      email: empleado.empleado?.email || "",
     }));
     setShowEditModal(true);
   };
@@ -71,28 +69,32 @@ const Container = () => {
   useShortcuts(shortcuts);
 
   const header_items = [
-    "Cédula",
     "Nombre",
-    "Teléfono",
+    "Email",
     "Total a pagar",
     "Acciones",
   ];
 
   const filteredRows = useMemo(() => {
-    const query = form?.query.toLowerCase();
-    if (!query) return clientes;
+    const query = form.query.trim().toLowerCase();
+    if (!query) return nomina;
 
-    return clientes.filter((row: ClienteRepository) => {
-      return Object.values(row).some(value => {
-        const text = String(value).toLowerCase();
+    return nomina.filter((row) => {
+      const nombre = row.empleado?.nombre?.toLowerCase() ?? "";
+      const email = row.empleado?.email?.toLowerCase() ?? "";
+      const total = String(row.total_pagar ?? "").toLowerCase();
 
-        if (text.includes(query)) return true;
+      // match directo
+      if (nombre.includes(query) || email.includes(query) || total.includes(query)) return true;
 
-        const similarity = stringSimilarity.compareTwoStrings(text, query);
-        return similarity > 0.8;
-      });
+      // match por similitud (opcional)
+      const similarityNombre = stringSimilarity.compareTwoStrings(nombre, query);
+      const similarityEmail = stringSimilarity.compareTwoStrings(email, query);
+
+      return similarityNombre > 0.8 || similarityEmail > 0.8;
     });
-  }, [form.query, clientes]);
+  }, [form.query, nomina]);
+
 
 
   const onCreateCliente = (e: React.FormEvent<HTMLFormElement>) => {
@@ -159,27 +161,6 @@ const Container = () => {
     setShowEditModal(false);
   }
 
-  const onDeleteCliente = () => {
-    if (!selectedClient) {
-      toast.error("Por favor, selecciona un cliente.");
-      return;
-    }
-
-    deleteClienteMutation.mutate(
-      selectedClient.cedula,
-      {
-        onSuccess: () => {
-          toast.success("Cliente eliminado exitosamente");
-          setShowDeleteModal(false);
-        },
-        onError: (error: any) => {
-          toast.error(error.message);
-        },
-      }
-    );
-    setShowDeleteModal(false);
-
-  }
   return (
     <div className="container">
       <Breadcrumb items={items} />
@@ -199,30 +180,34 @@ const Container = () => {
         </div>
 
         <div className={style.table_container}>
-          <Table
-            headers={header_items}
-            data={filteredRows}
-            rowsPerPageOptions={[5, 10, 20]}
-            defaultRowsPerPage={5}
-            renderRow={(row) => {
-              const rowValues = [
-                row.cedula,
-                row.nombre,
-                row.telefono,
-                row.direccion
-              ];
-              return (
-                <>
-                  {rowValues.map((cell, i) => (
-                    <td key={i}>{cell}</td>
-                  ))}
-                  <td>
-                    <img src={payEmployee} onClick={() => onOpenEditCliente(row)} />
-                  </td>
-                </>
-              );
-            }}
-          />
+          {nominaQuery.isLoading ? (
+            <SkeletonTable cols={4} rows={5} />
+          ) :
+            <Table
+              headers={header_items}
+              data={filteredRows}
+              rowsPerPageOptions={[5, 10, 20]}
+              defaultRowsPerPage={5}
+              renderRow={(row) => {
+                const rowValues = [
+                  row.empleado?.nombre,
+                  row.empleado?.email,
+                  row.total_pagar
+                ];
+                return (
+                  <>
+                    {rowValues.map((cell, i) => (
+                      <td key={i}>{cell}</td>
+                    ))}
+                    <td>
+                      <img src={payEmployee} onClick={() => onOpenEditCliente(row)} />
+                    </td>
+                  </>
+                );
+              }}
+            />
+          }
+
         </div>
 
         {/* Atajos */}
@@ -282,7 +267,7 @@ const Container = () => {
       </Modal>
       {/* Modal Editar Cliente */}
       <Modal
-        title={`Editar cliente: ${selectedClient?.nombre}`}
+        title={`Editar cliente: ${selectedClient?.empleado?.nombre}`}
         isOpen={showEditModal}
         onClose={() => setShowEditModal(false)}
         size="md"
@@ -320,11 +305,11 @@ const Container = () => {
       </Modal>
       {/* Modal Eliminar Cliente */}
       <Modal
-        title={`Eliminar cliente: ${selectedClient?.nombre}`}
+        title={`Eliminar cliente: ${selectedClient?.empleado?.nombre}`}
         isOpen={showDeleteModal}
         onClose={() => setShowDeleteModal(false)}
       >
-        <form className={style.form_cliente} onSubmit={onDeleteCliente}>
+        <form className={style.form_cliente}>
           <div className={style.modal_footer_actions}>
             <button className="btn btn_secondary" onClick={() => setShowEditModal(false)}>
               Cancelar
