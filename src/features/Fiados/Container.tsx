@@ -92,7 +92,6 @@ const Container = () => {
 
     const onAsignarCupo = (e: React.MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
-        console.log(selectedClient);
         if(selectedClient === null || selectedClient?.clientes?.id_cliente === null) {
             toast.error("Debe seleleccionar un cliente para realizar esta acción");
             return;
