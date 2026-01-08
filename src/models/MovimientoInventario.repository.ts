@@ -1,7 +1,7 @@
 export interface MovimientoInventarioRepository {
     id_producto: number;
     id_inst: number;
-    id_usuario: number;
+    usuario: number;
     tipo_movimiento: 'ENTRADA' | 'SALIDA';
     motivo: string;
     cantidad: number;

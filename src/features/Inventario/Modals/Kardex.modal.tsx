@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import Modal from "../../../components/modales/Modal";
 import SkeletonTable from "../../../components/skeleton/SkeletonTable";
 import Table from "../../../components/tables/Table";
@@ -6,6 +7,7 @@ import { useUserInfo } from "../../../hooks/useUserInfo";
 import type { MovimientoInventarioRepository } from "../../../models/MovimientoInventario.repository";
 import type { ProductoRepository } from "../../../models/Producto.repository";
 import style from "../container.module.css"
+import { useQueries } from "@tanstack/react-query";
 
 interface KardexModalProps {
     isKardexModalOpen: boolean;
@@ -20,10 +22,52 @@ const KardexModal = ({
     selectedProduct,
     openAdjustStockModal
 }: KardexModalProps) => {
-    const { usuarioQuery } = useUserInfo();
+    const { usuarioQuery, fetchUsuarioById } = useUserInfo();
     const usuario = usuarioQuery?.data || "Desconocido";
     const { movimientosInventarioQuery } = useInventario(String(selectedProduct?.id_producto));
     const movimientos: MovimientoInventarioRepository[] = movimientosInventarioQuery?.data?.movimientos || [];
+
+
+    const userIds = useMemo(() => {
+        const ids = new Set<number>();
+
+        (movimientos ?? []).forEach((m) => {
+            if (m.usuario != null && m.usuario !== usuario?.id_usuario) {
+                ids.add(Number(m.usuario));
+            }
+        });
+
+        return Array.from(ids);
+    }, [movimientos, usuario?.id_usuario]);
+
+    const usersQueries = useQueries({
+        queries: userIds.map((id) => ({
+            queryKey: ["usuario", id],
+            queryFn: () => fetchUsuarioById(id), // tu función api.get(`/gestion-de-usuarios/usuarios/${id}`)
+            enabled: !!id,
+            staleTime: 1000 * 60 * 5, // cache 5 min
+        })),
+    });
+
+    const usersById = useMemo(() => {
+        const map = new Map<number, any>();
+        usersQueries.forEach((q, i) => {
+            if (q.data) map.set(userIds[i], q.data);
+        });
+        return map;
+    }, [usersQueries, userIds]);
+
+    const nombreUsuario = (idUsuario: number) => {
+        if (!usuario?.id_usuario) return String(idUsuario);
+
+        if (idUsuario === usuario.id_usuario) return "Tú";
+
+        const u = usersById.get(idUsuario);
+        if (!u) return "Cargando..."; // o idUsuario
+        return u.nombre ?? u.email ?? `Usuario ${idUsuario}`;
+    };
+
+
 
 
     return (
@@ -94,12 +138,13 @@ const KardexModal = ({
                         defaultRowsPerPage={5}
                         rowsPerPageOptions={[5, 10, 20]}
                         renderRow={(row) => {
+                            console.log(row)
                             const rowValues = [
                                 row.tipo_movimiento,
                                 row.motivo,
                                 row.cantidad,
                                 row.costo_unitario,
-                                usuario?.nombre === row.id_usuario ? "Tú" : row.id_usuario,
+                                nombreUsuario(Number(row.usuario)),
                             ];
                             return (
                                 <>

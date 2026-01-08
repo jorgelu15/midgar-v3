@@ -105,14 +105,13 @@ const ProductoProvider = ({ children }: { children: React.ReactNode }) => {
         }
     }
 
-    const createMovimientoInventarioFisico = async (movimientoInventario: MovimientoInventarioRepository, id_inst: string) => {
+    const createMovimientoInventarioFisico = async (movimientoInventario: MovimientoInventarioRepository, id_empresa: string) => {
         try {
-            const res = await api.post(`/inventario-fisico/movimiento-producto/${id_inst}`, {
+            const res = await api.post(`/inventario-fisico/kardex/movimiento-producto/${id_empresa}`, {
                 movimientoInventario
             }, {
                 withCredentials: true
             });
-            console.log(res)
 
             return res;
         } catch (error: any) {

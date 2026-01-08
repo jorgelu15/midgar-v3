@@ -46,7 +46,6 @@ const AjustarStockModal = ({
             return;
         }
 
-
         const movimiento: any = {
             id_producto: Number(selectedProduct?.id_producto),
             tipo_movimiento: form.movimiento,
@@ -61,7 +60,7 @@ const AjustarStockModal = ({
         };
 
 
-        createMovimientoInventarioFisico(movimiento, usuario?.id_inst)
+        createMovimientoInventarioFisico(movimiento, usuario?.id_empresa)
             .then((data: any) => {
                 console.log(data)
                 toast.success("Movimiento registrado con éxito");

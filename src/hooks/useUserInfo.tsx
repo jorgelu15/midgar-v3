@@ -14,6 +14,11 @@ export const useUserInfo = () => {
         return res.data;
     };
 
+    const fetchUsuarioById = async (id: number) => {
+        const res = await api.get(`/gestion-de-usuarios/usuarios/${id}`);
+        return res.data;
+    };
+
     const usuarioQuery = useQuery({
         queryKey: ["usuario", usuario?.id_usuario],
         queryFn: fetchUsuario,
@@ -21,15 +26,18 @@ export const useUserInfo = () => {
         enabled: usuario?.id_usuario != null
     });
 
+    
+
     const lavadoresQuery = useQuery({
         queryKey: ["lavadores"],
         queryFn: fetchLavadores,
         refetchOnWindowFocus: true,
         enabled: true
     });
-    
+
     return {
         usuarioQuery,
+        fetchUsuarioById,
         lavadoresQuery
     };
 };
