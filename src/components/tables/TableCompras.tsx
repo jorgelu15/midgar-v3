@@ -2,100 +2,81 @@ import React, { useState } from "react";
 import Table from "./Table";
 import style from "./table.module.css";
 import { useInventario } from "../../hooks/useInventario";
-
+import borrar from "../../assets/borrar.svg";
 interface Producto {
   id: number;
   nombre: string;
-  precio: number;
+  costo: number;
   descuento: number;
   impuesto: number;
   cantidad: number;
   observaciones: string;
 }
 
-// const productosDisponibles: Producto[] = [
-//   {
-//     id: 1,
-//     nombre: "Arroz Diana 1Kg",
-//     precio: 4500,
-//     descuento: 0,
-//     impuesto: 0,
-//     cantidad: 1,
-//     observaciones: "",
-//   },
-//   {
-//     id: 2,
-//     nombre: "Aceite Girasol 900ml",
-//     precio: 9800,
-//     descuento: 0,
-//     impuesto: 0,
-//     cantidad: 1,
-//     observaciones: "",
-//   },
-// ];
-
-// const codigosBarras: Record<string, number> = {
-//   "7701234567890": 1,
-//   "7709876543210": 2,
-// };
-
-const TableCompras: React.FC<any> = ( { productos, setProductos } ) => {
-  // const [productos, setProductos] = useState<Producto[]>([]);
+const TableCompras: React.FC<any> = ({ productos, setProductos }) => {
   const [codigoBusqueda, setCodigoBusqueda] = useState("");
 
   const { productosQuery } = useInventario();
+  const productosDisponibles = productosQuery.data?.existencias || [];
 
+  /* ============================
+     AGREGAR POR CÓDIGO (ENTER)
+  ============================ */
+  const agregarPorCodigo = (codigo: string) => {
+    const code = codigo.trim();
+    if (code.length < 1) return;
 
-  const handleBuscarPorCodigo = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const codigo = e.target.value;
-    setCodigoBusqueda(codigo);
+    const productoEncontrado = productosDisponibles.find(
+      (p: any) => String(p.codigo) === String(code)
+    );
 
-    // if (codigo.length >= 6 && codigosBarras[codigo]) {
-    //   const id = codigosBarras[codigo];
-    //   const productoEncontrado = productosDisponibles.find((p) => p.id === id);
+    if (!productoEncontrado) return;
 
-    //   if (productoEncontrado) {
-    //     const yaExiste = productos.some((p) => p.nombre === productoEncontrado.nombre);
-    //     if (!yaExiste) {
-    //       setProductos((prev) => [
-    //         ...prev,
-    //         {
-    //           ...productoEncontrado,
-    //           id: Date.now(),
-    //         },
-    //       ]);
-    //       setCodigoBusqueda("");
-    //     }
-    //   }
-    // }
-    if (codigo.length >= 3) {
-      const productoEncontrado = productosQuery.data?.find((p: any) => p.codigo === codigo);
-      const resultado = productoEncontrado
-        ? [{
-          id: productoEncontrado.id_producto,
-          nombre: productoEncontrado.nombre,
-          precio: productoEncontrado.costo,
-          descuento: 0,
-          impuesto: 0,
-          cantidad: productoEncontrado.cantidad,
-          observaciones: "",
-        }]
-        : [];
-      if (productoEncontrado) {
-        const yaExiste = productos.some((p: any) => p.nombre === productoEncontrado.nombre);
-        if (!yaExiste) {
-          setProductos((prev: any) => [
-            ...prev,
-            {
-              ...resultado[0],
-            },
-          ]);
-          setCodigoBusqueda("");
-        }
-      }
+    const yaExiste = productos.some(
+      (p: any) => p.id === productoEncontrado.id_producto
+    );
+    if (yaExiste) {
+      setCodigoBusqueda("");
+      return;
+    }
+
+    setProductos((prev: any) => [
+      ...prev,
+      {
+        id_producto: productoEncontrado.id_producto,
+        nombre: productoEncontrado.nombre,
+        costo: Number(productoEncontrado.costo),
+        descuento: 0,
+        impuesto: 0,
+        cantidad: 1,
+        observaciones: "",
+      },
+    ]);
+
+    setCodigoBusqueda("");
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setCodigoBusqueda(e.target.value);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      agregarPorCodigo(codigoBusqueda);
     }
   };
 
+  /* ============================
+     ELIMINAR PRODUCTO
+  ============================ */
+  const eliminarProducto = (id: number) => {
+    setProductos((prev: any) => prev.filter((p: any) => p.id !== id));
+  };
+
+  /* ============================
+     EDITAR CAMPOS
+  ============================ */
   const actualizarCampo = (
     id: number,
     campo: keyof Producto,
@@ -105,20 +86,23 @@ const TableCompras: React.FC<any> = ( { productos, setProductos } ) => {
       prev.map((prod: any) =>
         prod.id === id
           ? {
-            ...prod,
-            [campo]:
-              campo === "nombre" || campo === "observaciones"
-                ? valor
-                : parseFloat(valor as string),
-          }
+              ...prod,
+              [campo]:
+                campo === "nombre" || campo === "observaciones"
+                  ? valor
+                  : Number(valor),
+            }
           : prod
       )
     );
   };
 
   const calcularTotal = (p: Producto) =>
-    ((p.precio - p.descuento + p.impuesto) * p.cantidad).toFixed(2);
+    ((p.costo - p.descuento + p.impuesto) * p.cantidad).toFixed(2);
 
+  /* ============================
+     TABLA
+  ============================ */
   const headers = [
     "Producto",
     "Precio",
@@ -127,6 +111,7 @@ const TableCompras: React.FC<any> = ( { productos, setProductos } ) => {
     "Cantidad",
     "Observaciones",
     "Total",
+    "Acciones",
   ];
 
   const renderRow = (prod: Producto) => (
@@ -134,15 +119,19 @@ const TableCompras: React.FC<any> = ( { productos, setProductos } ) => {
       <td>
         <input
           value={prod.nombre}
-          onChange={(e) => actualizarCampo(prod.id, "nombre", e.target.value)}
+          onChange={(e) =>
+            actualizarCampo(prod.id, "nombre", e.target.value)
+          }
           className={style.input}
         />
       </td>
       <td>
         <input
           type="number"
-          value={prod.precio}
-          onChange={(e) => actualizarCampo(prod.id, "precio", e.target.value)}
+          value={prod.costo}
+          onChange={(e) =>
+            actualizarCampo(prod.id, "costo", e.target.value)
+          }
           className={style.input}
         />
       </td>
@@ -150,7 +139,9 @@ const TableCompras: React.FC<any> = ( { productos, setProductos } ) => {
         <input
           type="number"
           value={prod.descuento}
-          onChange={(e) => actualizarCampo(prod.id, "descuento", e.target.value)}
+          onChange={(e) =>
+            actualizarCampo(prod.id, "descuento", e.target.value)
+          }
           className={style.input}
         />
       </td>
@@ -158,7 +149,9 @@ const TableCompras: React.FC<any> = ( { productos, setProductos } ) => {
         <input
           type="number"
           value={prod.impuesto}
-          onChange={(e) => actualizarCampo(prod.id, "impuesto", e.target.value)}
+          onChange={(e) =>
+            actualizarCampo(prod.id, "impuesto", e.target.value)
+          }
           className={style.input}
         />
       </td>
@@ -166,7 +159,9 @@ const TableCompras: React.FC<any> = ( { productos, setProductos } ) => {
         <input
           type="number"
           value={prod.cantidad}
-          onChange={(e) => actualizarCampo(prod.id, "cantidad", e.target.value)}
+          onChange={(e) =>
+            actualizarCampo(prod.id, "cantidad", e.target.value)
+          }
           className={style.input}
         />
       </td>
@@ -180,6 +175,21 @@ const TableCompras: React.FC<any> = ( { productos, setProductos } ) => {
         />
       </td>
       <td>${calcularTotal(prod)}</td>
+      <td>
+        <button
+          onClick={() => eliminarProducto(prod.id)}
+          style={{
+            background: "transparent",
+            border: "none",
+            color: "#e74c3c",
+            cursor: "pointer",
+            fontSize: "18px",
+          }}
+          title="Eliminar producto"
+        >
+          <img src={borrar} alt="eliminar" />
+        </button>
+      </td>
     </>
   );
 
@@ -190,7 +200,8 @@ const TableCompras: React.FC<any> = ( { productos, setProductos } ) => {
           type="text"
           placeholder="Escanea o escribe código de barras"
           value={codigoBusqueda}
-          onChange={handleBuscarPorCodigo}
+          onChange={handleChange}
+          onKeyDown={handleKeyDown}
           className={style.input}
         />
       </div>

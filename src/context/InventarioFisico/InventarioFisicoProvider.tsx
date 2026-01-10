@@ -23,7 +23,7 @@ const ProductoProvider = ({ children }: { children: React.ReactNode }) => {
 
     const updateProducto = async (id_producto: number, producto: ProductoRepository, id_inst: string, setProgress: any) => {
         try {
-            const res = await api.put(`/inventario-fisico/productos/${id_producto}/${id_inst}`, {cantidad: producto.cantidad}, {
+            const res = await api.put(`/inventario-fisico/productos/${id_producto}/${id_inst}`, { cantidad: producto.cantidad }, {
                 withCredentials: true,
                 headers: {
                     "Content-Type": "Application/json",
@@ -45,9 +45,13 @@ const ProductoProvider = ({ children }: { children: React.ReactNode }) => {
         }
     }
 
-    const abastecerInventario = async (id_producto: number, producto: ProductoRepository, id_inst: string, id_usuario: string, setProgress: any) => {
+    const abastecerInventario = async (compra: any, productos: any, id_empresa: string, id_usuario: string, setProgress: any) => {
         try {
-            const res = await api.put(`/inventario-fisico/abastecer-inventario/${id_producto}/${id_inst}`, {producto, id_usuario: id_usuario}, {
+            const res = await api.put(`/inventario-fisico/abastecer-inventario/${id_empresa}`, {
+                compra,
+                productos,
+                id_usuario: id_usuario
+            }, {
                 withCredentials: true,
                 headers: {
                     "Content-Type": "Application/json",
@@ -57,7 +61,6 @@ const ProductoProvider = ({ children }: { children: React.ReactNode }) => {
                     setProgress(percentage);
                 }
             });
-            console.log(res)
 
             return res;
         } catch (error) {
@@ -92,7 +95,7 @@ const ProductoProvider = ({ children }: { children: React.ReactNode }) => {
 
     const createExistencias = async (producto: any, id_empresa: any) => {
         try {
-            const res = await api.post(`/inventario-fisico/inicializar-producto/${id_empresa}`, {producto}, {
+            const res = await api.post(`/inventario-fisico/inicializar-producto/${id_empresa}`, { producto }, {
                 withCredentials: true,
                 headers: {
                     "Content-Type": "Application/json",

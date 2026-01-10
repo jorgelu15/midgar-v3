@@ -33,13 +33,35 @@ const AbastecerInventarioModal = ({
 
     const { abastecerInventario } = useInventario();
     const { usuarioQuery } = useUserInfo();
-    
+
     const user: UsuarioRepository = usuarioQuery.data;
-    
+
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         // setProgress(0)
-        abastecerInventario(productos, user.id_usuario, user.empresa.id_empresa, setProgress);
+        abastecerInventario(
+            {
+                id_empresa: user.empresa.id_empresa,
+                id_bodega: form.bodega,
+                numero_factura: form.nFactura,
+                fecha_vencimiento: form.fechaVencimiento,
+                moneda: "COP",
+                subtotal: productos.reduce((acc, p) => acc + p.costo * p.cantidad, 0),
+                descuento_total: 0,
+                impuesto_total: 0,
+                total: productos.reduce((acc, p) => acc + p.costo * p.cantidad, 0),
+                estado: "CONFIRMADA",
+                observaciones: "N/A"
+            },
+            productos,
+            user.empresa.id_empresa,
+            user.id_usuario,
+            setProgress)
+            .then(() => setIsAbastecerInventarioModalOpen(false))
+            .catch((error: any) => {
+                console.log(error)
+                throw new Error(`${error.response.data.error}`);
+            });
     }
 
     const opciones = [
@@ -66,9 +88,7 @@ const AbastecerInventarioModal = ({
                         onClick={handleSubmit}
                         disabled={progress !== null}
                     >
-                        {progress !== null
-                            ? `Creando Producto... ${progress}%`
-                            : "Abastecer"}
+                        Abastecer
                     </button>
                 </div>
             }
