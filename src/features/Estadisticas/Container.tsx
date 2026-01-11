@@ -12,6 +12,7 @@ import ProductosMasVendidos from "./ProductosMasVendidos/ProductosMasVendidos";
 import VentasPorMetodoPago from "./VentasPorMetodoPago/VentasPorMetodoPago";
 import { IngresosCostosPerdidas } from "./IngresosCostosPerdidas/IngresosCostosPerdidas";
 import { GananciaNetaMensual } from "./GanaciaNetaMensual/GananciaNetaMensual";
+import { useReportes } from "../../hooks/useReportes";
 
 const items = [
     { label: "Dashboard", href: routes.dashboard },
@@ -24,6 +25,10 @@ const menuItems = [
 
 const Container = () => {
     const navigate = useNavigate();
+    const { balanceDelDiaQuery, ventaPromedioQuery, numeroVentasDelDiaQuery } = useReportes();
+    const balanceDelDia = balanceDelDiaQuery.data?.balanceDelDia;
+    const ventaPromedio = ventaPromedioQuery.data?.ventaPromedioDelDia;
+    const numeroVentas = numeroVentasDelDiaQuery.data?.numeroVentasDelDia;
     // Atajos
     const shortcuts = menuItems.reduce((map, item) => {
         map[item.shortcode] = () => navigate(item.destiny);
@@ -58,15 +63,15 @@ const Container = () => {
                 <h1>Estadísticas</h1>
             </div>
             <div className={style.container__cardstats}>
-                <CardStat title="Balance del día" size="1/4">
-                    <p style={{ fontSize: 32 }}><b>{new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP" }).format(25000000)}</b></p>
+                <CardStat title="Ingresos del dia" size="1/4">
+                    <p style={{ fontSize: 32 }}><b>{new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP" }).format(Number(balanceDelDia))}</b></p>
                 </CardStat>
                 <CardStat title="Venta promedio" size="1/4">
-                    <p style={{ fontSize: 32 }}><b>{new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP" }).format(25000)}</b></p>
+                    <p style={{ fontSize: 32 }}><b>{new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP" }).format(Number(ventaPromedio))}</b></p>
                 </CardStat>
                 <CardStat title="Número de ventas" size="1/4">
                     <p style={{ fontSize: 32 }}>
-                        <b>{new Intl.NumberFormat("es-CO", { style: "decimal" }).format(302)}</b>
+                        <b>{new Intl.NumberFormat("es-CO", { style: "decimal" }).format(Number(numeroVentas))}</b>
                     </p>
                 </CardStat>
                 <CardStat title="Número de domicilios" size="1/4">
