@@ -7,7 +7,16 @@ import { useUserInfo } from "./useUserInfo";
 
 export const useInventario = (id_producto?: string | undefined) => {
     const { usuarioQuery } = useUserInfo();
-    const { updateProducto, abastecerInventario, createProducto, createMovimientoInventarioFisico, createCategoria, createExistencias }: any = useContext(InventarioFisicoContext);
+    const {
+        updateProducto,
+        abastecerInventario,
+        createProducto,
+        createMovimientoInventarioFisico,
+        createCategoria,
+        createExistencias,
+        createProveedor,
+        createMarca
+    }: any = useContext(InventarioFisicoContext);
     const queryClient = useQueryClient();
 
     const user = usuarioQuery.data;
@@ -42,6 +51,16 @@ export const useInventario = (id_producto?: string | undefined) => {
         const res = await api.get(`/productos/cliente/${id_empresa}/categorias`);
         return res.data;
     }
+
+    const fetchProveedores = async (id_empresa: string) => {
+        const res = await api.get(`/inventario-fisico/proveedores/${id_empresa}`);
+        return res.data;
+    };
+
+    const fetchMarcas = async (id_empresa: string) => {
+        const res = await api.get(`/inventario-fisico/marcas/${id_empresa}`);
+        return res.data;
+    };
 
     const categoriasQuery = useQuery({
         queryKey: ["categorias", user?.empresa?.id_empresa],
@@ -91,6 +110,25 @@ export const useInventario = (id_producto?: string | undefined) => {
 
     })
 
+    const proveedoresQuery = useQuery({
+        queryKey: ["proveedores", user?.empresa?.id_empresa],
+        queryFn: () => fetchProveedores(user?.empresa?.id_empresa),
+        enabled: user?.empresa?.id_empresa != null,
+        refetchOnWindowFocus: true,
+        staleTime: 1000 * 60 * 10,     // 10 min
+        gcTime: 1000 * 60 * 60,
+    });
+
+    const marcasQuery = useQuery({
+        queryKey: ["marcas", user?.empresa?.id_empresa],
+        queryFn: () => fetchMarcas(user?.empresa?.id_empresa),
+        enabled: user?.empresa?.id_empresa != null,
+        refetchOnWindowFocus: true,
+        staleTime: 1000 * 60 * 10,     // 10 min
+        gcTime: 1000 * 60 * 60,
+    });
+
+
     //mutarions
     const createCategoriaMutation = useMutation({
         mutationFn: (categoria: CategoriaDTO) => createCategoria(categoria),
@@ -98,6 +136,20 @@ export const useInventario = (id_producto?: string | undefined) => {
             queryClient.invalidateQueries({ queryKey: ["categorias", user?.empresa?.id_empresa] });
         }
     });
+
+    const createProveedorMutation = useMutation({
+        mutationFn: (proveedor: any) => createProveedor(proveedor),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["proveedores", user?.empresa?.id_empresa] });
+        }
+    });
+
+    const createMarcaMutation = useMutation({
+        mutationFn: (marca: any) => createMarca(marca),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["marcas", user?.empresa?.id_empresa] });
+        }
+    }); 
 
 
     return {
@@ -112,6 +164,10 @@ export const useInventario = (id_producto?: string | undefined) => {
         createMovimientoInventarioFisico,
         createCategoriaMutation,
         abastecerInventario,
-        createExistencias
+        createExistencias,
+        proveedoresQuery,
+        createProveedorMutation,
+        createMarcaMutation,
+        marcasQuery
     };
 };

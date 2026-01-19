@@ -25,7 +25,7 @@ const menuItems = [
     { shortcode: "1", image: permisos_usuario, title: "Usuarios y permisos", codigo_permiso: "USUARIOS_PERMISOS", destiny: routes.usuariosPermisos },
     { shortcode: "2", image: access_account, title: "Cuenta y acceso", codigo_permiso: "CUENTA_ACCESO", destiny: routes.cuentaAcceso },
     { shortcode: "3", image: business, title: "Negocio", codigo_permiso: "BUSINESS", destiny: routes.negocio },
-    { shortcode: "4", image: InventarioFisicos, title: "Inventario físico", codigo_permiso: "INVENTARIO_FISICO", destiny: routes.config_inventario },
+    { shortcode: "4", image: InventarioFisicos, title: "Inventario físico", codigo_permiso: "CONFIG_INVENTARIO_FISICO", destiny: routes.config_inventario },
     { shortcode: "5", image: ventas, title: "Ventas", codigo_permiso: "VENTAS", destiny: routes.ventasConfig },
     { shortcode: "6", image: clientes_credits, title: "Clientes y créditos", codigo_permiso: "CLIENTES_CREDITOS", destiny: routes.ajustes },
     { shortcode: "7", image: reports, title: "Reportes y estadísticas", codigo_permiso: "REPORTE_ESTADISTICA", destiny: routes.configuracionReportes },

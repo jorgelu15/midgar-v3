@@ -25,7 +25,7 @@ const headers = [
     "Correo",
     "Acciones"
 ];
-const GestionProveedores = () => {
+const GestionMediosDePago = () => {
     const { theme } = useTheme();
     const { usuarioQuery } = useUserInfo();
     const { createProveedorMutation, proveedoresQuery } = useInventario();
@@ -79,8 +79,8 @@ const GestionProveedores = () => {
         <>
             <CardGestion
                 icon={proveedores__icon}
-                title="Proveedores"
-                description="Administra los proveedores  de tus productos"
+                title="Medios de pago"
+                description="Administra los medios de pago que aceptas en tu negocio"
                 openModal={() => setOpenModalCategoria(true)}
             />
             <Modal
@@ -172,4 +172,4 @@ const GestionProveedores = () => {
     );
 }
 
-export default GestionProveedores;
+export default GestionMediosDePago;

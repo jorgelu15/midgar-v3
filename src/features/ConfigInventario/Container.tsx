@@ -3,6 +3,7 @@ import { routes } from "../../utils/routes";
 import style from "./container.module.css";
 
 import GestionCategorias from "./GestionCategorias/GestionCategorias";
+import GestionMarcas from "./GestionMarcas/GestionMarcas";
 import GestionProveedores from "./GestionProveedores/GestionProveedores";
 
 const items = [
@@ -20,9 +21,9 @@ const Container = () => {
             </div>
             <div className={style.cards}>
                 <GestionCategorias />
+                <GestionMarcas />
                 <GestionProveedores />
             </div>
-
         </div>
     );
 }

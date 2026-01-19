@@ -126,7 +126,47 @@ const ProductoProvider = ({ children }: { children: React.ReactNode }) => {
 
     const createCategoria = async (categoria: CategoriaDTO, setProgress: any) => {
         try {
-            const res = await api.post(`/inventario-fisico/cliente/${categoria.id_cliente}/categorias`, categoria,
+            const res = await api.post(`/inventario-fisico/categorias`, categoria,
+                {
+                    withCredentials: true,
+                    headers: {
+                        "Content-Type": "Application/json",
+                    },
+                    onUploadProgress: (progressEvent: AxiosProgressEvent) => {
+                        const percentage = Math.round((progressEvent.loaded * 100) / (progressEvent?.total ? progressEvent?.total : 0));
+                        setProgress(percentage);
+                    }
+                });
+
+            return res;
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    const createProveedor = async (proveedor: any, setProgress: any) => {
+        try {
+            const res = await api.post(`/inventario-fisico/proveedores`, proveedor,
+                {
+                    withCredentials: true,
+                    headers: {
+                        "Content-Type": "Application/json",
+                    },
+                    onUploadProgress: (progressEvent: AxiosProgressEvent) => {
+                        const percentage = Math.round((progressEvent.loaded * 100) / (progressEvent?.total ? progressEvent?.total : 0));
+                        setProgress(percentage);
+                    }
+                });
+
+            return res;
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    const createMarca = async (marca: any, setProgress: any) => {
+        try {
+            const res = await api.post(`/inventario-fisico/marcas`, marca,
                 {
                     withCredentials: true,
                     headers: {
@@ -155,7 +195,9 @@ const ProductoProvider = ({ children }: { children: React.ReactNode }) => {
                 createMovimientoInventarioFisico,
                 createCategoria,
                 abastecerInventario,
-                createExistencias
+                createExistencias,
+                createProveedor,
+                createMarca
             }}
         >
             {children}

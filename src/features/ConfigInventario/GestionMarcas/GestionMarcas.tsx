@@ -7,42 +7,38 @@ import CardGestion from "../../../components/cards/CardGestion";
 import Modal from "../../../components/modales/Modal";
 
 import borrar from "../../../assets/borrar.svg";
-import proveedores__icon from "../../../assets/proveedores.svg";
+import marca__icon from "../../../assets/marca.svg";
 import { useForm } from "../../../hooks/useForm";
 import Table from "../../../components/tables/Table";
 import { Bounce, toast, ToastContainer } from "react-toastify";
 import { useTheme } from "../../../context/ThemeContext/ThemeContext";
 import { useUserInfo } from "../../../hooks/useUserInfo";
-import type { ProveedorDTO } from "../../../models/dtos/proveedor.dto";
+import type { MarcaDTO } from "../../../models/dtos/marca.dto";
 
 
 
 const headers = [
-    "Nombre",
-    "Nit",
-    "Dirección",
-    "Telélefono",
-    "Correo",
+    "Nombre de la marca",
     "Acciones"
 ];
-const GestionProveedores = () => {
+const GestionMarcas = () => {
     const { theme } = useTheme();
     const { usuarioQuery } = useUserInfo();
-    const { createProveedorMutation, proveedoresQuery } = useInventario();
+    const { marcasQuery, createMarcaMutation } = useInventario();
     const [openModalCategoria, setOpenModalCategoria] = useState(false);
     const [openModalCrearProveedor, setOpenModalCrearProveedor] = useState(false);
 
     const user = usuarioQuery.data;
+    const marcas = marcasQuery.data?.marcas || [];
 
-    const proveedores = proveedoresQuery.data?.proveedores || [];
 
-    const { form, onChangeGeneral } = useForm({ query: "", nombre_proveedor: "", telefono: "", direccion: "", nit: "", correo: "" });
+    const { form, onChangeGeneral } = useForm({ query: "", nombre_marca: ""});
 
     const filteredRows = useMemo(() => {
         const query = form.query.toLowerCase();
-        if (!query) return proveedores;
+        if (!query) return marcas;
 
-        return proveedores.filter((row: ProveedorDTO) => {
+        return marcas.filter((row: MarcaDTO) => {
             return Object.values(row).some(value => {
                 const text = String(value).toLowerCase();
 
@@ -52,24 +48,24 @@ const GestionProveedores = () => {
                 return similarity > 0.8;
             });
         });
-    }, [form.query, proveedores]);
+    }, [form.query, marcas]);
 
-    const onCreateProveedores = (e: MouseEvent<HTMLButtonElement>) => {
+    const onCreateMarca = (e: MouseEvent<HTMLButtonElement>) => {
         e.preventDefault();
         if (form.nombre === "") {
             toast.warning("Por favor, completa al menos el nombre.");
             return;
         }
-        createProveedorMutation.mutate(
-            { nombre: form.nombre, descripcion: form.descripcion, id_empresa: user?.empresa.id_empresa },
+        createMarcaMutation.mutate(
+            { nombre_marca: form.nombre_marca, id_empresa: user?.empresa.id_empresa },
             {
                 onSuccess: () => {
-                    toast.success("Proveedor creado exitosamente.");
+                    toast.success("Marca creada exitosamente.");
                     setOpenModalCrearProveedor(false);
                 },
                 onError: (error: any) => {
-                    console.log("error al crear el proveedor: ", error);
-                    toast.error("Error al crear el proveedor.");
+                    console.log("error al crear la marca: ",error);
+                    toast.error("Error al crear la marca.");
                 },
             }
         );
@@ -78,20 +74,20 @@ const GestionProveedores = () => {
     return (
         <>
             <CardGestion
-                icon={proveedores__icon}
-                title="Proveedores"
-                description="Administra los proveedores  de tus productos"
+                icon={marca__icon}
+                title="Marcas"
+                description="Administra las marcas de tus productos"
                 openModal={() => setOpenModalCategoria(true)}
             />
             <Modal
                 isOpen={openModalCategoria}
                 onClose={() => setOpenModalCategoria(false)}
-                title="Gestionar proveedores"
-                size="lg"
+                title="Gestionar marcas"
+                size="md"
                 footer={
                     <div className={style.modal_footer_actions}>
                         <button className="btn" onClick={() => setOpenModalCrearProveedor(true)}>
-                            Crear nuevo proveedor
+                            Crear nueva marca
                         </button>
                     </div>
                 }
@@ -101,13 +97,9 @@ const GestionProveedores = () => {
                     data={filteredRows}
                     defaultRowsPerPage={5}
                     rowsPerPageOptions={[5, 10, 20]}
-                    renderRow={(row: ProveedorDTO) => {
+                    renderRow={(row: MarcaDTO) => {
                         const rowValues = [
-                            row.nombre_proveedor,
-                            row.nit || "N/A",
-                            row.direccion || "N/A",
-                            row.telefono || "N/A",
-                            row.correo || "N/A",
+                            row.nombre_marca
                         ];
                         return (
                             <>
@@ -123,36 +115,20 @@ const GestionProveedores = () => {
                 />
             </Modal>
             <Modal
-                title="Crear proveedor"
+                title="Crear marca"
                 isOpen={openModalCrearProveedor}
                 onClose={() => setOpenModalCrearProveedor(false)}
                 size="sm"
                 footer={
                     <div className={style.modal_footer_actions}>
                         <button className="btn btn_secondary" onClick={() => setOpenModalCrearProveedor(false)}>Cancelar</button>
-                        <button className="btn btn_primary" onClick={onCreateProveedores}>Crear proveedor</button>
+                        <button className="btn btn_primary" onClick={onCreateMarca}>Crear Marca</button>
                     </div>
                 }
             >
                 <div className="form_control">
-                    <label htmlFor="nombre_proveedor">Nombre del proveedor*</label>
-                    <input type="text" id="nombre_proveedor" name="nombre_proveedor" onChange={(e) => onChangeGeneral(e, "nombre")} value={form.nombre} />
-                </div>
-                <div className="form_control">
-                    <label htmlFor="nit">Nit</label>
-                    <input type="text" id="nit" name="nit" onChange={(e) => onChangeGeneral(e, "nit")} value={form.nit} />
-                </div>
-                <div className="form_control">
-                    <label htmlFor="telefono">Teléfono</label>
-                    <input type="text" id="telefono" name="telefono" onChange={(e) => onChangeGeneral(e, "telefono")} value={form.telefono} />
-                </div>
-                <div className="form_control">
-                    <label htmlFor="direccion">Dirección</label>
-                    <input type="text" id="direccion" name="direccion" onChange={(e) => onChangeGeneral(e, "direccion")} value={form.direccion} />
-                </div>
-                <div className="form_control">
-                    <label htmlFor="correo">Correo</label>
-                    <input type="text" id="correo" name="correo" onChange={(e) => onChangeGeneral(e, "correo")} value={form.correo} />
+                    <label htmlFor="nombre_marca">Nombre de la marca*</label>
+                    <input type="text" id="nombre_marca" name="nombre_marca" onChange={(e) => onChangeGeneral(e, "nombre_marca")} value={form.nombre_marca} />
                 </div>
             </Modal>
             <ToastContainer
@@ -172,4 +148,4 @@ const GestionProveedores = () => {
     );
 }
 
-export default GestionProveedores;
+export default GestionMarcas;

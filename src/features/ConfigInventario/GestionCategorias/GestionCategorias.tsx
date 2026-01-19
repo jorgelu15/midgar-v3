@@ -57,7 +57,7 @@ const GestionCategorias = () => {
             return;
         }
         createCategoriaMutation.mutate(
-            { nombre: form.nombre, descripcion: form.descripcion, id_cliente: user?.cliente.id_cliente },
+            { nombre: form.nombre, descripcion: form.descripcion, id_empresa: user?.empresa.id_empresa },
             {
                 onSuccess: () => {
                     toast.success("Categoría creada exitosamente.");
@@ -83,7 +83,7 @@ const GestionCategorias = () => {
                 isOpen={openModalCategoria}
                 onClose={() => setOpenModalCategoria(false)}
                 title="Gestionar categorías"
-                size="md"
+                size="lg"
                 footer={
                     <div className={style.modal_footer_actions}>
                         <button className="btn" onClick={() => setOpenModalCrearCategoria(true)}>
