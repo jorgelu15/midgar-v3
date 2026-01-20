@@ -15,7 +15,8 @@ export const useInventario = (id_producto?: string | undefined) => {
         createCategoria,
         createExistencias,
         createProveedor,
-        createMarca
+        createMarca,
+        createUnidadMedida
     }: any = useContext(InventarioFisicoContext);
     const queryClient = useQueryClient();
 
@@ -59,6 +60,11 @@ export const useInventario = (id_producto?: string | undefined) => {
 
     const fetchMarcas = async (id_empresa: string) => {
         const res = await api.get(`/inventario-fisico/marcas/${id_empresa}`);
+        return res.data;
+    };
+
+    const fetchUnidadesMedida = async (id_empresa: string) => {
+        const res = await api.get(`/inventario-fisico/unidades-medida/${id_empresa}`);
         return res.data;
     };
 
@@ -128,6 +134,15 @@ export const useInventario = (id_producto?: string | undefined) => {
         gcTime: 1000 * 60 * 60,
     });
 
+    const unidadesMedidaQuery = useQuery({
+        queryKey: ["unidades_medida", user?.empresa?.id_empresa],
+        queryFn: () => fetchUnidadesMedida(user?.empresa?.id_empresa),
+        enabled: user?.empresa?.id_empresa != null,
+        refetchOnWindowFocus: true,
+        staleTime: 1000 * 60 * 10,     // 10 min
+        gcTime: 1000 * 60 * 60,
+    });
+
 
     //mutarions
     const createCategoriaMutation = useMutation({
@@ -151,6 +166,13 @@ export const useInventario = (id_producto?: string | undefined) => {
         }
     }); 
 
+    const createUnidadMedidaMutation = useMutation({
+        mutationFn: (unidadMedida: any) => createUnidadMedida(unidadMedida),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["unidades_medida", user?.empresa?.id_empresa] });
+        }
+    });
+
 
     return {
         productosQuery,
@@ -168,6 +190,8 @@ export const useInventario = (id_producto?: string | undefined) => {
         proveedoresQuery,
         createProveedorMutation,
         createMarcaMutation,
-        marcasQuery
+        marcasQuery,
+        unidadesMedidaQuery,
+        createUnidadMedidaMutation
     };
 };

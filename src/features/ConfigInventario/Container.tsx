@@ -5,6 +5,7 @@ import style from "./container.module.css";
 import GestionCategorias from "./GestionCategorias/GestionCategorias";
 import GestionMarcas from "./GestionMarcas/GestionMarcas";
 import GestionProveedores from "./GestionProveedores/GestionProveedores";
+import GestionUnidadMedida from "./GestionUnidadMedida/GestionUnidadMedida";
 
 const items = [
     { label: "Dashboard", href: routes.dashboard },
@@ -23,6 +24,7 @@ const Container = () => {
                 <GestionCategorias />
                 <GestionMarcas />
                 <GestionProveedores />
+                <GestionUnidadMedida />
             </div>
         </div>
     );

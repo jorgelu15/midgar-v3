@@ -31,10 +31,14 @@ const CreateProductoModal = ({
     setIsCreateProductModalOpen,
 }: CreateProductoModalProps) => {
     const { usuario } = useAuth()
-    const { createProducto, categoriasQuery } = useInventario();
+    const { categoriasQuery, marcasQuery, proveedoresQuery, unidadesMedidaQuery, createProducto } = useInventario();
 
 
     const categorias = categoriasQuery?.data || [];
+    const marcas = marcasQuery?.data?.marcas || [];
+    const proveedores = proveedoresQuery?.data?.proveedores || [];
+    const unidadesMedida = unidadesMedidaQuery?.data?.unidades_medida || [];
+
 
     const formRef = useRef<HTMLFormElement>(null);
     const { form, onChangeGeneral, setState } = useForm(initialFormState);
@@ -187,9 +191,9 @@ const CreateProductoModal = ({
                 {renderInput("Precio de venta", "precioVenta", "number", "Ej: 10000")}
                 {renderInput("Cantidad actual", "cantidadActual", "number", "Ej: 50")}
                 {renderInput("Cantidad mínima", "cantidadMinima", "number", "Ej: 10")}
-                {renderSelect("Marca", "marca", ["Marca 1", "Marca 2", "Marca 3"])}
-                {renderSelect("Unidad de medida", "unidadMedida", ["Unidad 1", "Unidad 2", "Unidad 3"])}
-                {renderSelect("Proveedor", "proveedor", ["Proveedor 1", "Proveedor 2", "Proveedor 3"])}
+                {renderSelect("Marca", "marca", (marcas ?? []).map((m: any) => m.nombre_marca))}
+                {renderSelect("Unidad de medida", "unidadMedida", unidadesMedida.map((u: any) => u.nombre_unidad))}
+                {renderSelect("Proveedor", "proveedor", (proveedores ?? []).map((p: any) => p.nombre_proveedor))}
 
                 <div className={style.form_control}>
                     <label>Impuestos *</label>

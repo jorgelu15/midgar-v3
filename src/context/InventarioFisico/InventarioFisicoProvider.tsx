@@ -184,6 +184,26 @@ const ProductoProvider = ({ children }: { children: React.ReactNode }) => {
         }
     }
 
+    const createUnidadMedida = async (unidadMedida: any, setProgress: any) => {
+        try {
+            const res = await api.post(`/inventario-fisico/unidades-medida`, unidadMedida,
+                {
+                    withCredentials: true,
+                    headers: {
+                        "Content-Type": "Application/json",
+                    },
+                    onUploadProgress: (progressEvent: AxiosProgressEvent) => {
+                        const percentage = Math.round((progressEvent.loaded * 100) / (progressEvent?.total ? progressEvent?.total : 0));
+                        setProgress(percentage);
+                    }
+                });
+
+            return res;
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
     return (
         <InventarioFisicoContext.Provider
             value={{
@@ -197,7 +217,8 @@ const ProductoProvider = ({ children }: { children: React.ReactNode }) => {
                 abastecerInventario,
                 createExistencias,
                 createProveedor,
-                createMarca
+                createMarca,
+                createUnidadMedida
             }}
         >
             {children}
