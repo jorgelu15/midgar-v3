@@ -25,27 +25,17 @@ const menuItems = [
 
 const Container = () => {
     const navigate = useNavigate();
-    const { balanceDelDiaQuery, ventaPromedioQuery, numeroVentasDelDiaQuery } = useReportes();
+    const { balanceDelDiaQuery, ventaPromedioQuery, numeroVentasDelDiaQuery, ventasDelDiaQuery } = useReportes();
     const balanceDelDia = balanceDelDiaQuery.data?.balanceDelDia;
     const ventaPromedio = ventaPromedioQuery.data?.ventaPromedioDelDia;
     const numeroVentas = numeroVentasDelDiaQuery.data?.numeroVentasDelDia;
+    const ventasDelDia = ventasDelDiaQuery.data?.ventasDelDia;
     // Atajos
     const shortcuts = menuItems.reduce((map, item) => {
         map[item.shortcode] = () => navigate(item.destiny);
         return map;
     }, {} as Record<string, () => void>);
     useShortcuts(shortcuts);
-
-    const data = [
-        { hora: "08:00 AM", venta: 45000 },
-        { hora: "09:00 AM", venta: 90000 },
-        { hora: "10:00 AM", venta: 130000 },
-        { hora: "11:00 AM", venta: 180000 },
-        { hora: "12:00 PM", venta: 250000 },
-        { hora: "01:00 PM", venta: 320000 },
-        { hora: "02:00 PM", venta: 400000 },
-        { hora: "03:00 PM", venta: 450000 },
-    ];
 
     const dataPrevNext = [
         { dia: "01", actual: 100000, anterior: 80000 },
@@ -79,13 +69,23 @@ const Container = () => {
                         <b>{new Intl.NumberFormat("es-CO", { style: "decimal" }).format(40)}</b>
                     </p>
                 </CardStat> */}
-                <CardStat title="Ventas del día" size="1/2">
-                    <LineChartCustom
-                        data={data}
-                        dataKey="venta"
-                        labelKey="hora"
-                    />
-                </CardStat>
+                {
+                    ventasDelDia?.length > 0 && (
+                        <CardStat title="Ventas del día" size={ventasDelDia?.length > 0 ? "1/2" : "1"}>
+                            {
+                                ventasDelDiaQuery.isLoading ? (
+                                    <p>Cargando...</p>
+                                ) : (
+                                    <LineChartCustom
+                                        data={ventasDelDia}
+                                        labelKey="hora"
+                                        dataKey="venta"
+                                    />
+                                )
+                            }
+                        </CardStat>
+                    )
+                }
                 <CardStat title="Comparativa con el mes anterior" size="1/2">
                     <LineChartCustomMultiple
                         data={dataPrevNext}
