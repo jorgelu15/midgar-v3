@@ -64,14 +64,14 @@ const Container = () => {
             </div>
             <div className={style.container__cardstats}>
                 <CardStat title="Ingresos del dia" size="1/4">
-                    <p style={{ fontSize: 32 }}><b>{new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP" }).format(Number(balanceDelDia))}</b></p>
+                    <p style={{ fontSize: 32 }}><b>{balanceDelDiaQuery.isLoading ? "Cargando..." : new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP" }).format(Number(balanceDelDia ?? 0))}</b></p>
                 </CardStat>
                 <CardStat title="Venta promedio" size="1/4">
-                    <p style={{ fontSize: 32 }}><b>{new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP" }).format(Number(ventaPromedio))}</b></p>
+                    <p style={{ fontSize: 32 }}><b>{ventaPromedioQuery.isLoading ? "Cargando..." : new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP" }).format(Number(ventaPromedio ?? 0))}</b></p>
                 </CardStat>
                 <CardStat title="Número de ventas" size="1/4">
                     <p style={{ fontSize: 32 }}>
-                        <b>{new Intl.NumberFormat("es-CO", { style: "decimal" }).format(Number(numeroVentas))}</b>
+                        <b>{ventaPromedioQuery.isLoading ? "Cargando..." : new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP" }).format(Number(numeroVentas ?? 0))}</b>
                     </p>
                 </CardStat>
                 <CardStat title="Número de domicilios" size="1/4">
