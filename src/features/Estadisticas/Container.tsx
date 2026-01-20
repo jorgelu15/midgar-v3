@@ -25,27 +25,17 @@ const menuItems = [
 
 const Container = () => {
     const navigate = useNavigate();
-    const { balanceDelDiaQuery, ventaPromedioQuery, numeroVentasDelDiaQuery } = useReportes();
+    const { balanceDelDiaQuery, ventaPromedioQuery, numeroVentasDelDiaQuery, ventasDelDiaQuery } = useReportes();
     const balanceDelDia = balanceDelDiaQuery.data?.balanceDelDia;
     const ventaPromedio = ventaPromedioQuery.data?.ventaPromedioDelDia;
     const numeroVentas = numeroVentasDelDiaQuery.data?.numeroVentasDelDia;
+    const ventasDelDia = ventasDelDiaQuery.data?.ventasDelDia;
     // Atajos
     const shortcuts = menuItems.reduce((map, item) => {
         map[item.shortcode] = () => navigate(item.destiny);
         return map;
     }, {} as Record<string, () => void>);
     useShortcuts(shortcuts);
-
-    const data = [
-        { hora: "08:00 AM", venta: 45000 },
-        { hora: "09:00 AM", venta: 90000 },
-        { hora: "10:00 AM", venta: 130000 },
-        { hora: "11:00 AM", venta: 180000 },
-        { hora: "12:00 PM", venta: 250000 },
-        { hora: "01:00 PM", venta: 320000 },
-        { hora: "02:00 PM", venta: 400000 },
-        { hora: "03:00 PM", venta: 450000 },
-    ];
 
     const dataPrevNext = [
         { dia: "01", actual: 100000, anterior: 80000 },
@@ -63,29 +53,39 @@ const Container = () => {
                 <h1>Estadísticas</h1>
             </div>
             <div className={style.container__cardstats}>
-                <CardStat title="Ingresos del dia" size="1/4">
-                    <p style={{ fontSize: 32 }}><b>{new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP" }).format(Number(balanceDelDia))}</b></p>
+                <CardStat title="Ingresos del dia" size="1/3">
+                    <p style={{ fontSize: 32 }}><b>{balanceDelDiaQuery.isLoading ? "Cargando..." : new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP" }).format(Number(balanceDelDia ?? 0))}</b></p>
                 </CardStat>
-                <CardStat title="Venta promedio" size="1/4">
-                    <p style={{ fontSize: 32 }}><b>{new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP" }).format(Number(ventaPromedio))}</b></p>
+                <CardStat title="Venta promedio" size="1/3">
+                    <p style={{ fontSize: 32 }}><b>{ventaPromedioQuery.isLoading ? "Cargando..." : new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP" }).format(Number(ventaPromedio ?? 0))}</b></p>
                 </CardStat>
-                <CardStat title="Número de ventas" size="1/4">
+                <CardStat title="Número de ventas" size="1/3">
                     <p style={{ fontSize: 32 }}>
-                        <b>{new Intl.NumberFormat("es-CO", { style: "decimal" }).format(Number(numeroVentas))}</b>
+                        <b>{numeroVentasDelDiaQuery.isLoading ? "Cargando..." : new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP" }).format(Number(numeroVentas ?? 0))}</b>
                     </p>
                 </CardStat>
-                <CardStat title="Número de domicilios" size="1/4">
+                {/* <CardStat title="Número de domicilios" size="1/4">
                     <p style={{ fontSize: 32 }}>
                         <b>{new Intl.NumberFormat("es-CO", { style: "decimal" }).format(40)}</b>
                     </p>
-                </CardStat>
-                <CardStat title="Ventas del día" size="1/2">
-                    <LineChartCustom
-                        data={data}
-                        dataKey="venta"
-                        labelKey="hora"
-                    />
-                </CardStat>
+                </CardStat> */}
+                {
+                    ventasDelDia?.length > 0 && (
+                        <CardStat title="Ventas del día" size={ventasDelDia?.length > 0 ? "1/2" : "1"}>
+                            {
+                                ventasDelDiaQuery.isLoading ? (
+                                    <p>Cargando...</p>
+                                ) : (
+                                    <LineChartCustom
+                                        data={ventasDelDia}
+                                        labelKey="hora"
+                                        dataKey="venta"
+                                    />
+                                )
+                            }
+                        </CardStat>
+                    )
+                }
                 <CardStat title="Comparativa con el mes anterior" size="1/2">
                     <LineChartCustomMultiple
                         data={dataPrevNext}
