@@ -62,8 +62,8 @@ const CreateProductoModal = ({
             return;
         }
 
-        if (file.size > 50000) {
-            toast.error("La imagen no pueden superar los 50KB");
+        if (file.size > 70000) {
+            toast.error("La imagen no pueden superar los 70KB");
             return;
         }
 
