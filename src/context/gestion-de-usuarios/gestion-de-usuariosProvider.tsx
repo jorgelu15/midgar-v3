@@ -45,9 +45,9 @@ const GestionDeUsuariosProvider = ({ children }: { children: React.ReactNode }) 
     }
 
     const quitarPermisos = async (permiso: any) => {
-        console.log(permiso)
         try {
-            const res = await api.delete(`/gestion-de-usuarios/permisos/quitar/${permiso.id_rol}`, {
+            const res = await api.delete(`/gestion-de-usuarios/permisos/quitar/${permiso.id_permiso}`, {
+                data: permiso,
                 withCredentials: true
             });
 

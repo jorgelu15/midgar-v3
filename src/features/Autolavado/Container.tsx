@@ -36,9 +36,7 @@ interface MedioPago {
     shortcode: string;
 }
 
-const menuItems = [
-    { shortcode: "Escape", image: "", title: "Volver", destiny: routes.vender },
-];
+
 
 const Container = () => {
     const {
@@ -53,7 +51,6 @@ const Container = () => {
     const { theme } = useTheme();
     const navigate = useNavigate()
 
-    // const { usuario } = useAuth();
     const { usuarioQuery, lavadoresQuery } = useUserInfo();
     const { productosQuery } = useInventario();
     const [progress, setProgress] = useState<number | null>(null);
@@ -75,7 +72,14 @@ const Container = () => {
     const [ultimoProducto, setUltimoProducto] = useState<ProductoRepository | null>(null);
     console.log(ultimoProducto)
     const { form, onChangeGeneral, resetForm } = useForm({ codigo: "" });
-    const { cuentasQuery, metodosPagoQuery, createCuenta, agregarProductoCuenta, cancelarCuenta, cerrarCuenta, descargarInventario } = useCuenta(cuentaSeleccionada?.id_cuenta_cliente || null);
+    const { cuentasQuery,
+        metodosPagoQuery,
+        createCuenta,
+        agregarProductoCuenta,
+        cancelarCuenta,
+        cerrarCuenta,
+        descargarInventario
+    } = useCuenta(cuentaSeleccionada?.id_cuenta_cliente || null);
     const ticketRef = useRef<HTMLDivElement>(null);
     const queryClient = useQueryClient();
     // Sincroniza productos de cuentaSeleccionada en cuentasQuery (React Query)
@@ -142,46 +146,10 @@ const Container = () => {
                 });
     }
 
-    // const handleAgregarProducto = async (producto: ProductoRepository) => {
-    //     // Copia del estado actual
-    //     let updated = [...cuentaSeleccionada?.productos || []];
-
-    //     const index = updated.findIndex((p) => p.codigo === producto.codigo);
-    //     let cantidadFinal = 1;
-
-    //     if (index !== -1) {
-    //         updated[index].cantidad = (updated[index].cantidad || 0) + 1;
-    //         cantidadFinal = updated[index].cantidad;
-    //     } else {
-    //         updated.push({ ...producto, cantidad: 1 });
-    //         if (cuentaSeleccionada)
-    //             setCuentaSeleccionada({
-    //                 ...cuentaSeleccionada,
-    //                 productos: [...cuentaSeleccionada?.productos, { ...producto, cantidad: 1 }]
-    //             });
-    //     }
-
-    //     // Llamada a la API antes de setear el estado
-    //     const res = await agregarProductoCuenta(
-    //         producto.id_producto,
-    //         cantidadFinal,
-    //         usuarioQuery?.data.empresa.id_empresa,
-    //         cuentaSeleccionada?.id_cuenta_cliente,
-    //         setProgress
-    //     );
-
-    //     if (res.status === 200) {
-    //         setProductosFactura(updated);
-    //         setUltimoProducto({ ...producto, cantidad: cantidadFinal });
-    //     } else {
-    //         console.log("Error al agregar producto");
-    //     }
-    // };
-
     const handleAgregarCuenta = (event: React.FormEvent) => {
         event.preventDefault();
 
-        if (clienteNombre.trim() === "" || placa.trim() === "" || lavador.value === "" || sala.value === "" || servicio.value === ""    ) {
+        if (clienteNombre.trim() === "" || placa.trim() === "" || lavador.value === "" || sala.value === "" || servicio.value === "") {
             toast.error(`Faltan campos obligatorios.`);
             return;
         }
@@ -380,12 +348,7 @@ const Container = () => {
         { label: "Sala B", value: "B" }
     ];
 
-    const shortcuts = menuItems.reduce((map, item) => {
-        map[item.shortcode] = () => navigate(item.destiny);
-        return map;
-    }, {} as Record<string, () => void>);
 
-    useShortcuts(shortcuts);
 
     const handleKeyDown = (e: KeyboardEvent | KeyboardEvent<HTMLDivElement>) => {
         if (totatilizar && !medioSeleccionado) {
@@ -439,6 +402,17 @@ const Container = () => {
         contentRef: ticketRef
     });
 
+    const menuItems = [
+        { shortcode: "Escape", image: "", title: "Volver", destiny: routes.vender },
+        { shortcode: "F1", image: "", title: "Abrir Cuenta", destiny: openCuentaModal },
+        { shortcode: "F4", image: "", title: "Cerrar", destiny: closeCuentaModal },
+    ];
+    const shortcuts = menuItems.reduce((map, item) => {
+        map[item.shortcode] = () => item.destiny instanceof Function ? item.destiny() : navigate(item.destiny);
+        return map;
+    }, {} as Record<string, () => void>);
+
+    useShortcuts(shortcuts);
     return (
         <div className="container" style={{ marginTop: 0 }}>
             <header className={style.header}>
