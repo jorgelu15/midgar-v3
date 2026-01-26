@@ -29,6 +29,7 @@ const AjustarStockModal = ({
         cantidad: 0,
         saldo: 0,
         costo: 0,
+        precio: 0
     });
 
 
@@ -53,6 +54,7 @@ const AjustarStockModal = ({
             cantidad: form.cantidad,
             saldo: form.saldo,
             costo: form.costo,
+            precio: form.precio,
             id_usuario: usuario?.id_usuario,
             id_inst: usuario?.id_inst,
             updatedAt: new Date(),
@@ -160,6 +162,16 @@ const AjustarStockModal = ({
                         type="number"
                         value={form.costo}
                         onChange={(e) => onChangeGeneral(e, "costo")}
+                        required
+                    />
+                </div>
+
+                <div className={style.form_control}>
+                    <label>Precio por unidad *</label>
+                    <input
+                        type="number"
+                        value={form.precio}
+                        onChange={(e) => onChangeGeneral(e, "precio")}
                         required
                     />
                 </div>

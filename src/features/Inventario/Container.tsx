@@ -1,11 +1,13 @@
 import style from "./container.module.css";
 import { routes } from "../../utils/routes";
 import Breadcrumb from "../../components/breadcrumbs/Breadcrumb";
-import {  useMemo } from "react";
+import { useMemo } from "react";
 import stringSimilarity from "string-similarity";
 import { useForm } from "../../hooks/useForm";
 import borrar from "../../assets/borrar.svg";
 import status from "../../assets/status.svg";
+import edit from "../../assets/edit.svg";
+
 import volver from "../../assets/volver.svg";
 import Table from "../../components/tables/Table";
 import { useShortcuts } from "../../hooks/useShortcodes";
@@ -19,6 +21,7 @@ import AjustarStockModal from "./Modals/AjustarStock.modal";
 import KardexModal from "./Modals/Kardex.modal";
 import AbastecerInventarioModal from "./Modals/AbastecerInventario.modal";
 import SkeletonTable from "../../components/skeleton/SkeletonTable";
+import ActualizarProductoModal from "./Modals/ActualizarProducto.modal";
 
 const items = [
   { label: "Dashboard", href: routes.dashboard },
@@ -47,7 +50,9 @@ const Container = () => {
     isAdjustStockModalOpen,
     setIsAdjustStockModalOpen,
     isAbastecerModalOpen,
-    setIsAbastecerModalOpen
+    setIsAbastecerModalOpen,
+    editProduct,
+    setEditProduct
   } = useProductModals();
 
   // Construir los atajos a partir de menuItems
@@ -75,6 +80,11 @@ const Container = () => {
   const openAdjustStockModal = () => {
     setIsAdjustStockModalOpen(true);
   };
+
+  const openEditProductModal = (product: ProductoRepository) => {
+    setEditProduct(true);
+    setSelectedProduct(product);
+  }
 
   const headers = [
     "Código",
@@ -166,6 +176,7 @@ const Container = () => {
                         ))}
                         <td>
                           <img src={status} onClick={() => openKardexModal(row)} />
+                          <img src={edit} onClick={() => openEditProductModal(row)} />
                           <img src={borrar} />
                         </td>
                       </>
@@ -207,6 +218,15 @@ const Container = () => {
           <AbastecerInventarioModal
             isAbastecerInventarioModalOpen={isAbastecerModalOpen}
             setIsAbastecerInventarioModalOpen={setIsAbastecerModalOpen}
+          />
+        )}
+
+        {editProduct && (
+          <ActualizarProductoModal
+            editProduct={editProduct}
+            setEditProduct={setEditProduct}
+            setSelectedProduct={setSelectedProduct}
+            selectedProduct={selectedProduct}
           />
         )}
 
