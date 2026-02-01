@@ -4,9 +4,10 @@ interface BadgetSummaryProps {
     valorInventarioFisico: number;
     gananciaEstimada: number;
     productosAgotados: number;
+    productosInhabilitados: number;
 }
 
-const BadgetSummary = ({ valorInventarioFisico, gananciaEstimada, productosAgotados }: BadgetSummaryProps) => {
+const BadgetSummary = ({ valorInventarioFisico, gananciaEstimada, productosAgotados, productosInhabilitados }: BadgetSummaryProps) => {
     return (
         <div className={style.container__badget}>
             <div className={style.badget}>
@@ -20,6 +21,10 @@ const BadgetSummary = ({ valorInventarioFisico, gananciaEstimada, productosAgota
             <div className={style.badget}>
                 <b>Productos agotados:</b>
                 <p>{new Intl.NumberFormat("es-CO", { style: "decimal", notation: "standard" }).format(productosAgotados)}</p>
+            </div>
+            <div className={style.badget}>
+                <b>Productos deshabilitados:</b>
+                <p>{new Intl.NumberFormat("es-CO", { style: "decimal", notation: "standard" }).format(productosInhabilitados)}</p>
             </div>
         </div>
     );

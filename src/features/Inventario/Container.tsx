@@ -22,6 +22,7 @@ import KardexModal from "./Modals/Kardex.modal";
 import AbastecerInventarioModal from "./Modals/AbastecerInventario.modal";
 import SkeletonTable from "../../components/skeleton/SkeletonTable";
 import ActualizarProductoModal from "./Modals/ActualizarProducto.modal";
+import DeleteProductoModal from "./Modals/DeleteProducto.modal";
 
 const items = [
   { label: "Dashboard", href: routes.dashboard },
@@ -52,7 +53,9 @@ const Container = () => {
     isAbastecerModalOpen,
     setIsAbastecerModalOpen,
     editProduct,
-    setEditProduct
+    setEditProduct,
+    deleteProduct,
+    setDeleteProduct
   } = useProductModals();
 
   // Construir los atajos a partir de menuItems
@@ -83,6 +86,11 @@ const Container = () => {
 
   const openEditProductModal = (product: ProductoRepository) => {
     setEditProduct(true);
+    setSelectedProduct(product);
+  }
+
+  const openDeleteProductModal = (product: ProductoRepository) => {
+    setDeleteProduct(true);
     setSelectedProduct(product);
   }
 
@@ -128,6 +136,7 @@ const Container = () => {
         valorInventarioFisico={valorInventarioFisico}
         gananciaEstimada={gananciaEstimada}
         productosAgotados={productosAgotados}
+        productosInhabilitados={0}
       />
 
       <div className={style.content}>
@@ -177,7 +186,8 @@ const Container = () => {
                         <td>
                           <img src={status} onClick={() => openKardexModal(row)} />
                           <img src={edit} onClick={() => openEditProductModal(row)} />
-                          <img src={borrar} />
+                          <img src={borrar} onClick={() => openDeleteProductModal(row)} />
+
                         </td>
                       </>
                     );
@@ -229,6 +239,19 @@ const Container = () => {
             selectedProduct={selectedProduct}
           />
         )}
+
+        {deleteProduct && (
+          <DeleteProductoModal
+            isOpen={deleteProduct}
+            setIsOpen={setDeleteProduct}
+            productoSeleccionado={
+              selectedProduct
+                ? { id_producto: selectedProduct.id_producto, nombre: selectedProduct.nombre }
+                : null
+            }
+          />
+        )}
+
 
 
       </div>

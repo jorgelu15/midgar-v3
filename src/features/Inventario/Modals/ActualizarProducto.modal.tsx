@@ -224,6 +224,7 @@ const ActualizarProductoModal = ({
     }
   };
 
+
   return (
     <Modal
       title="Actualizar Producto"
@@ -253,7 +254,7 @@ const ActualizarProductoModal = ({
                 style={{ display: "none" }}
                 onChange={handleImageChange}
               />
-              {imagePreview ? (
+              {!imagePreview ? (
                 <img src={imagePreview} alt="Preview" className={style.image_preview} />
               ) : (
                 <div className={style.upload_content}>
@@ -273,12 +274,12 @@ const ActualizarProductoModal = ({
         </div>
 
         {/* 2) Selects usando IDs reales */}
-        {renderSelectObj("Categoria", "categoria", categorias.map((c: any) => ({ label: c.nombre, value: String(c.id_categoria ?? c.id) })))}
+        {renderSelectObj("Categoria", "categoria", categorias.map((c: any) => ({ label: c.nombre, value: String(c.id_categoria ?? c.id) })), form.categoria)}
         {renderInput("Costo unitario", "costoUnitario", "number", "Ej: 5000")}
         {renderInput("Precio de venta", "precioVenta", "number", "Ej: 10000")}
         {renderInput("Cantidad actual", "cantidadActual", "number", "Ej: 50")}
         {renderInput("Cantidad mínima", "cantidadMinima", "number", "Ej: 10")}
-        {renderSelectObj("Marca", "marca", marcas.map((m: any) => ({ label: m.nombre_marca, value: String(m.id_marca ?? m.id) })))}
+        {renderSelectObj("Marca", "marca", marcas.map((m: any) => ({ label: m.nombre_marca, value: String(m.id_marca ?? m.id) })), form.marca)}
         {renderSelectObj("Unidad de medida", "unidadMedida", unidadesMedida.map((u: any) => ({ label: u.nombre_unidad, value: String(u.id_unidad_medida ?? u.id) })))}
         {renderSelectObj("Proveedor", "proveedor", proveedores.map((p: any) => ({ label: p.nombre_proveedor, value: String(p.id_proveedor ?? p.id) })))}
 
@@ -338,31 +339,39 @@ const ActualizarProductoModal = ({
 
   // 4) Select controlado + values correctos
   function renderSelectObj(
-    label: string,
-    name: keyof typeof initialFormState,
-    options: { label: string; value: string }[]
-  ) {
-    return (
-      <div className={style.form_control}>
-        <label>{label} *</label>
-        <select
-          name={name}
-          value={(form as any)[name] ?? ""}
-          onChange={(e) => onChangeGeneral(e, name)}
-          required
-        >
-          <option value="" disabled>
-            Seleccionar {label.toLowerCase()}
+  label: string,
+  name: keyof typeof initialFormState,
+  options: { label: string; value: string }[],
+  preloadValue?: string // <- el valor a precargar (si existe)
+) {
+  const selected = preloadValue ?? (form as any)[name] ?? ""; // lo que tengas
+  const selectKey = `${name}-${selected}`; // <- fuerza remount si cambia
+  console.log({ preloadValue });
+  return (
+    <div className={style.form_control}>
+      <label>{label} *</label>
+
+      <select
+        key={selectKey}
+        name={name}
+        defaultValue={selected}
+        onChange={(e) => onChangeGeneral(e, name)}
+        required
+      >
+        <option value="" disabled>
+          Seleccionar {label.toLowerCase()}
+        </option>
+
+        {options?.map((opt) => (
+          <option key={opt.value} value={opt.value}>
+            {opt.label}
           </option>
-          {options?.map((opt) => (
-            <option key={opt.value} value={opt.value}>
-              {opt.label}
-            </option>
-          ))}
-        </select>
-      </div>
-    );
-  }
+        ))}
+      </select>
+    </div>
+  );
+}
+
 };
 
 export default ActualizarProductoModal;

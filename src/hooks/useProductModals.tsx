@@ -13,6 +13,7 @@ export const useProductModals = () => {
     const [openModalCuenta, setOpenModalCuenta] = useState(false);
     const [generateReceipt, setGenerateReceipt] = useState(false);
     const [editProduct, setEditProduct] = useState(false);
+    const [deleteProduct, setDeleteProduct] = useState(false);
 
     return {
         selectedProduct,
@@ -35,5 +36,7 @@ export const useProductModals = () => {
         setGenerateReceipt,
         editProduct,
         setEditProduct,
+        deleteProduct,
+        setDeleteProduct
     };
 };

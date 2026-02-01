@@ -16,7 +16,8 @@ export const useInventario = (id_producto?: string | undefined) => {
         createExistencias,
         createProveedor,
         createMarca,
-        createUnidadMedida
+        createUnidadMedida,
+        deleteProducto
     }: any = useContext(InventarioFisicoContext);
     const queryClient = useQueryClient();
 
@@ -173,6 +174,13 @@ export const useInventario = (id_producto?: string | undefined) => {
         }
     });
 
+    const deleteProductoMutation = useMutation({
+        mutationFn: (id_producto: number) => deleteProducto(id_producto),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["productos", user?.empresa?.id_empresa] });
+        }
+    })
+
 
     return {
         productosQuery,
@@ -192,6 +200,7 @@ export const useInventario = (id_producto?: string | undefined) => {
         createMarcaMutation,
         marcasQuery,
         unidadesMedidaQuery,
-        createUnidadMedidaMutation
+        createUnidadMedidaMutation,
+        deleteProductoMutation
     };
 };
