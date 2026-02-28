@@ -175,7 +175,7 @@ export const useInventario = (id_producto?: string | undefined) => {
     });
 
     const deleteProductoMutation = useMutation({
-        mutationFn: (id_producto: number) => deleteProducto(id_producto),
+        mutationFn: (id_producto: number) => deleteProducto(id_producto, usuarioQuery.data.empresa.id_empresa),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["productos", user?.empresa?.id_empresa] });
         }

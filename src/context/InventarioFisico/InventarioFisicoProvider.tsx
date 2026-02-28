@@ -33,7 +33,6 @@ const ProductoProvider = ({ children }: { children: React.ReactNode }) => {
                     setProgress(percentage);
                 }
             });
-            console.log(res)
 
             return res;
         } catch (error) {

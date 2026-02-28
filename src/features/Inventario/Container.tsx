@@ -1,12 +1,13 @@
 import style from "./container.module.css";
 import { routes } from "../../utils/routes";
 import Breadcrumb from "../../components/breadcrumbs/Breadcrumb";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import stringSimilarity from "string-similarity";
 import { useForm } from "../../hooks/useForm";
 import borrar from "../../assets/borrar.svg";
 import status from "../../assets/status.svg";
 import edit from "../../assets/edit.svg";
+import enable from "../../assets/enable.svg";
 
 import volver from "../../assets/volver.svg";
 import Table from "../../components/tables/Table";
@@ -34,13 +35,22 @@ const menuItems = [
 ];
 
 const Container = () => {
-  const { productosQuery, valorInventarioFisicoQuery, gananciaEstimadaQuery, productosAgotadosQuery } = useInventario();
+  const {
+    productosQuery,
+    valorInventarioFisicoQuery,
+    gananciaEstimadaQuery,
+    productosAgotadosQuery,
+  } = useInventario();
+
   const productos: ProductoRepository[] = productosQuery?.data?.existencias || [];
+
   const valorInventarioFisico = valorInventarioFisicoQuery.data?.valor_inventario_fisico || 0;
   const gananciaEstimada = gananciaEstimadaQuery.data?.ganancia_estimada || 0;
   const productosAgotados = productosAgotadosQuery.data?.productos_agotados || 0;
+
   const navigate = useNavigate();
   const { form, onChangeGeneral } = useForm({ query: "" });
+
   const {
     selectedProduct,
     setSelectedProduct,
@@ -55,10 +65,30 @@ const Container = () => {
     editProduct,
     setEditProduct,
     deleteProduct,
-    setDeleteProduct
+    setDeleteProduct,
   } = useProductModals();
 
-  // Construir los atajos a partir de menuItems
+  // false => mostrar habilitados
+  // true  => mostrar inhabilitados
+  const [productosInhabilitados, setProductosInhabilitados] = useState(false);
+
+  // ✅ Ajusta reglas si tu estado es diferente (ej: 1 = inhabilitado exacto)
+  const productosHabilitados = useMemo(
+    () => productos.filter((p) => p.estado === 0),
+    [productos]
+  );
+
+  const productosInhabilitadosArr = useMemo(
+    () => productos.filter((p) => p.estado !== 0),
+    [productos]
+  );
+
+  // ✅ La tabla se alimenta de esta fuente
+  const sourceRows = useMemo(
+    () => (productosInhabilitados ? productosInhabilitadosArr : productosHabilitados),
+    [productosInhabilitados, productosHabilitados, productosInhabilitadosArr]
+  );
+
   const shortcuts = menuItems.reduce((map, item) => {
     map[item.shortcode] = () => navigate(item.destiny);
     return map;
@@ -66,33 +96,24 @@ const Container = () => {
 
   useShortcuts(shortcuts);
 
-
   const openKardexModal = (product: ProductoRepository) => {
     setSelectedProduct(product);
     setIsKardexModalOpen(true);
   };
 
-  const openCreateProductModal = () => {
-    setIsCreateProductModalOpen(true);
-  }
-
-  const openAbastecerInventarioModal = () => {
-    setIsAbastecerModalOpen(true);
-  }
-
-  const openAdjustStockModal = () => {
-    setIsAdjustStockModalOpen(true);
-  };
+  const openCreateProductModal = () => setIsCreateProductModalOpen(true);
+  const openAbastecerInventarioModal = () => setIsAbastecerModalOpen(true);
+  const openAdjustStockModal = () => setIsAdjustStockModalOpen(true);
 
   const openEditProductModal = (product: ProductoRepository) => {
     setEditProduct(true);
     setSelectedProduct(product);
-  }
+  };
 
   const openDeleteProductModal = (product: ProductoRepository) => {
     setDeleteProduct(true);
     setSelectedProduct(product);
-  }
+  };
 
   const headers = [
     "Código",
@@ -106,23 +127,21 @@ const Container = () => {
     "Acciones",
   ];
 
+  // ✅ Buscar SOLO dentro de lo que estás mostrando (habilitados o inhabilitados)
   const filteredRows = useMemo(() => {
-    const query = form.query.toLowerCase();
-    if (!query) return productos;
+    const query = form.query.trim().toLowerCase();
+    if (!query) return sourceRows;
 
-    return productos.filter((row: ProductoRepository) => {
-      return Object.values(row).some(value => {
-        const text = String(value).toLowerCase();
-
+    return sourceRows.filter((row: ProductoRepository) => {
+      return Object.values(row).some((value) => {
+        const text = String(value ?? "").toLowerCase();
         if (text.includes(query)) return true;
 
         const similarity = stringSimilarity.compareTwoStrings(text, query);
         return similarity > 0.8;
       });
     });
-  }, [form.query, productos]);
-
-
+  }, [form.query, sourceRows]);
 
   return (
     <div className="container">
@@ -136,15 +155,23 @@ const Container = () => {
         valorInventarioFisico={valorInventarioFisico}
         gananciaEstimada={gananciaEstimada}
         productosAgotados={productosAgotados}
-        productosInhabilitados={0}
+        cantidadInhabilitados={productosInhabilitadosArr.length}
+        cantidadHabilitados={productosHabilitados.length}
+        productosInhabilitados={productosInhabilitados}
+        setProductosInhabilitados={setProductosInhabilitados}
       />
 
       <div className={style.content}>
         <div className={style.header__container}>
           <div style={{ display: "flex", gap: 20 }}>
-            <button className="btn btn_primary" onClick={openCreateProductModal}>Crear producto</button>
-            <button className="btn btn_secondary" onClick={openAbastecerInventarioModal}>Abastecer inventario</button>
+            <button className="btn btn_primary" onClick={openCreateProductModal}>
+              Crear producto
+            </button>
+            <button className="btn btn_secondary" onClick={openAbastecerInventarioModal}>
+              Abastecer inventario
+            </button>
           </div>
+
           <div className={style.form_control}>
             <input
               type="search"
@@ -156,50 +183,50 @@ const Container = () => {
         </div>
 
         <div className={style.table_container}>
+          {productosQuery.isLoading ? (
+            <SkeletonTable cols={9} rows={5} />
+          ) : (
+            <Table
+              headers={headers}
+              data={filteredRows}
+              defaultRowsPerPage={5}
+              rowsPerPageOptions={[5, 10, 20]}
+              renderRow={(row) => {
+                const rowValues = [
+                  row.codigo,
+                  row.nombre,
+                  row.categoria_id,
+                  row.costo,
+                  row.precio_venta,
+                  row.cantidad,
+                  row.cantidad_minima,
+                  row.estado,
+                ];
 
-          {
-            productosQuery.isLoading ? (
-              <SkeletonTable cols={9} rows={5} />
-            )
-              : (
-                <Table
-                  headers={headers}
-                  data={filteredRows}
-                  defaultRowsPerPage={5}
-                  rowsPerPageOptions={[5, 10, 20]}
-                  renderRow={(row) => {
-                    const rowValues = [
-                      row.codigo,
-                      row.nombre,
-                      row.categoria_id,
-                      row.costo,
-                      row.precio_venta,
-                      row.cantidad,
-                      row.cantidad_minima,
-                      row.estado
-                    ];
-                    return (
-                      <>
-                        {rowValues.map((cell, i) => (
-                          <td key={i}>{cell}</td>
-                        ))}
-                        <td>
-                          <img src={status} onClick={() => openKardexModal(row)} />
-                          <img src={edit} onClick={() => openEditProductModal(row)} />
-                          <img src={borrar} onClick={() => openDeleteProductModal(row)} />
-
-                        </td>
-                      </>
-                    );
-                  }}
-                />
-              )
-          }
-
-
+                return (
+                  <>
+                    {rowValues.map((cell, i) => (
+                      <td key={i}>{cell}</td>
+                    ))}
+                    <td>
+                      {
+                        productosInhabilitados && (
+                          <>
+                            <img src={status} onClick={() => openKardexModal(row)} />
+                            <img src={edit} onClick={() => openEditProductModal(row)} />
+                            <img src={borrar} onClick={() => openDeleteProductModal(row)} />
+                          </>
+                        )
+                      }
+                      {!productosInhabilitados && <img src={enable}  />}
+                    </td>
+                  </>
+                );
+              }}
+            />
+          )}
         </div>
 
-        {/* Modal Kardex */}
         {isKardexModalOpen && selectedProduct && (
           <KardexModal
             isKardexModalOpen={isKardexModalOpen}
@@ -251,9 +278,6 @@ const Container = () => {
             }
           />
         )}
-
-
-
       </div>
     </div>
   );

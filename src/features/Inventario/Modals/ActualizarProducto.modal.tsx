@@ -54,7 +54,7 @@ const ActualizarProductoModal = ({
   selectedProduct,
 }: CreateProductoModalProps) => {
   const { usuario } = useAuth();
-
+  console.log({ selectedProduct });
   // Idealmente tengas updateProducto en tu hook
   const {
     categoriasQuery,
@@ -254,7 +254,7 @@ const ActualizarProductoModal = ({
                 style={{ display: "none" }}
                 onChange={handleImageChange}
               />
-              {!imagePreview ? (
+              {imagePreview ? (
                 <img src={imagePreview} alt="Preview" className={style.image_preview} />
               ) : (
                 <div className={style.upload_content}>
