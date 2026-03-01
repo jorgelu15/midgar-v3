@@ -8,7 +8,7 @@ import { useUserInfo } from "./useUserInfo";
 export const useInventario = (id_producto?: string | undefined) => {
     const { usuarioQuery } = useUserInfo();
     const {
-        updateProducto,
+        updateExistencias,
         abastecerInventario,
         createProducto,
         createMovimientoInventarioFisico,
@@ -17,7 +17,8 @@ export const useInventario = (id_producto?: string | undefined) => {
         createProveedor,
         createMarca,
         createUnidadMedida,
-        deleteProducto
+        deleteProducto,
+        updateProductoTemplate
     }: any = useContext(InventarioFisicoContext);
     const queryClient = useQueryClient();
 
@@ -189,7 +190,7 @@ export const useInventario = (id_producto?: string | undefined) => {
         productosAgotadosQuery,
         movimientosInventarioQuery,
         categoriasQuery,
-        updateProducto,
+        updateExistencias,
         createProducto,
         createMovimientoInventarioFisico,
         createCategoriaMutation,

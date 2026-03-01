@@ -21,7 +21,7 @@ const ProductoProvider = ({ children }: { children: React.ReactNode }) => {
 
     const [state, dispatch] = useReducer(InventarioFisicoReducer, initialState);
 
-    const updateProducto = async (id_producto: number, producto: ProductoRepository, id_inst: string, setProgress: any) => {
+    const updateExistencias = async (id_producto: number, producto: ProductoRepository, id_inst: string, setProgress: any) => {
         try {
             const res = await api.put(`/inventario-fisico/productos/${id_producto}/${id_inst}`, { cantidad: producto.cantidad }, {
                 withCredentials: true,
@@ -218,13 +218,32 @@ const ProductoProvider = ({ children }: { children: React.ReactNode }) => {
         }
     }
 
+    const updateProductoTemplate = async (id_producto: number, producto: ProductoRepository, id_inst: string, setProgress: any) => {
+        try {
+            const res = await api.put(`/inventario-fisico/productos/${id_producto}/${id_inst}`, producto, {
+                withCredentials: true,
+                headers: {
+                    "Content-Type": "Application/json",
+                },
+                onUploadProgress: (progressEvent: AxiosProgressEvent) => {
+                    const percentage = Math.round((progressEvent.loaded * 100) / (progressEvent?.total ? progressEvent?.total : 0));
+                    setProgress(percentage);
+                }
+            });
+            console.log(res)
+            return res;
+        } catch (error) {
+            console.log(error)
+    }
+    }
+
     return (
         <InventarioFisicoContext.Provider
             value={{
                 producto: state.producto,
                 msg: state.msg,
                 cargando: state.cargando,
-                updateProducto,
+                updateExistencias,
                 createProducto,
                 createMovimientoInventarioFisico,
                 createCategoria,
@@ -233,7 +252,8 @@ const ProductoProvider = ({ children }: { children: React.ReactNode }) => {
                 createProveedor,
                 createMarca,
                 createUnidadMedida,
-                deleteProducto
+                deleteProducto,
+                updateProductoTemplate
             }}
         >
             {children}

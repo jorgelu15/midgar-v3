@@ -54,14 +54,13 @@ const ActualizarProductoModal = ({
   selectedProduct,
 }: CreateProductoModalProps) => {
   const { usuario } = useAuth();
-  console.log({ selectedProduct });
   // Idealmente tengas updateProducto en tu hook
   const {
     categoriasQuery,
     marcasQuery,
     proveedoresQuery,
     unidadesMedidaQuery,
-    updateProducto, // <-- crea este en tu hook; si no existe, abajo te digo qué hacer
+    updateExistencias, // <-- crea este en tu hook; si no existe, abajo te digo qué hacer
   } = useInventario();
 
   const categorias = categoriasQuery?.data || [];
@@ -187,7 +186,7 @@ const ActualizarProductoModal = ({
     const producto = {
       // IDs para actualizar (clave)
       id_producto: selectedProduct.id_producto,
-      id_inst: selectedProduct.id_inst,
+      id_inst: usuario?.id_empresa,
       id_existencia: selectedProduct.id_existencia, // si tu backend lo usa
 
       // campos
@@ -207,6 +206,7 @@ const ActualizarProductoModal = ({
       impuesto_id: impuestoArrayToBackend(form.impuesto),
     };
 
+
     const formData = new FormData();
     formData.append("producto", JSON.stringify(producto));
     formData.append("id_empresa", String(usuario?.id_empresa ?? ""));
@@ -214,7 +214,7 @@ const ActualizarProductoModal = ({
     if (imageFile) formData.append("img_producto", imageFile);
 
     try {
-      await updateProducto(formData, setProgress);
+      await updateExistencias(selectedProduct.id_producto, formData, usuario?.id_empresa, setProgress);
       toast.success("Producto actualizado exitosamente");
       setEditProduct(false);
       setSelectedProduct(null);
@@ -346,7 +346,6 @@ const ActualizarProductoModal = ({
 ) {
   const selected = preloadValue ?? (form as any)[name] ?? ""; // lo que tengas
   const selectKey = `${name}-${selected}`; // <- fuerza remount si cambia
-  console.log({ preloadValue });
   return (
     <div className={style.form_control}>
       <label>{label} *</label>
