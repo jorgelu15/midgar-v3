@@ -202,6 +202,7 @@ export const useInventario = (id_producto?: string | undefined) => {
         marcasQuery,
         unidadesMedidaQuery,
         createUnidadMedidaMutation,
-        deleteProductoMutation
+        deleteProductoMutation,
+        updateProductoTemplate
     };
 };
