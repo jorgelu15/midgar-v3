@@ -205,13 +205,12 @@ const ProductoProvider = ({ children }: { children: React.ReactNode }) => {
 
     const deleteProducto = async (id_producto: number, id_inst: string) => {
         try {
-            const res = await api.delete(`/inventario-fisico/productos/${id_producto}/${id_inst}`, {
+            const res = await api.delete(`/productos/${id_producto}/${id_inst}`, {
                 withCredentials: true,
                 headers: {
                     "Content-Type": "Application/json",
                 }
             });
-            console.log(res)
             return res;
         } catch (error) {
             console.log(error)

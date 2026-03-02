@@ -25,6 +25,7 @@ import SkeletonTable from "../../components/skeleton/SkeletonTable";
 import ActualizarProductoModal from "./Modals/ActualizarProducto.modal";
 import DeleteProductoModal from "./Modals/DeleteProducto.modal";
 import { useUserInfo } from "../../hooks/useUserInfo";
+import type { CategoriaDTO } from "../../models/dtos/categoria.dto";
 
 const items = [
   { label: "Dashboard", href: routes.dashboard },
@@ -42,10 +43,12 @@ const Container = () => {
     valorInventarioFisicoQuery,
     gananciaEstimadaQuery,
     productosAgotadosQuery,
+    createExistencias,
+    categoriasQuery
   } = useInventario();
 
   const productos: ProductoRepository[] = productosQuery?.data?.existencias || [];
-
+  const categorias: CategoriaDTO[] = categoriasQuery?.data || [];
   const valorInventarioFisico = valorInventarioFisicoQuery.data?.valor_inventario_fisico || 0;
   const gananciaEstimada = gananciaEstimadaQuery.data?.ganancia_estimada || 0;
   const productosAgotados = productosAgotadosQuery.data?.productos_agotados || 0;
@@ -198,12 +201,12 @@ const Container = () => {
                 const rowValues = [
                   row.codigo,
                   row.nombre,
-                  row.categoria_id,
+                  categorias.find((cat) => cat.id_categoria === row.categoria_id)?.nombre || "Sin categoría",
                   row.costo,
                   row.precio_venta,
                   row.cantidad,
                   row.cantidad_minima,
-                  row.estado,
+                  row.estado === 1 ? "ACTIVO" : "INHABILITADO",
                 ];
 
                 return (
@@ -221,7 +224,7 @@ const Container = () => {
                           </>
                         )
                       }
-                      {!productosInhabilitados && <img src={enable}  />}
+                      {!productosInhabilitados && <img src={enable} onClick={() => createExistencias(row, row.id_empresa)} />}
                     </td>
                   </>
                 );
