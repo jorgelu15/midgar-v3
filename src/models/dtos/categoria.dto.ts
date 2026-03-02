@@ -1,6 +1,6 @@
 export interface CategoriaDTO {
-    id_categoria: number;
     nombre: string;
     descripcion: string;
     id_empresa: string;
+    id_categoria?: number;
 }
