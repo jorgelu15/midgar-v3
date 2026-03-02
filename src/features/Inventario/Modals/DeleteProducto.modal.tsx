@@ -6,10 +6,7 @@ import style from "../container.module.css";
 interface DeleteProductoModalProps {
   isOpen: boolean;
   setIsOpen: (value: boolean) => void;
-  productoSeleccionado: {
-    id_producto: number;
-    nombre: string;
-  } | null;
+  productoSeleccionado: any;
 }
 
 const DeleteProductoModal = ({

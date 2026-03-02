@@ -1,6 +1,6 @@
 export interface ProductoRepository {
     id_existencia: number,
-    id_inst: number,
+    id_empresa: number,
     id_producto: number,
     cantidad: number,
     cantidad_minima: number,

@@ -1,9 +1,8 @@
 import { useState } from "react";
-import type { ProductoRepository } from "../models/Producto.repository";
 import type { CuentaLavado } from "../models/CuentaLavado";
 
 export const useProductModals = () => {
-    const [selectedProduct, setSelectedProduct] = useState<ProductoRepository | null>(null);
+    const [selectedProduct, setSelectedProduct] = useState<any>(null);
     const [isKardexModalOpen, setIsKardexModalOpen] = useState(false);
     const [isCreateProductModalOpen, setIsCreateProductModalOpen] = useState(false);
     const [isAdjustStockModalOpen, setIsAdjustStockModalOpen] = useState(false);

@@ -220,7 +220,7 @@ const ProductoProvider = ({ children }: { children: React.ReactNode }) => {
 
     const updateProductoTemplate = async (id_producto: number, producto: ProductoRepository, id_inst: string, setProgress: any) => {
         try {
-            const res = await api.put(`/inventario-fisico/productos/${id_producto}/${id_inst}`, producto, {
+            const res = await api.put(`/productos/${id_producto}/${id_inst}`, producto, {
                 withCredentials: true,
                 headers: {
                     "Content-Type": "Application/json",
@@ -234,9 +234,10 @@ const ProductoProvider = ({ children }: { children: React.ReactNode }) => {
             return res;
         } catch (error) {
             console.log(error)
-    }
+        }
     }
 
+    
     return (
         <InventarioFisicoContext.Provider
             value={{

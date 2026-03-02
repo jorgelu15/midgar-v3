@@ -24,6 +24,7 @@ import AbastecerInventarioModal from "./Modals/AbastecerInventario.modal";
 import SkeletonTable from "../../components/skeleton/SkeletonTable";
 import ActualizarProductoModal from "./Modals/ActualizarProducto.modal";
 import DeleteProductoModal from "./Modals/DeleteProducto.modal";
+import { useUserInfo } from "../../hooks/useUserInfo";
 
 const items = [
   { label: "Dashboard", href: routes.dashboard },
@@ -35,6 +36,7 @@ const menuItems = [
 ];
 
 const Container = () => {
+  const { usuarioQuery } = useUserInfo();
   const {
     productosQuery,
     valorInventarioFisicoQuery,
@@ -96,7 +98,7 @@ const Container = () => {
 
   useShortcuts(shortcuts);
 
-  const openKardexModal = (product: ProductoRepository) => {
+  const openKardexModal = (product: any) => {
     setSelectedProduct(product);
     setIsKardexModalOpen(true);
   };
@@ -105,12 +107,12 @@ const Container = () => {
   const openAbastecerInventarioModal = () => setIsAbastecerModalOpen(true);
   const openAdjustStockModal = () => setIsAdjustStockModalOpen(true);
 
-  const openEditProductModal = (product: ProductoRepository) => {
+  const openEditProductModal = (product: any) => {
     setEditProduct(true);
     setSelectedProduct(product);
   };
 
-  const openDeleteProductModal = (product: ProductoRepository) => {
+  const openDeleteProductModal = (product: any) => {
     setDeleteProduct(true);
     setSelectedProduct(product);
   };
@@ -142,6 +144,7 @@ const Container = () => {
       });
     });
   }, [form.query, sourceRows]);
+
 
   return (
     <div className="container">
@@ -213,7 +216,7 @@ const Container = () => {
                         productosInhabilitados && (
                           <>
                             <img src={status} onClick={() => openKardexModal(row)} />
-                            <img src={edit} onClick={() => openEditProductModal(row)} />
+                            {row.id_empresa === usuarioQuery.data.empresa.id_empresa && <img src={edit} onClick={() => openEditProductModal(row)} />}
                             <img src={borrar} onClick={() => openDeleteProductModal(row)} />
                           </>
                         )

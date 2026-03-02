@@ -60,7 +60,7 @@ const ActualizarProductoModal = ({
     marcasQuery,
     proveedoresQuery,
     unidadesMedidaQuery,
-    updateExistencias, // <-- crea este en tu hook; si no existe, abajo te digo qué hacer
+    updateProductoTemplate 
   } = useInventario();
 
   const categorias = categoriasQuery?.data || [];
@@ -184,12 +184,9 @@ const ActualizarProductoModal = ({
     }
 
     const producto = {
-      // IDs para actualizar (clave)
       id_producto: selectedProduct.id_producto,
       id_inst: usuario?.id_empresa,
-      id_existencia: selectedProduct.id_existencia, // si tu backend lo usa
-
-      // campos
+      id_existencia: selectedProduct.id_existencia,
       codigo: form.codigo,
       nombre: form.nombre,
       categoria_id: Number(form.categoria),
@@ -200,9 +197,6 @@ const ActualizarProductoModal = ({
       marca_id: Number(form.marca),
       unidad_medida_id: Number(form.unidadMedida),
       proveedor_id: Number(form.proveedor),
-
-      // Si tu backend espera array, manda form.impuesto.
-      // Si espera number, manda impuestoArrayToBackend(form.impuesto).
       impuesto_id: impuestoArrayToBackend(form.impuesto),
     };
 
@@ -214,7 +208,7 @@ const ActualizarProductoModal = ({
     if (imageFile) formData.append("img_producto", imageFile);
 
     try {
-      await updateExistencias(selectedProduct.id_producto, formData, usuario?.id_empresa, setProgress);
+      await updateProductoTemplate(selectedProduct.id_producto, formData, usuario?.id_empresa, setProgress);
       toast.success("Producto actualizado exitosamente");
       setEditProduct(false);
       setSelectedProduct(null);
@@ -275,10 +269,6 @@ const ActualizarProductoModal = ({
 
         {/* 2) Selects usando IDs reales */}
         {renderSelectObj("Categoria", "categoria", categorias.map((c: any) => ({ label: c.nombre, value: String(c.id_categoria ?? c.id) })), form.categoria)}
-        {renderInput("Costo unitario", "costoUnitario", "number", "Ej: 5000")}
-        {renderInput("Precio de venta", "precioVenta", "number", "Ej: 10000")}
-        {renderInput("Cantidad actual", "cantidadActual", "number", "Ej: 50")}
-        {renderInput("Cantidad mínima", "cantidadMinima", "number", "Ej: 10")}
         {renderSelectObj("Marca", "marca", marcas.map((m: any) => ({ label: m.nombre_marca, value: String(m.id_marca ?? m.id) })), form.marca)}
         {renderSelectObj("Unidad de medida", "unidadMedida", unidadesMedida.map((u: any) => ({ label: u.nombre_unidad, value: String(u.id_unidad_medida ?? u.id) })))}
         {renderSelectObj("Proveedor", "proveedor", proveedores.map((p: any) => ({ label: p.nombre_proveedor, value: String(p.id_proveedor ?? p.id) })))}
