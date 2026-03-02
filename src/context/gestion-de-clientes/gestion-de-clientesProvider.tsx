@@ -7,9 +7,9 @@ import type { ClienteDTO } from '../../models/dtos/cliente.dto';
 
 const GestionDeClientesProvider = ({ children }: { children: React.ReactNode }) => {
 
-    const createCliente = async (cliente: ClienteDTO) => {
+    const createCliente = async (cliente: ClienteDTO, id_empresa: string) => {
         try {
-            const res = await api.post('/clientes', cliente, {
+            const res = await api.post(`/clientes/${id_empresa}`, cliente, {
                 withCredentials: true
             });
 
