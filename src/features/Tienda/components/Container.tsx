@@ -1,6 +1,12 @@
+// ─────────────────────────────────────────────
+//  Container.tsx  (refactorizado)
+//  Orquestador principal. Solo layout + teclado global.
+//  Toda la lógica vive en useTienda.ts
+// ─────────────────────────────────────────────
+
 import { useEffect, useState } from "react";
 import style from "./container.module.css";
-import { useTienda } from "./components/useTienda";
+import { useTienda } from "./useTienda";
 
 import BarraAcciones from "./components/BarraAcciones";
 import BuscadorInput from "./components/BuscadorInput";
