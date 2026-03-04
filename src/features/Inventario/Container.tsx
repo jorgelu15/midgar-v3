@@ -224,7 +224,7 @@ const Container = () => {
                           </>
                         )
                       }
-                      {!productosInhabilitados && <img src={enable} onClick={() => createExistencias(row, row.id_empresa)} />}
+                      {!productosInhabilitados && <img src={enable} onClick={() => createExistencias(row, usuarioQuery.data.empresa.id_empresa)} />}
                     </td>
                   </>
                 );
