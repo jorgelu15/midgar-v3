@@ -11,6 +11,7 @@ import AutoLavadoProvider from './context/AutoLavado/AutoLavadoProvider.tsx'
 import GestionDeUsuariosProvider from './context/gestion-de-usuarios/gestion-de-usuariosProvider.tsx'
 import GestionDeClientesProvider from './context/gestion-de-clientes/gestion-de-clientesProvider.tsx'
 import GestionDeCreditosProvider from './context/gestion-de-creditos/gestion-de-creditosProvider.tsx'
+import GestionDeVentasProvider from './context/gestion-de-ventas/gestion-de-ventasProvider.tsx'
 
 const queryClient = new QueryClient()
 
@@ -22,9 +23,11 @@ createRoot(document.getElementById('root')!).render(
           <GestionDeCreditosProvider>
             <InventarioFisicoProvider>
               <AutoLavadoProvider>
-                <ThemeProvider>
-                  <App />
-                </ThemeProvider>
+                <GestionDeVentasProvider>
+                  <ThemeProvider>
+                    <App />
+                  </ThemeProvider>
+                </GestionDeVentasProvider>
               </AutoLavadoProvider>
             </InventarioFisicoProvider>
           </GestionDeCreditosProvider>
