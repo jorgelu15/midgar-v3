@@ -413,6 +413,7 @@ const Container = () => {
     }, {} as Record<string, () => void>);
 
     useShortcuts(shortcuts);
+
     return (
         <div className="container" style={{ marginTop: 0 }}>
             <header className={style.header}>
@@ -496,7 +497,7 @@ const Container = () => {
                     <SelectSearch
                         options={
                             (productosQuery.data?.existencias ?? [])
-                                .filter((p: any) => (p.nombre ?? "").toLowerCase().includes("servicio"))
+                                .filter((p: any) => p.categoria_id === 4)
                                 .map((p: any) => ({ label: p.nombre, value: String(p.id_producto) }))
                         }
                         value={servicio}
