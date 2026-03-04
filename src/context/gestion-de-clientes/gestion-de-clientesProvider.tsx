@@ -9,7 +9,7 @@ const GestionDeClientesProvider = ({ children }: { children: React.ReactNode }) 
 
     const createCliente = async (cliente: ClienteDTO) => {
         try {
-            const res = await api.post('/clientes', cliente, {
+            const res = await api.post(`/clientes/${cliente.id_empresa}`, cliente, {
                 withCredentials: true
             });
 
