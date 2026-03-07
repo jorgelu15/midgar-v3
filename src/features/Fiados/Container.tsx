@@ -18,7 +18,7 @@ import { Bounce, toast, ToastContainer } from "react-toastify";
 
 const items = [
     { label: "Dashboard", href: routes.dashboard },
-    { label: "InventarioFisico", href: routes.InventarioFisico },
+    { label: "Créditos", href: routes.InventarioFisico },
 ];
 
 const menuItems = [

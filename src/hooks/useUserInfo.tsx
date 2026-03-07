@@ -10,7 +10,7 @@ export const useUserInfo = () => {
     };
 
     const fetchLavadores = async () => {
-        const res = await api.get(`/gestion-de-usuarios/usuarios/rol/${3}`);
+        const res = await api.get(`/gestion-de-usuarios/usuarios/rol/${4}`);
         return res.data;
     };
 
