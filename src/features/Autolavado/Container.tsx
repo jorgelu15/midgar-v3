@@ -27,6 +27,7 @@ interface CuentaLavado {
     placa: string;
     lavador: string;
     sala: string;
+    id_lavador?: number;
     productos: ProductoRepository[];
 }
 
@@ -67,7 +68,7 @@ const Container = () => {
     const [montoMedio, setMontoMedio] = useState("");
     const [pagos, setPagos] = useState<{ id: number; medio: string; monto: number }[]>([]);
 
-    const [cuentaSeleccionada, setCuentaSeleccionada] = useState<CuentaLavado | null>(null);
+    const [cuentaSeleccionada, setCuentaSeleccionada] = useState<any | null>(null);
     const [productosFactura, setProductosFactura] = useState<ProductoRepository[]>([]);
     const [ultimoProducto, setUltimoProducto] = useState<ProductoRepository | null>(null);
     console.log(ultimoProducto)
@@ -299,6 +300,7 @@ const Container = () => {
             total: total,
             id_cuenta_cliente: cuentaSeleccionada?.id_cuenta_cliente,
             id_empresa: usuarioQuery?.data.empresa.id_empresa,
+            id_usuario: cuentaSeleccionada?.lavador.id_lavador,
             pagos: pagos.map((p) => ({
                 id_medio_pago: p.id,
                 medio: p.medio,
