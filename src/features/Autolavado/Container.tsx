@@ -19,6 +19,7 @@ import { routes } from "../../utils/routes";
 import { useNavigate } from "react-router-dom";
 import Receipt from "./receipt/Receipt";
 import { useReactToPrint } from "react-to-print";
+import type { LabelList } from "recharts";
 
 
 interface CuentaLavado {
@@ -166,6 +167,15 @@ const Container = () => {
         };
 
         createCuenta(cuenta, usuarioQuery?.data?.empresa.id_empresa, setProgress).then((response: any) => {
+            let productos = response.data.cuenta.cuenta_cliente_productos?.map((account: any) => {
+                let producto = account.existencia.producto
+
+                producto.cantidad     = account.cantidad
+                producto.precio_venta = Number(account.existencia.precio_venta)
+                return producto
+            });
+
+            response.data.cuenta.productos = productos;
             if (response.status !== 200) return;
             setClienteNombre("");
             setPlaca("");
@@ -576,6 +586,7 @@ const Container = () => {
 
                         </div>
                         <div className={style.facture}>
+                            {console.log(cuentaSeleccionada)}
                             {(cuentaSeleccionada?.productos ?? []).map((p: any, i: any) => (
                                 p.cantidad > 0 && (
                                     <div key={i} className={style.facture__content__item}>
