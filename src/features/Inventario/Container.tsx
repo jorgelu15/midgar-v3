@@ -8,7 +8,6 @@ import borrar from "../../assets/borrar.svg";
 import status from "../../assets/status.svg";
 import edit from "../../assets/edit.svg";
 import enable from "../../assets/enable.svg";
-
 import volver from "../../assets/volver.svg";
 import Table from "../../components/tables/Table";
 import { useShortcuts } from "../../hooks/useShortcodes";
@@ -38,20 +37,25 @@ const menuItems = [
 
 const Container = () => {
   const { usuarioQuery } = useUserInfo();
+
   const {
     productosQuery,
     valorInventarioFisicoQuery,
     gananciaEstimadaQuery,
     productosAgotadosQuery,
     createExistencias,
-    categoriasQuery
+    categoriasQuery,
   } = useInventario();
 
   const productos: ProductoRepository[] = productosQuery?.data?.existencias || [];
   const categorias: CategoriaDTO[] = categoriasQuery?.data || [];
-  const valorInventarioFisico = valorInventarioFisicoQuery.data?.valor_inventario_fisico || 0;
-  const gananciaEstimada = gananciaEstimadaQuery.data?.ganancia_estimada || 0;
-  const productosAgotados = productosAgotadosQuery.data?.productos_agotados || 0;
+
+  const valorInventarioFisico =
+    valorInventarioFisicoQuery.data?.valor_inventario_fisico || 0;
+  const gananciaEstimada =
+    gananciaEstimadaQuery.data?.ganancia_estimada || 0;
+  const productosAgotados =
+    productosAgotadosQuery.data?.productos_agotados || 0;
 
   const navigate = useNavigate();
   const { form, onChangeGeneral } = useForm({ query: "" });
@@ -73,25 +77,26 @@ const Container = () => {
     setDeleteProduct,
   } = useProductModals();
 
-  // false => mostrar habilitados
+  // false => mostrar habilitados primero
   // true  => mostrar inhabilitados
   const [productosInhabilitados, setProductosInhabilitados] = useState(false);
 
-  // ✅ Ajusta reglas si tu estado es diferente (ej: 1 = inhabilitado exacto)
+  // Asumiendo:
+  // estado === 1 => ACTIVO / HABILITADO
+  // estado !== 1 => INHABILITADO
   const productosHabilitados = useMemo(
-    () => productos.filter((p) => p.estado === 0),
+    () => productos.filter((p) => p.estado === 1),
     [productos]
   );
 
   const productosInhabilitadosArr = useMemo(
-    () => productos.filter((p) => p.estado !== 0),
+    () => productos.filter((p) => p.estado !== 1),
     [productos]
   );
 
-  // ✅ La tabla se alimenta de esta fuente
   const sourceRows = useMemo(
     () => (productosInhabilitados ? productosInhabilitadosArr : productosHabilitados),
-    [productosInhabilitados, productosHabilitados, productosInhabilitadosArr]
+    [productosInhabilitados, productosInhabilitadosArr, productosHabilitados]
   );
 
   const shortcuts = menuItems.reduce((map, item) => {
@@ -101,7 +106,7 @@ const Container = () => {
 
   useShortcuts(shortcuts);
 
-  const openKardexModal = (product: any) => {
+  const openKardexModal = (product: ProductoRepository) => {
     setSelectedProduct(product);
     setIsKardexModalOpen(true);
   };
@@ -110,12 +115,12 @@ const Container = () => {
   const openAbastecerInventarioModal = () => setIsAbastecerModalOpen(true);
   const openAdjustStockModal = () => setIsAdjustStockModalOpen(true);
 
-  const openEditProductModal = (product: any) => {
+  const openEditProductModal = (product: ProductoRepository) => {
     setEditProduct(true);
     setSelectedProduct(product);
   };
 
-  const openDeleteProductModal = (product: any) => {
+  const openDeleteProductModal = (product: ProductoRepository) => {
     setDeleteProduct(true);
     setSelectedProduct(product);
   };
@@ -132,7 +137,6 @@ const Container = () => {
     "Acciones",
   ];
 
-  // ✅ Buscar SOLO dentro de lo que estás mostrando (habilitados o inhabilitados)
   const filteredRows = useMemo(() => {
     const query = form.query.trim().toLowerCase();
     if (!query) return sourceRows;
@@ -140,6 +144,7 @@ const Container = () => {
     return sourceRows.filter((row: ProductoRepository) => {
       return Object.values(row).some((value) => {
         const text = String(value ?? "").toLowerCase();
+
         if (text.includes(query)) return true;
 
         const similarity = stringSimilarity.compareTwoStrings(text, query);
@@ -147,7 +152,6 @@ const Container = () => {
       });
     });
   }, [form.query, sourceRows]);
-
 
   return (
     <div className="container">
@@ -173,7 +177,11 @@ const Container = () => {
             <button className="btn btn_primary" onClick={openCreateProductModal}>
               Crear producto
             </button>
-            <button className="btn btn_secondary" onClick={openAbastecerInventarioModal}>
+
+            <button
+              className="btn btn_secondary"
+              onClick={openAbastecerInventarioModal}
+            >
               Abastecer inventario
             </button>
           </div>
@@ -197,11 +205,15 @@ const Container = () => {
               data={filteredRows}
               defaultRowsPerPage={5}
               rowsPerPageOptions={[5, 10, 20]}
-              renderRow={(row) => {
+              renderRow={(row: ProductoRepository) => {
+                const categoriaNombre =
+                  categorias.find((cat) => cat.id_categoria === row.categoria_id)
+                    ?.nombre || "Sin categoría";
+
                 const rowValues = [
                   row.codigo,
                   row.nombre,
-                  categorias.find((cat) => cat.id_categoria === row.categoria_id)?.nombre || "Sin categoría",
+                  categoriaNombre,
                   row.costo,
                   row.precio_venta,
                   row.cantidad,
@@ -214,17 +226,46 @@ const Container = () => {
                     {rowValues.map((cell, i) => (
                       <td key={i}>{cell}</td>
                     ))}
+
                     <td>
-                      {
-                        productosInhabilitados && (
-                          <>
-                            <img src={status} onClick={() => openKardexModal(row)} />
-                            {row.id_empresa === usuarioQuery.data.empresa.id_empresa && <img src={edit} onClick={() => openEditProductModal(row)} />}
-                            <img src={borrar} onClick={() => openDeleteProductModal(row)} />
-                          </>
-                        )
-                      }
-                      {!productosInhabilitados && <img src={enable} onClick={() => createExistencias(row, usuarioQuery.data.empresa.id_empresa)} />}
+                      {!productosInhabilitados ? (
+                        <>
+                          <img
+                            src={status}
+                            onClick={() => openKardexModal(row)}
+                            alt="Ver kardex"
+                            style={{ cursor: "pointer" }}
+                          />
+
+                          {row.id_empresa === usuarioQuery.data?.empresa?.id_empresa && (
+                            <img
+                              src={edit}
+                              onClick={() => openEditProductModal(row)}
+                              alt="Editar producto"
+                              style={{ cursor: "pointer" }}
+                            />
+                          )}
+
+                          <img
+                            src={borrar}
+                            onClick={() => openDeleteProductModal(row)}
+                            alt="Eliminar producto"
+                            style={{ cursor: "pointer" }}
+                          />
+                        </>
+                      ) : (
+                        <img
+                          src={enable}
+                          onClick={() =>
+                            createExistencias(
+                              row,
+                              usuarioQuery.data?.empresa?.id_empresa
+                            )
+                          }
+                          alt="Habilitar producto"
+                          style={{ cursor: "pointer" }}
+                        />
+                      )}
                     </td>
                   </>
                 );
@@ -279,7 +320,10 @@ const Container = () => {
             setIsOpen={setDeleteProduct}
             productoSeleccionado={
               selectedProduct
-                ? { id_producto: selectedProduct.id_producto, nombre: selectedProduct.nombre }
+                ? {
+                    id_producto: selectedProduct.id_producto,
+                    nombre: selectedProduct.nombre,
+                  }
                 : null
             }
           />

@@ -19,18 +19,7 @@ import { routes } from "../../utils/routes";
 import { useNavigate } from "react-router-dom";
 import Receipt from "./receipt/Receipt";
 import { useReactToPrint } from "react-to-print";
-import type { LabelList } from "recharts";
 
-
-interface CuentaLavado {
-    id_cuenta_cliente: string;
-    nombre: string;
-    placa: string;
-    lavador: string;
-    sala: string;
-    id_lavador?: number;
-    productos: ProductoRepository[];
-}
 
 interface MedioPago {
     id_medio_pago: number;
@@ -275,7 +264,7 @@ const Container = () => {
 
     const productosCuenta = cuentaSeleccionada?.productos ?? [];
     const total = productosCuenta.reduce(
-        (acc, p) => acc + (Number(p.precio_venta) * Number(p.cantidad ?? 1)),
+        (acc: any, p: any) => acc + (Number(p.precio_venta) * Number(p.cantidad ?? 1)),
         0
     );
 
