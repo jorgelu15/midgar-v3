@@ -416,6 +416,7 @@ const Container = () => {
     }, {} as Record<string, () => void>);
 
     useShortcuts(shortcuts);
+    
 
     return (
         <div className="container" style={{ marginTop: 0 }}>
