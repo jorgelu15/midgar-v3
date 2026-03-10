@@ -68,8 +68,7 @@ const Container = () => {
         createCuenta,
         agregarProductoCuenta,
         cancelarCuenta,
-        cerrarCuenta,
-        descargarInventario
+        cerrarCuenta
     } = useCuenta(cuentaSeleccionada?.id_cuenta_cliente || null);
     const ticketRef = useRef<HTMLDivElement>(null);
     const queryClient = useQueryClient();
@@ -137,9 +136,10 @@ const Container = () => {
                 });
     }
 
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const handleAgregarCuenta = (event: React.FormEvent) => {
         event.preventDefault();
-
+        if (isSubmitting) return; // evita doble click
         if (clienteNombre.trim() === "" || placa.trim() === "" || lavador.value === "" || sala.value === "" || servicio.value === "") {
             toast.error(`Faltan campos obligatorios.`);
             return;
@@ -154,12 +154,13 @@ const Container = () => {
             productos: productosFactura,
             servicio: servicio.value
         };
+        setIsSubmitting(true);
 
         createCuenta(cuenta, usuarioQuery?.data?.empresa.id_empresa, setProgress).then((response: any) => {
             let productos = response.data.cuenta.cuenta_cliente_productos?.map((account: any) => {
                 let producto = account.existencia.producto
 
-                producto.cantidad     = account.cantidad
+                producto.cantidad = account.cantidad
                 producto.precio_venta = Number(account.existencia.precio_venta)
                 return producto
             });
@@ -180,6 +181,8 @@ const Container = () => {
         }).catch((error: any) => {
             toast.error(error.error);
             setProgress(null);
+        }).finally(() => {
+            setIsSubmitting(false);
         });
     };
 
@@ -328,7 +331,6 @@ const Container = () => {
                         }
                     );
 
-                    descargarInventario(usuarioQuery.data?.empresa.id_empresa, usuarioQuery.data?.id_usuario, cuentaSeleccionada?.productos, setProgress);
                     openGenerarReciboModal();
 
                     setOpenModalCuenta(false);
@@ -457,7 +459,7 @@ const Container = () => {
                 size="md"
                 footer={
                     <div className={style.modal_footer_actions}>
-                        <button className="btn btn_secondary" onClick={closeCuentaModal}>
+                        <button className="btn btn_secondary" onClick={closeCuentaModal} disabled={isSubmitting}>
                             Cancelar
                         </button>
                         <button
@@ -466,7 +468,7 @@ const Container = () => {
                                 handleAgregarCuenta(e);
                             }}
                         >
-                            Confirmar cuenta
+                            {isSubmitting ? "Creando..." : "Crear cuenta"}
                         </button>
                     </div>
                 }
