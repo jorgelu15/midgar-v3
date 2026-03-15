@@ -19,9 +19,6 @@ import { routes } from "../../utils/routes";
 import { useNavigate } from "react-router-dom";
 import Receipt from "./receipt/Receipt";
 import { useReactToPrint } from "react-to-print";
-import stringSimilarity from "string-similarity";
-import type { LabelList } from "recharts";
-
 
 interface CuentaLavado {
     id_cuenta_cliente: string;
