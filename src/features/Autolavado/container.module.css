@@ -102,6 +102,25 @@ nav {
   resize: none;
 }
 
+.form_control_top {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 600px;
+  margin-top: 10px;
+}
+
+.form_control_top input {
+  background-color: var(--background);
+  border: 1px solid var(--secondary);
+  padding: 15px;
+  border-radius: 10px;
+  outline: none;
+  margin-bottom: 10px;
+  max-width: 600px;
+  resize: none;
+}
+
 .modal_footer_actions {
   display: flex;
   justify-content: flex-end;
