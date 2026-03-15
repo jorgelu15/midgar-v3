@@ -28,7 +28,7 @@ export const useClientes = () => {
     });
 
     const createClienteMutation = useMutation({
-        mutationFn: (cliente: ClienteDTO) => createCliente(cliente),
+        mutationFn: (cliente: ClienteDTO) => createCliente(cliente, usuarioQuery.data?.empresa.id_empresa!),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["clientes", usuarioQuery.data?.empresa.id_empresa] });
         }
