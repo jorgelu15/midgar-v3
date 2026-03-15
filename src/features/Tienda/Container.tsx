@@ -14,7 +14,6 @@ import clients from "../../assets/clientes.png";
 import { useForm } from "../../hooks/useForm";
 import { useRef, useState, useEffect } from "react";
 import type { KeyboardEvent } from "react";
-import CardProductotienda from "../../components/cards/CardProductoTiendas";
 import type { ProductoRepository } from "../../models/Producto.repository";
 import CardPOS from "../../components/cards/CardPOS";
 import type { ClienteRepository } from "../../models/Cliente.repository";
@@ -228,20 +227,6 @@ const Container = () => {
     setMedioSeleccionado(null);
     setMontoMedio("");
     setFiltroMedio("");
-  };
-
-  const handleAgregarProducto = (producto: ProductoRepository) => {
-    setProductosFactura((prev) => {
-      const updated = [...prev];
-      const index = updated.findIndex((p) => p.codigo === producto.codigo);
-      if (index !== -1) {
-        updated[index].cantidad = (updated[index].cantidad || 0) + 1;
-      } else {
-        updated.push({ ...producto, cantidad: 1 });
-      }
-      return updated;
-    });
-    setUltimoProducto({ ...producto, cantidad: 1 });
   };
 
 

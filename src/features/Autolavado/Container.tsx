@@ -55,11 +55,8 @@ const Container = () => {
     const { productosQuery } = useInventario();
     const [progress, setProgress] = useState<number | null>(null);
     console.log(progress)
-    const [clienteNombre, setClienteNombre] = useState("");
     const [placa, setPlaca] = useState("");
     const [lavador, setLavador] = useState({ label: "", value: "" });
-    const [servicio, setServicio] = useState({ label: "", value: "" });
-    const [sala, setSala] = useState({ label: "", value: "" });
     const [totatilizar, setTotatilizar] = useState(false);
 
     const [medioSeleccionado, setMedioSeleccionado] = useState<MedioPago | null>(null);
@@ -149,27 +146,21 @@ const Container = () => {
     const handleAgregarCuenta = (event: React.FormEvent) => {
         event.preventDefault();
 
-        if (clienteNombre.trim() === "" || placa.trim() === "" || lavador.value === "" || sala.value === "" || servicio.value === "") {
-            toast.error(`Faltan campos obligatorios.`);
+        if (placa.trim() === "") {
+            toast.error(`La placa es obligatoria.`);
             return;
         }
 
         // Crear objeto cuenta
         const cuenta = {
-            nombre: clienteNombre,
             placa: placa,
             id_usuario: lavador.value,
-            sala: sala.value,
-            productos: productosFactura,
-            servicio: servicio.value
         };
 
         createCuenta(cuenta, usuarioQuery?.data?.empresa.id_empresa, setProgress).then((response: any) => {
             if (response.status !== 200) return;
-            setClienteNombre("");
             setPlaca("");
             setLavador({ label: "", value: "" });
-            setSala({ label: "", value: "" });
             setProductosFactura([]);
             setUltimoProducto(null);
             setCuentaSeleccionada(response.data.cuenta);
@@ -304,7 +295,10 @@ const Container = () => {
                 medio: p.medio,
                 monto: p.monto
             })),
+            id_lavador: lavador?.value,
+            productos: cuentaSeleccionada?.productos
         };
+        console.log(factura)
         cerrarCuenta(factura, setProgress)
             .then((response: any) => {
                 if (response.status === 200) {
@@ -340,14 +334,6 @@ const Container = () => {
                 toast.error("Error al cerrar cuenta");
             });
     }
-
-    const opciones = [
-        { label: "Lavador 1", value: "1" },
-        { label: "Lavador 2", value: "2" },
-        { label: "Sala A", value: "A" },
-        { label: "Sala B", value: "B" }
-    ];
-
 
 
     const handleKeyDown = (e: KeyboardEvent | KeyboardEvent<HTMLDivElement>) => {
@@ -470,17 +456,6 @@ const Container = () => {
                 }
             >
                 <div className={style.form_control}>
-                    <label>Nombre del cliente*</label>
-                    <input
-                        type="text"
-                        name="cliente"
-                        placeholder="Ej: Jorge Guardo"
-                        value={clienteNombre}
-                        onChange={(e) => setClienteNombre(e.target.value)}
-                        required
-                    />
-                </div>
-                <div className={style.form_control}>
                     <label>Placa*</label>
                     <input
                         type="text"
@@ -489,35 +464,6 @@ const Container = () => {
                         value={placa}
                         onChange={(e) => setPlaca(e.target.value)}
                         required
-                    />
-                </div>
-                <div className={style.form_control}>
-                    <label>Servicio de lavado*</label>
-                    <SelectSearch
-                        options={
-                            (productosQuery.data?.existencias ?? [])
-                                .filter((p: any) => (p.nombre ?? "").toLowerCase().includes("servicio"))
-                                .map((p: any) => ({ label: p.nombre, value: String(p.id_producto) }))
-                        }
-                        value={servicio}
-                        onSelect={(option) => setServicio({ label: option.label, value: String(option.value) })}
-                    />
-
-                </div>
-                <div className={style.form_control}>
-                    <label>Lavador*</label>
-                    <SelectSearch
-                        options={lavadoresQuery.data?.map((lavador: any) => ({ label: lavador.nombre, value: lavador.id_usuario })) ?? []}
-                        value={lavador}
-                        onSelect={(option) => setLavador({ label: option.label, value: option.value.toString() })}
-                    />
-                </div>
-                <div className={style.form_control}>
-                    <label>Sala*</label>
-                    <SelectSearch
-                        options={opciones.filter(o => o.label.includes("Sala"))}
-                        value={sala}
-                        onSelect={(option) => setSala({ label: option.label, value: option.value.toString() })}
                     />
                 </div>
             </Modal>
@@ -584,6 +530,14 @@ const Container = () => {
                                     </div>
                                 )
                             ))}
+                            <div className={style.form_control}>
+                                <label>Lavador*</label>
+                                <SelectSearch
+                                    options={lavadoresQuery.data?.map((lavador: any) => ({ label: lavador.nombre, value: lavador.id_usuario })) ?? []}
+                                    value={lavador}
+                                    onSelect={(option) => setLavador({ label: option.label, value: option.value.toString() })}
+                                />
+                            </div>
                         </div>
                     </div>
                 )}

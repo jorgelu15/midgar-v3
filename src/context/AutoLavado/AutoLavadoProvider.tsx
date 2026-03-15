@@ -46,7 +46,6 @@ const CuentaProvider = ({ children }: { children: React.ReactNode }) => {
     }
 
     const cerrarCuenta = async (factura: any, setProgress: any) => {
-        console.log(factura)
         try {
             const res = await api.post(`/ventas-y-servicios/cuenta/cerrar`, {factura: factura},
             {
