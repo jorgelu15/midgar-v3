@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { routes } from "../../utils/routes";
+import { useTienda } from "../../hooks/useTienda";
 import style from "./container.module.css";
 
 import volver from "../../assets/volver.svg";
@@ -13,14 +14,10 @@ import clients from "../../assets/clientes.png";
 import { useForm } from "../../hooks/useForm";
 import { useRef, useState, useEffect } from "react";
 import type { KeyboardEvent } from "react";
-import CardProductotienda from "../../components/cards/CardProductoTiendas";
 import type { ProductoRepository } from "../../models/Producto.repository";
 import CardPOS from "../../components/cards/CardPOS";
+import type { ClienteRepository } from "../../models/Cliente.repository";
 
-interface Cliente {
-  cedula: string;
-  nombre: string;
-}
 
 interface MedioPago {
   nombre: string;
@@ -39,31 +36,6 @@ const menuItems = [
   { shortcode: "F12", image: confirm__wallet, title: "Totalizar", destiny: "" },
 ];
 
-const mockProductos: any = [
-  {
-    id_producto: 1,
-    codigo: "123",
-    nombre: "Coca-Cola 400ml",
-    precio_venta: 3500,
-    cantidad: 0,
-    cantidad_minima: 0,
-    categoria_id: 1,
-    costo: 2500,
-    estado: 0,
-    foto_url: "https://licoresmedellin.com/cdn/shop/files/GASEOSA_COCA_COLA_ORIGINAL_MEDIANA_1_5L.jpg",
-    id_inst: 1,
-    impuesto_id: 1,
-    marca_id: 1,
-    proveedor_id: 1,
-    unidad_medida_id: 1
-  }
-  
-];
-
-const mockClientes: Cliente[] = [
-  { cedula: "45512237", nombre: "Delia Rosa Romero Florez" },
-  { cedula: "12345678", nombre: "Carlos Perez" },
-];
 
 const mediosDePago: MedioPago[] = [
   { nombre: "Efectivo", shortcode: "F3" },
@@ -80,12 +52,14 @@ const currencyFormat = new Intl.NumberFormat("es-CO", {
 
 const Container = () => {
   const navigate = useNavigate();
-  
+  const { clientesQuery, productosQuery } = useTienda();
+  const clientes: ClienteRepository[] = clientesQuery.data || [];
+  const productos: ProductoRepository[] = productosQuery.data?.existencias || [];
   const { form, onChangeGeneral, resetForm } = useForm({ codigo: "", valor: "" });
 
   const [productosFactura, setProductosFactura] = useState<ProductoRepository[]>([]);
   const [ultimoProducto, setUltimoProducto] = useState<ProductoRepository | null>(null);
-  const [clienteSeleccionado, setClienteSeleccionado] = useState<Cliente | null>(null);
+  const [clienteSeleccionado, setClienteSeleccionado] = useState<ClienteRepository | null>(null);
   const [modoBusqueda, setModoBusqueda] = useState<"cliente" | "producto">("cliente");
   const [modoTotalizar, setModoTotalizar] = useState(false);
   const [filtroMedio, setFiltroMedio] = useState("");
@@ -165,7 +139,7 @@ const Container = () => {
     if (!input) return;
 
     if (modoBusqueda === "cliente") {
-      const cliente = mockClientes.find((c) => c.cedula === input);
+      const cliente = clientes.find((c) => c.cedula === input);
       if (!cliente) {
         alert("Cliente no encontrado");
       } else {
@@ -182,7 +156,7 @@ const Container = () => {
 
       const codigo = match[1];
       const cantidad = parseFloat(match[3]) || 1;
-      const producto = mockProductos.find((p: any) => p.codigo === codigo);
+      const producto = productos.find((p: any) => p.codigo === codigo);
       if (!producto) {
         alert("Producto no encontrado");
         resetForm();
@@ -237,6 +211,8 @@ const Container = () => {
     };
 
     console.log("Venta registrada:", venta);
+
+    
     alert("Venta completada correctamente");
     handleVaciarFactura();
   };
@@ -251,20 +227,6 @@ const Container = () => {
     setMedioSeleccionado(null);
     setMontoMedio("");
     setFiltroMedio("");
-  };
-
-  const handleAgregarProducto = (producto: ProductoRepository) => {
-    setProductosFactura((prev) => {
-      const updated = [...prev];
-      const index = updated.findIndex((p) => p.codigo === producto.codigo);
-      if (index !== -1) {
-        updated[index].cantidad = (updated[index].cantidad || 0) + 1;
-      } else {
-        updated.push({ ...producto, cantidad: 1 });
-      }
-      return updated;
-    });
-    setUltimoProducto({ ...producto, cantidad: 1 });
   };
 
 
@@ -313,19 +275,6 @@ const Container = () => {
                   />
                 </div>
 
-                <div className={style.main__content} style={{ display: "flex", flexDirection: "row", flexWrap: "wrap", gap: 20, maxHeight: 220, overflowY: "auto" }}>
-                  {
-                    clienteSeleccionado &&
-                    mockProductos?.map((producto: ProductoRepository) => {
-                      return (
-                        <CardProductotienda
-                          {...producto}
-                          onClick={() => handleAgregarProducto(producto)}
-                        />
-                      )
-                    })
-                  }
-                </div>
 
                 <div className={style.info__cliente}>
                   {ultimoProducto && (
@@ -426,12 +375,12 @@ const Container = () => {
           </div>
 
           <div className={style.facture__content}>
-            {productosFactura.map((p: any, i: any) => (
+            {productosFactura.map((p: ProductoRepository, i: any) => (
               <div key={i} className={style.facture__content__item}>
                 <p className={style.title__item}>{p.nombre}</p>
                 <div className={style.facture__content__item__info}>
-                  <p>{p.cantidad} UND x {p.precio}</p>
-                  <p>{currencyFormat.format(p.precio * p.cantidad)}</p>
+                  <p>{p.cantidad} UND x {p.precio_venta}</p>
+                  <p>{currencyFormat.format(p.precio_venta * p.cantidad)}</p>
                 </div>
               </div>
             ))}
