@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type KeyboardEvent } from "react";
+import { useMemo, useEffect, useRef, useState, type KeyboardEvent } from "react";
 import Modal from "../../components/modales/Modal";
 import SelectSearch from "../../components/selects/SelectSearch";
 import { useProductModals } from "../../hooks/useProductModals";
@@ -19,6 +19,7 @@ import { routes } from "../../utils/routes";
 import { useNavigate } from "react-router-dom";
 import Receipt from "./receipt/Receipt";
 import { useReactToPrint } from "react-to-print";
+import stringSimilarity from "string-similarity";
 import type { LabelList } from "recharts";
 
 
@@ -73,7 +74,11 @@ const Container = () => {
     const [productosFactura, setProductosFactura] = useState<ProductoRepository[]>([]);
     const [ultimoProducto, setUltimoProducto] = useState<ProductoRepository | null>(null);
     console.log(ultimoProducto)
-    const { form, onChangeGeneral, resetForm } = useForm({ codigo: "" });
+    const { form, onChangeGeneral, resetForm } = useForm({
+        codigo: "",
+        query: ""
+    });
+
     const { cuentasQuery,
         metodosPagoQuery,
         createCuenta,
@@ -101,6 +106,43 @@ const Container = () => {
             }
         );
     }, [cuentaSeleccionada, queryClient, usuarioQuery.data?.empresa.id_empresa]);
+
+    // Filtramos la lista de cuentas
+    const cards = cuentasQuery.data || [];
+    const filteredCads = useMemo(() => {
+        const query = form?.query.toLowerCase();
+        if (!query) return cards;
+
+        return cards.filter((row: any) => {
+            // 1. Campos de primer nivel
+            const nombreCliente = row.nombre?.toLowerCase() || "";
+            const placa   = row.placa?.toLowerCase() || "";
+            const sala    = row.sala?.toLowerCase() || "";
+            const ingreso = new Date(row.ingreso).toLocaleString("es-CO", {
+                            year: "numeric",
+                            month: "2-digit",
+                            day: "2-digit",
+                            hour: "2-digit",
+                            minute: "2-digit"
+                        }).toLowerCase() || "";
+            const precioVenta        =  row.productos[0]?.precio_venta.toString() || "";
+            const coincidenciaPrecio = precioVenta?.toString() === query;
+
+            // 2. Campo anidado (Lavador)
+            const nombreLavador = row.lavador?.nombre?.toLowerCase() || "";
+
+            // Verificamos si la query está en alguno de ellos
+            return (
+                nombreCliente.includes(query) ||
+                placa.includes(query) ||
+                sala.includes(query) ||
+                nombreLavador.includes(query) ||
+                ingreso.includes(query) ||
+                coincidenciaPrecio
+            );
+    });
+
+    }, [form.query, cards]);
 
     const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -430,6 +472,14 @@ const Container = () => {
         <div className="container" style={{ marginTop: 0 }}>
             <header className={style.header}>
                 <h1>Autolavado</h1>
+                 <div className={style.form_control_top}>
+                    <input
+                        type="search"
+                        placeholder="Buscar cuenta"
+                        value={form.query}
+                        onChange={(e) => onChangeGeneral(e, "query")}
+                    />
+                </div>
                 <nav>
                     <a className="btn btn_primary" onClick={openCuentaModal}>Abrir Cuenta (1)</a>
                     <a className="btn btn_secondary">Volver (ESC)</a>
@@ -438,7 +488,7 @@ const Container = () => {
             <div className={style.gridContainer}>
                 {cuentasQuery.isLoading && <p>Cargando cuentas...</p>}
                 {cuentasQuery.isError && <p>Error al cargar las cuentas</p>}
-                {(cuentasQuery?.data ?? []).map((cuenta: any) => (
+                {(filteredCads).map((cuenta: any) => (
                     <CardCuentaLavado
                         key={cuenta.id_cuenta_cliente}
                         nombreCliente={cuenta.nombre}
