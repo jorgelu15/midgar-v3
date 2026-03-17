@@ -138,7 +138,6 @@ const KardexModal = ({
                         defaultRowsPerPage={5}
                         rowsPerPageOptions={[5, 10, 20]}
                         renderRow={(row) => {
-                            console.log(row)
                             const rowValues = [
                                 row.tipo_movimiento,
                                 row.motivo,

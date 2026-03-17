@@ -98,16 +98,16 @@ const Container = () => {
         return cards.filter((row: any) => {
             // 1. Campos de primer nivel
             const nombreCliente = row.nombre?.toLowerCase() || "";
-            const placa   = row.placa?.toLowerCase() || "";
-            const sala    = row.sala?.toLowerCase() || "";
+            const placa = row.placa?.toLowerCase() || "";
+            const sala = row.sala?.toLowerCase() || "";
             const ingreso = new Date(row.ingreso).toLocaleString("es-CO", {
-                            year: "numeric",
-                            month: "2-digit",
-                            day: "2-digit",
-                            hour: "2-digit",
-                            minute: "2-digit"
-                        }).toLowerCase() || "";
-            const precioVenta        =  row.productos[0]?.precio_venta.toString() || "";
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit",
+                hour: "2-digit",
+                minute: "2-digit"
+            }).toLowerCase() || "";
+            const precioVenta = row.productos[0]?.precio_venta.toString() || "";
             const coincidenciaPrecio = precioVenta?.toString() === query;
 
             // 2. Campo anidado (Lavador)
@@ -122,7 +122,7 @@ const Container = () => {
                 ingreso.includes(query) ||
                 coincidenciaPrecio
             );
-    });
+        });
 
     }, [form.query, cards]);
 
@@ -319,6 +319,7 @@ const Container = () => {
         setMedioSeleccionado(null);
         inputRef.current?.focus();
     };
+    console.log(lavador.value)
 
 
     const handlerConfirmarVenta = () => {
@@ -332,7 +333,7 @@ const Container = () => {
             total: total,
             id_cuenta_cliente: cuentaSeleccionada?.id_cuenta_cliente,
             id_empresa: usuarioQuery?.data.empresa.id_empresa,
-            id_usuario: cuentaSeleccionada?.lavador.id_lavador,
+            id_usuario: usuarioQuery?.data.id_usuario,
             pagos: pagos.map((p) => ({
                 id_medio_pago: p.id,
                 medio: p.medio,
@@ -341,7 +342,6 @@ const Container = () => {
             id_lavador: lavador?.value,
             productos: cuentaSeleccionada?.productos
         };
-        console.log(factura)
         cerrarCuenta(factura, setProgress)
             .then((response: any) => {
                 if (response.status === 200) {
@@ -441,13 +441,13 @@ const Container = () => {
     }, {} as Record<string, () => void>);
 
     useShortcuts(shortcuts);
-    
+
 
     return (
         <div className="container" style={{ marginTop: 0 }}>
             <header className={style.header}>
                 <h1>Autolavado</h1>
-                 <div className={style.form_control_top}>
+                <div className={style.form_control_top}>
                     <input
                         type="search"
                         placeholder="Buscar cuenta"
@@ -571,7 +571,6 @@ const Container = () => {
 
                         </div>
                         <div className={style.facture}>
-                            {console.log(cuentaSeleccionada)}
                             {(cuentaSeleccionada?.productos ?? []).map((p: any, i: any) => (
                                 p.cantidad > 0 && (
                                     <div key={i} className={style.facture__content__item}>

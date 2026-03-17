@@ -64,7 +64,6 @@ const AjustarStockModal = ({
 
         createMovimientoInventarioFisico(movimiento, usuario?.id_empresa)
             .then((data: any) => {
-                console.log(data)
                 toast.success("Movimiento registrado con éxito");
                 if (selectedProduct) {
                     queryClient.invalidateQueries({ queryKey: ['movimientos_inventario', selectedProduct.id_producto] });

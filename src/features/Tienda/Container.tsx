@@ -210,8 +210,7 @@ const Container = () => {
       fecha: new Date().toISOString(),
     };
 
-    console.log("Venta registrada:", venta);
-
+    
     
     alert("Venta completada correctamente");
     handleVaciarFactura();
