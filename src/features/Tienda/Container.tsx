@@ -202,13 +202,13 @@ const Container = () => {
   const handleConfirmarVenta = () => {
     if (faltante > 0) return alert("Aún falta dinero para completar la venta");
 
-    const venta = {
-      productos: productosFactura,
-      cliente: clienteSeleccionado,
-      pagos,
-      total,
-      fecha: new Date().toISOString(),
-    };
+    // const venta = {
+    //   productos: productosFactura,
+    //   cliente: clienteSeleccionado,
+    //   pagos,
+    //   total,
+    //   fecha: new Date().toISOString(),
+    // };
 
     
     
