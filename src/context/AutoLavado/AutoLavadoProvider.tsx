@@ -13,14 +13,14 @@ const CuentaProvider = ({ children }: { children: React.ReactNode }) => {
 
     const createCuenta = async (cuenta: CuentaLavado, id_empresa: number, setProgress: any) => {
         try {
-            const res = await api.post(`/ventas-y-servicios/cuenta`, {cuenta: cuenta, id_empresa: id_empresa},
-            {
-                withCredentials: true,
-                onUploadProgress: (progressEvent: AxiosProgressEvent) => {
-                    const percentage = Math.round((progressEvent.loaded * 100) / (progressEvent?.total ? progressEvent?.total : 0));
-                    setProgress(percentage);
-                }
-            });
+            const res = await api.post(`/ventas-y-servicios/cuenta`, { cuenta: cuenta, id_empresa: id_empresa },
+                {
+                    withCredentials: true,
+                    onUploadProgress: (progressEvent: AxiosProgressEvent) => {
+                        const percentage = Math.round((progressEvent.loaded * 100) / (progressEvent?.total ? progressEvent?.total : 0));
+                        setProgress(percentage);
+                    }
+                });
 
             return res;
         } catch (error) {
@@ -30,14 +30,14 @@ const CuentaProvider = ({ children }: { children: React.ReactNode }) => {
 
     const agregarProductoCuenta = async (id_producto: number, cantidad: number, id_empresa: number, id_cuenta_cliente: number, setProgress: any) => {
         try {
-            const res = await api.post(`/ventas-y-servicios/cuenta/agregar-producto`, {producto: { id_producto: id_producto, cantidad: cantidad}, id_empresa: id_empresa, id_cuenta_cliente: id_cuenta_cliente},
-            {
-                withCredentials: true,
-                onUploadProgress: (progressEvent: AxiosProgressEvent) => {
-                    const percentage = Math.round((progressEvent.loaded * 100) / (progressEvent?.total ? progressEvent?.total : 0));
-                    setProgress(percentage);
-                }
-            });
+            const res = await api.post(`/ventas-y-servicios/cuenta/agregar-producto`, { producto: { id_producto: id_producto, cantidad: cantidad }, id_empresa: id_empresa, id_cuenta_cliente: id_cuenta_cliente },
+                {
+                    withCredentials: true,
+                    onUploadProgress: (progressEvent: AxiosProgressEvent) => {
+                        const percentage = Math.round((progressEvent.loaded * 100) / (progressEvent?.total ? progressEvent?.total : 0));
+                        setProgress(percentage);
+                    }
+                });
 
             return res;
         } catch (error) {
@@ -47,14 +47,14 @@ const CuentaProvider = ({ children }: { children: React.ReactNode }) => {
 
     const cerrarCuenta = async (factura: any, setProgress: any) => {
         try {
-            const res = await api.post(`/ventas-y-servicios/cuenta/cerrar`, {factura: factura},
-            {
-                withCredentials: true,
-                onUploadProgress: (progressEvent: AxiosProgressEvent) => {
-                    const percentage = Math.round((progressEvent.loaded * 100) / (progressEvent?.total ? progressEvent?.total : 0));
-                    setProgress(percentage);
-                }
-            });
+            const res = await api.post(`/ventas-y-servicios/cuenta/cerrar`, { factura: factura },
+                {
+                    withCredentials: true,
+                    onUploadProgress: (progressEvent: AxiosProgressEvent) => {
+                        const percentage = Math.round((progressEvent.loaded * 100) / (progressEvent?.total ? progressEvent?.total : 0));
+                        setProgress(percentage);
+                    }
+                });
             return res;
         } catch (error) {
             console.log(error)
@@ -72,14 +72,23 @@ const CuentaProvider = ({ children }: { children: React.ReactNode }) => {
 
     const descargarInventario = async (id_cliente: string, id_usuario: number, producto: any, setProgress: any) => {
         try {
-            const res = await api.post(`/ventas-y-servicios/cuenta/descargar/producto/${id_cliente}/${id_usuario}`, {producto: producto},
-            {
-                withCredentials: true,
-                onUploadProgress: (progressEvent: AxiosProgressEvent) => {
-                    const percentage = Math.round((progressEvent.loaded * 100) / (progressEvent?.total ? progressEvent?.total : 0));
-                    setProgress(percentage);
-                }
-            });
+            const res = await api.post(`/ventas-y-servicios/cuenta/descargar/producto/${id_cliente}/${id_usuario}`, { producto: producto },
+                {
+                    withCredentials: true,
+                    onUploadProgress: (progressEvent: AxiosProgressEvent) => {
+                        const percentage = Math.round((progressEvent.loaded * 100) / (progressEvent?.total ? progressEvent?.total : 0));
+                        setProgress(percentage);
+                    }
+                });
+            return res;
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    const actualizarCuenta = async (id_cuenta_cliente: number, id_usuario: number) => {
+        try {
+            const res = await api.put(`/ventas-y-servicios/cuenta/actualizar`, { id_cuenta_cliente: id_cuenta_cliente, id_usuario: id_usuario });
             return res;
         } catch (error) {
             console.log(error)
@@ -93,7 +102,8 @@ const CuentaProvider = ({ children }: { children: React.ReactNode }) => {
                 agregarProductoCuenta,
                 cancelarCuenta,
                 cerrarCuenta,
-                descargarInventario
+                descargarInventario,
+                actualizarCuenta
             }}
         >
             {children}

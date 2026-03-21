@@ -67,7 +67,8 @@ const Container = () => {
         createCuenta,
         agregarProductoCuenta,
         cancelarCuenta,
-        cerrarCuenta
+        cerrarCuenta,
+        actualizarCuenta
     } = useCuenta(cuentaSeleccionada?.id_cuenta_cliente || null);
     const ticketRef = useRef<HTMLDivElement>(null);
     const queryClient = useQueryClient();
@@ -88,6 +89,26 @@ const Container = () => {
             }
         );
     }, [cuentaSeleccionada, queryClient, usuarioQuery.data?.empresa.id_empresa]);
+
+    useEffect(() => {
+        console.log("cuentaSeleccionada:", cuentaSeleccionada);
+        console.log("lavador dentro:", cuentaSeleccionada?.lavador);
+        console.log("lavadoresQuery:", lavadoresQuery.data);
+        if (!cuentaSeleccionada || !lavadoresQuery.data) return;
+
+        const lavadorAsignado = lavadoresQuery.data.find(
+            (l: any) => l.id_usuario === cuentaSeleccionada.lavador?.id_lavador
+        );
+
+        if (lavadorAsignado) {
+            setLavador({
+                label: lavadorAsignado.nombre,
+                value: lavadorAsignado.id_usuario.toString()
+            });
+        } else {
+            setLavador({ label: "", value: "" }); // limpia si no tiene lavador
+        }
+    }, [cuentaSeleccionada?.id_cuenta_cliente, lavadoresQuery.data]);
 
     // Filtramos la lista de cuentas
     const cards = cuentasQuery.data || [];
@@ -587,7 +608,13 @@ const Container = () => {
                                 <SelectSearch
                                     options={lavadoresQuery.data?.map((lavador: any) => ({ label: lavador.nombre, value: lavador.id_usuario })) ?? []}
                                     value={lavador}
-                                    onSelect={(option) => setLavador({ label: option.label, value: option.value.toString() })}
+                                    onSelect={async (option) => {
+                                        setLavador({ label: option.label, value: option.value.toString() })
+                                        await actualizarCuenta(
+                                            cuentaSeleccionada?.id_cuenta_cliente,
+                                            option.value
+                                        ).catch(() => toast.error("Error al asignar lavador"));
+                                    }}
                                 />
                             </div>
                         </div>
