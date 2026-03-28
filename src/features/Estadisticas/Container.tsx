@@ -7,7 +7,7 @@ import style from "./container.module.css"
 import volver from "../../assets/volver.svg";
 import LineChartCustom from "../../components/Charts/LineChartCustom";
 import LineChartCustomMultiple from "../../components/Charts/LineChartCustomMultiple";
-import VentasPorPeriodo from "./VentasPeriodo/VentasPorPeriodo";
+// import VentasPorPeriodo from "./VentasPeriodo/VentasPorPeriodo";
 import ProductosMasVendidos from "./ProductosMasVendidos/ProductosMasVendidos";
 import VentasPorMetodoPago from "./VentasPorMetodoPago/VentasPorMetodoPago";
 import { IngresosCostosPerdidas } from "./IngresosCostosPerdidas/IngresosCostosPerdidas";
@@ -25,11 +25,17 @@ const menuItems = [
 
 const Container = () => {
     const navigate = useNavigate();
-    const { balanceDelDiaQuery, ventaPromedioQuery, numeroVentasDelDiaQuery, ventasDelDiaQuery } = useReportes();
+    const { balanceDelDiaQuery, ventaPromedioQuery, numeroVentasDelDiaQuery, ventasDelDiaQuery, ventasMetodoPagoQuery } = useReportes();
     const balanceDelDia = balanceDelDiaQuery.data?.balanceDelDia;
     const ventaPromedio = ventaPromedioQuery.data?.ventaPromedioDelDia;
     const numeroVentas = numeroVentasDelDiaQuery.data?.numeroVentasDelDia;
     const ventasDelDia = ventasDelDiaQuery.data?.ventasDelDia;
+    const rawData = ventasMetodoPagoQuery.data?.ventasMetodoPago || [];
+
+    const data = rawData.map((item: any) => ({
+        nombre: item.medio_pago.nombre,
+        monto: parseFloat(item.total),
+    }));
     // Atajos
     const shortcuts = menuItems.reduce((map, item) => {
         map[item.shortcode] = () => navigate(item.destiny);
@@ -86,6 +92,13 @@ const Container = () => {
                         </CardStat>
                     )
                 }
+                {
+                    ventasMetodoPagoQuery.data.ventasMetodoPago?.length > 0 && (
+                        <CardStat title="Ventas por método de pago" size="1/2">
+                            <VentasPorMetodoPago data={data} />
+                        </CardStat>
+                    )
+                }
                 <CardStat title="Comparativa con el mes anterior" size="1/2">
                     <LineChartCustomMultiple
                         data={dataPrevNext}
@@ -93,22 +106,6 @@ const Container = () => {
                         lines={[
                             { dataKey: "actual", stroke: "var(--primary)", label: "Mes Actual" },
                             { dataKey: "anterior", stroke: "var(--info)", label: "Mes Anterior" },
-                        ]}
-                    />
-                </CardStat>
-                <CardStat title="Total de ventas" size="1/2">
-                    <VentasPorPeriodo />
-                </CardStat>
-                <CardStat title="Ventas por método de pago" size="1/2">
-                    <VentasPorMetodoPago
-                        data={[
-                            { nombre: "Efectivo", monto: 120000 },
-                            { nombre: "Nequi", monto: 500000 },
-                            { nombre: "Bancolombia", monto: 800000 },
-                            { nombre: "Davivienda", monto: 65000 },
-                            { nombre: "Daviplata", monto: 6000 },
-                            { nombre: "Av Villas", monto: 20000 },
-                            { nombre: "Banco de occidente", monto: 20000 }
                         ]}
                     />
                 </CardStat>

@@ -24,6 +24,11 @@ export const useReportes = () => {
         return res.data;
     }
 
+    const getVentasMetodoPago = async (id_empresa?: string) => {
+        const res = await api.get(`/reportes/ventas-metodo-pago/${id_empresa}`);
+        return res.data;
+    }
+
     const balanceDelDiaQuery = useQuery({
         queryKey: ["balanceDelDia", usuarioQuery.data?.empresa.id_empresa],
         queryFn: () => getBalanceDelDiaByEmpresa(usuarioQuery.data?.empresa.id_empresa),
@@ -52,10 +57,18 @@ export const useReportes = () => {
         refetchOnWindowFocus: true,
     })
 
+    const ventasMetodoPagoQuery = useQuery({
+        queryKey: ["ventasMetodoPago", usuarioQuery.data?.empresa.id_empresa],
+        queryFn: () => getVentasMetodoPago(usuarioQuery.data?.empresa.id_empresa),
+        enabled: usuarioQuery.data?.empresa.id_empresa != null,
+        refetchOnWindowFocus: true,
+    })
+
     return {
         balanceDelDiaQuery,
         ventaPromedioQuery,
         numeroVentasDelDiaQuery,
-        ventasDelDiaQuery
+        ventasDelDiaQuery,
+        ventasMetodoPagoQuery
     }
 }
