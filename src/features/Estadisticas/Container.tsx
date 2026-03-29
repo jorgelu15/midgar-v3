@@ -75,30 +75,28 @@ const Container = () => {
                         <b>{new Intl.NumberFormat("es-CO", { style: "decimal" }).format(40)}</b>
                     </p>
                 </CardStat> */}
+                <CardStat title="Ventas del día" size={"1/2"}>
+                    {
+                        ventasDelDiaQuery.isLoading ? (
+                            <p>Cargando...</p>
+                        ) : (
+                            <LineChartCustom
+                                data={ventasDelDia}
+                                labelKey="hora"
+                                dataKey="venta"
+                            />
+                        )
+                    }
+                </CardStat>
+                <CardStat title="Ventas por método de pago" size="1/2">
                 {
-                    ventasDelDia?.length > 0 && (
-                        <CardStat title="Ventas del día" size={ventasDelDia?.length > 0 ? "1/2" : "1"}>
-                            {
-                                ventasDelDiaQuery.isLoading ? (
-                                    <p>Cargando...</p>
-                                ) : (
-                                    <LineChartCustom
-                                        data={ventasDelDia}
-                                        labelKey="hora"
-                                        dataKey="venta"
-                                    />
-                                )
-                            }
-                        </CardStat>
-                    )
-                }
-                {
-                    ventasMetodoPagoQuery.data.ventasMetodoPago?.length > 0 && (
-                        <CardStat title="Ventas por método de pago" size="1/2">
+                        ventasDelDiaQuery.isLoading ? (
+                            <p>Cargando...</p>
+                        ) : (
                             <VentasPorMetodoPago data={data} />
-                        </CardStat>
-                    )
-                }
+                        )
+                    }
+                </CardStat>
                 <CardStat title="Comparativa con el mes anterior" size="1/2">
                     <LineChartCustomMultiple
                         data={dataPrevNext}
